@@ -42,6 +42,11 @@ file_path,dataset_id,source,product_version,query_or_url,spatial,temporal,downlo
 | 9 | smap | recommended | Soil moisture per field, 2015 → now | < 20 MB |
 | 10 | hls_ndvi | recommended | 30 m NDVI around each field, 2019 → now | can be GBs – ask first |
 | 11 | reference | required | Source list for crop traits and rotation advice | text only |
+| 12 | fiona | added | BW parcels with declared crop (InVeKoS, 2022) | ~100 MB |
+| 13 | bk50 | added | LGRB soil map 1:50 000: units, K factor, nFK, … | ~160 MB |
+| 14 | thuenen_ctm | added | Thünen 10 m crop type maps 2017–2025, clipped | ~25 MB |
+| 15 | esa_cci_sm | added (auxiliary) | ESA CCI soil moisture 0.25°, daily, 2020 → 2024 | < 1 MB |
+| 16 | c3s_sm | added (auxiliary) | C3S/CDS soil moisture (CCI algorithm), daily, 2025 → latest | ~1 GB (global zips) |
 
 Stop after each dataset and report: files, row counts, date range, missing values.
 
@@ -138,6 +143,35 @@ Stop after each dataset and report: files, row counts, date range, missing value
   - soybean in Baden-Württemberg and nitrogen left for the next crop (top agrar)
   - Space Apps rules: participant FAQ, project submission guide
 - Links only plus my notes. Do not download paywalled articles.
+
+### 12 · fiona (added 2026-11-04)
+
+- LGL WFS `WFS_LW-BW_FIONA_Flaecheninformation`, layer `lw:v_fiona_flaecheninformation` (metadata 7c1ae842-c92a-45d3-8fee-6bf6c7d58485). Only Antragsjahr 2022 is served.
+- Whole bbox, EPSG:25832 (the EPSG:4326 GeoJSON is rounded to 4 decimals), paged.
+- Licence: dl-de/by-2-0, "Datengrundlage: MLR (<year>), Datenlizenz Deutschland – Namensnennung – Version 2.0".
+
+### 13 · bk50 (added 2026-11-04)
+
+- LGRB MapServer `services.lgrb-bw.de/ms/lgrb_geola_bod` (same service family as GeoAX's `lgrb_geola_ing`), WFS 1.1.0.
+- Soil-unit polygons `geola_bod_ke` once with geometry (paged); thematic layers as attribute tables, joined by `Kartiereinheit`.
+- Licence: dl-de/by-2-0, "Datenquelle: Regierungspräsidium Freiburg – LGRB, https://www.lgrb-bw.de" (readme_dBK50 §8.1).
+
+### 14 · thuenen_ctm (added 2026-11-04)
+
+- Zenodo raster COGs (EPSG:3035, 10 m), v202 2017–2024 and v302 2024–2025; only the bbox window is read (HTTP range requests). Legends and accuracy reports kept.
+- Licence: CC BY 4.0.
+
+### 15 · esa_cci_sm (added 2026-11-04, auxiliary)
+
+- ESA CCI SM COMBINED v09.2 daily via CEDA OPeNDAP, the 0.25° cells containing the fields. One request per day (~0.65 s).
+- Auxiliary only: 2020-01-01 → 2024-12-31 (end of v09.2). Earlier years can be appended later (`fetch_esa_cci_sm.py START END`, ≈ 3 h for 1978–2019).
+- Licence: CC BY 4.0.
+
+### 16 · c3s_sm (added 2026-11-04, auxiliary)
+
+- CDS `satellite-soil-moisture`, surface volumetric, COMBINED, daily, icdr: v202505 for 2025-01 → 2026-08, v202505_2 from 2026-09-01 (CDS notice: v202505 1–20 Sep 2026 has many missing values).
+- Needs `~/.cdsapirc` (user's token) and the licence accepted on the dataset page. No area subset: global daily NetCDFs in zips; the field cells go to a CSV.
+- CCI v09.2 (2020–2024) and C3S v202505 are different versions: expect a small step at 2024/2025.
 
 ## 3. Done when
 

@@ -5,9 +5,6 @@ The full task list is in @docs/DATA_COLLECTION.md – read it before doing anyth
 
 ## Scope rule (important)
 
-Space Apps asks teams to start building their project when the hackathon begins.
-Before our local event starts (Sat 14 Nov 2026), this folder is for **data acquisition only**:
-
 - OK: download scripts in `prep/`, downloading, unzipping, checking that files are complete, writing `data/MANIFEST.csv`.
 - NOT OK before the event: analysis, indicators, models, scoring logic, plots for the app, any web app code.
 - If a task looks like analysis ("compute heat days", "make an NDVI curve"), stop and ask.
