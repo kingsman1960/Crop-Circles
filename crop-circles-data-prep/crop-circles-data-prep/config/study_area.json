@@ -1,0 +1,28 @@
+{
+  "name": "Heilbronn / Kraichgau arable land",
+  "bbox": { "min_lon": 8.80, "min_lat": 48.95, "max_lon": 9.40, "max_lat": 49.35 },
+  "period": { "start": "1981-01-01", "end": "2026-10-31" },
+  "fields": [
+    {
+      "id": "F1",
+      "label": "Near Eppingen (placeholder: town centre, move onto a real arable field)",
+      "lat": 49.137,
+      "lon": 8.909,
+      "polygon": null
+    },
+    {
+      "id": "F2",
+      "label": "Near Bad Rappenau (placeholder: town centre, move onto a real arable field)",
+      "lat": 49.238,
+      "lon": 9.101,
+      "polygon": null
+    },
+    {
+      "id": "F3",
+      "label": "Near Schwaigern (placeholder: town centre, move onto a real arable field)",
+      "lat": 49.144,
+      "lon": 9.053,
+      "polygon": null
+    }
+  ]
+}

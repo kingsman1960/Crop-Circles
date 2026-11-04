@@ -1,0 +1,5 @@
+.netrc
+.venv/
+data/raw/
+*.zip
+__pycache__/
