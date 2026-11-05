@@ -1,0 +1,132 @@
+{
+ "rule": {
+  "late_winter_green": 0.45,
+  "april_green": 0.55,
+  "may_low": 0.4,
+  "june_green": 0.5,
+  "autumn_green": 0.45,
+  "bare": 0.3
+ },
+ "fields": {
+  "F1": {
+   "pictures": 1127,
+   "first": "2019-01-02",
+   "last": "2026-11-01",
+   "parcels": 23,
+   "check": {
+    "after_beet": {
+     "n": 17,
+     "agree": 17,
+     "years": "2020-2025"
+    },
+    "beet": {
+     "n_beet": 18,
+     "found": 15,
+     "n_said": 21,
+     "right": 15
+    }
+   },
+   "season": 2026,
+   "beet_before": {
+    "n": 1,
+    "ha": 2.5
+   },
+   "nursery": {
+    "n": 1,
+    "ha": 2.5
+   },
+   "switched": {
+    "n": 0,
+    "ha": 0.0
+   },
+   "unknown": {
+    "n": 0,
+    "ha": 0.0
+   },
+   "beet_now": {
+    "n": 3,
+    "ha": 4.8
+   }
+  },
+  "F2": {
+   "pictures": 1234,
+   "first": "2019-01-02",
+   "last": "2026-11-01",
+   "parcels": 23,
+   "check": {
+    "after_beet": {
+     "n": 8,
+     "agree": 7,
+     "years": "2020-2025"
+    },
+    "beet": {
+     "n_beet": 12,
+     "found": 9,
+     "n_said": 14,
+     "right": 9
+    }
+   },
+   "season": 2026,
+   "beet_before": {
+    "n": 4,
+    "ha": 9.7
+   },
+   "nursery": {
+    "n": 4,
+    "ha": 9.7
+   },
+   "switched": {
+    "n": 0,
+    "ha": 0.0
+   },
+   "unknown": {
+    "n": 0,
+    "ha": 0.0
+   },
+   "beet_now": {
+    "n": 0,
+    "ha": 0.0
+   }
+  },
+  "F3": {
+   "pictures": 1234,
+   "first": "2019-01-02",
+   "last": "2026-11-01",
+   "parcels": 28,
+   "check": {
+    "after_beet": {
+     "n": 16,
+     "agree": 16,
+     "years": "2020-2025"
+    },
+    "beet": {
+     "n_beet": 16,
+     "found": 9,
+     "n_said": 9,
+     "right": 9
+    }
+   },
+   "season": 2026,
+   "beet_before": {
+    "n": 0,
+    "ha": 0.0
+   },
+   "nursery": {
+    "n": 0,
+    "ha": 0.0
+   },
+   "switched": {
+    "n": 0,
+    "ha": 0.0
+   },
+   "unknown": {
+    "n": 0,
+    "ha": 0.0
+   },
+   "beet_now": {
+    "n": 2,
+    "ha": 5.2
+   }
+  }
+ }
+}

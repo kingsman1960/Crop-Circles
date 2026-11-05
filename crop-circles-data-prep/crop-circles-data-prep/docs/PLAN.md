@@ -12,8 +12,9 @@ Draft 2026-11-04. Product scope: `docs/PRD.md`. Team process: `docs/WORKFLOW.md`
 | D · Build day 2 | Sun 15 Nov, H24–H48 | P1 polish, content, demo, submission | submitted, tagged `submission` |
 
 Phase A open items
-- [ ] MODIS NDVI, SMAP, HLS: AppEEARS tasks processing → the running fetch chain downloads them; then update `CHECKS.md` and the catalog.
-- [ ] C3S soil moisture 2025–2026: CDS download running → check the 2024/2025 overlap with CCI.
+- [x] SMAP (2015-03-31 → 2026-11-03) and HLS (12,399 files, 2019 → 2026-11-01) downloaded and checked.
+- [x] MODIS NDVI (Terra 2000-12-18 → 2026-10-16, Aqua 2002-07-04 → 2026-10-08) downloaded and checked on 5 Nov.
+- [x] C3S soil moisture 2025-01-01 → 2026-10-10 downloaded (2024/2025 version step not checkable without an overlap year).
 - [ ] Re-check FIONA for a newer `Antragsjahr` on 13 Nov (only 2022 today).
 - [ ] Team: names for the four roles, laptops with the venv working (`prep/requirements.txt`).
 
@@ -23,15 +24,22 @@ Phase A open items
 data/raw/ (≈1.5 GB, local only)
    │  pipeline/  (Python: pandas, rasterio, pyproj; run once, minutes)
    ▼
-data/processed/ (< 100 MB, committed)
-   fields.geojson                  F1–F3 polygons + profile attributes (soil, slope, K, nFK)
-   daily_<field>.parquet           merged daily weather (POWER, IMERG, DWD nearest) + flags
-   indicators_<field>.parquet      yearly / seasonal indicators (§7 of the PRD)
-   ndvi_<field>.parquet            MODIS + HLS NDVI per date, bare-soil flags
-   soilmoisture_<field>.parquet    SMAP, CCI, C3S, POWER GWET
-   crops_<field>.parquet           Thünen class shares per year inside each block; FIONA 2022
-   layers/*.png + *.json           map overlays (K factor × slope, crop maps) with bounds
-   strategies.yaml                 S0–S4 definitions, per-criterion scores and sources
+data/processed/ (< 100 MB, committed; one file per output, all fields inside, column `field`)
+   fields.geojson                  F1–F3 polygons + profile attributes (soil, slope, K, nFK, FIONA crops)
+   parcels.geojson                 FIONA 2022 parcels inside the blocks
+   daily.parquet                   merged daily weather (POWER, IMERG, DWD nearest) + ET0
+   indicators.parquet              yearly indicators (§7 of the PRD) per source
+   scenarios.parquet               indicator means for +0/1/2 °C × 100/90/80 % spring rain
+   phenology.parquet               DWD regional median phase dates per crop and year
+   ndvi.parquet                    MODIS NDVI per date (when AppEEARS is done)
+   soilmoisture.parquet            POWER GWET, CCI + C3S, SMAP (when done) with anomalies
+   crops.parquet, crop_transitions.parquet   Thünen class shares per year; what followed beet
+   layers/*.png + *.json           map overlays (K factor × slope, crop map 2024) with bounds
+   strategies.json                 S0–S4 per-field scores, field facts, monthly bare-soil calendar
+   landscape_parcels.parquet       every FIONA parcel that was beet or a nursery: position, K·S, nFK, crop per year 2017–2025
+   landscape_seasons.parquet       per season: nursery ha (beet in y-1 -> winter wheat in y) and beet ha per parcel
+   landscape_summary.json          regional numbers per season, targeted vs. random switching
+content/*.toml                     strategy cards + rule scores, crop calendars, indicators, glossary, sources
    │
    ▼
 app/ (Streamlit)
@@ -109,7 +117,9 @@ P0 total ≈ 45 focused hours → fits a team of 3–4 in 48 h with buffer; P1 �
 
 ## 7. Open decisions (before or at kickoff)
 
-- Team members and roles.
+- 2026-11-04: product core changed to the landscape planner (PRD §1, §6 item 0); `pipeline/landscape.py`, `pipeline/pressure.py`, `app/views/landscape.py`. UI restyled to one ink chrome with a single data hue.
+- 2026-11-04: build started early (decision of the team lead); P0 pages and P1 erosion map, scenario slider and satellite-vs-ground chart exist. Check the Space Apps Participant Terms on whether pre-event code must be declared.
+- Team members and roles – the plan must also work for a single person: kickoff work then shrinks to MODIS/SMAP refresh, review of `content/` texts and thresholds, demo and submission.
 - Hosting target (Streamlit Community Cloud vs container).
 - Whether to include the SI chat at all (P2) – depends on judging guide.
 - Final app name.

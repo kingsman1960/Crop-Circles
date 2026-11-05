@@ -1,0 +1,168 @@
+# Rotation strategies, scoring criteria and card text. Edited by the agronomy/content lead.
+# Priorities are 0 (not important), 2 (important) or 4 (very important). Scores are 1 (worst) to 5 (best). `erosion` and `water` are computed per field by pipeline/strategies.py
+# (relative to S0 on the same field); `planthopper`, `nitrogen` and `income` are rule scores set here.
+# `ref` keys point to [refs] in content/sources.toml. Items marked "(general agronomy)" are not from our
+# source list and must be checked with a local advisor.
+
+[criteria.erosion]
+label = "Keeping the soil on the field"
+default = 2
+help = "How bare the soil is when the summer storms come, on your slope and soil."
+
+[criteria.water]
+label = "Water in dry months"
+default = 2
+help = "How much water the crops need in the months when rain falls short on your field."
+
+[criteria.nitrogen]
+label = "Nitrogen for the next crop"
+default = 2
+help = "Legumes leave nitrogen for the next wheat; cover crops keep it in the field over winter."
+
+[criteria.planthopper]
+label = "Stopping the planthopper (SBR)"
+default = 4
+help = "Winter wheat right after sugar beet is where the planthopper spends the winter (JKI, LIZ, LLG)."
+
+[criteria.income]
+label = "Steady income"
+default = 2
+help = "Known crops with markets and contracts. A rough rule: no prices or contracts are used."
+
+# ---------------------------------------------------------------------------
+
+[[strategy]]
+id = "S0"
+name = "Existing rotation"
+sequence = ["sugar_beet", "winter_wheat", "winter_barley"]
+cover_before = ["sugar_beet"]   # cover crop in the gap before these crops
+mulch = false
+why = "Your baseline: the most common rotation on Kraichgau loess, used as the model farm by Brunotte et al. (1995). Every other strategy is compared with it."
+facts = ["beet_wheat", "open_rows_rain", "heat_heading", "soil"]
+benefits = [
+  "Familiar crops, machines and contracts (sugar beet, bread wheat, feed barley).",
+  "The cover crop before beet already protects the soil over winter.",
+]
+gaps = [
+  "Local planthopper and SBR/Stolbur pressure on this field is not measured here.",
+  "No prices, contracts or yields are used.",
+]
+risks = [
+  "Winter wheat directly after sugar beet is the step JKI, LIZ and LLG advise breaking: planthopper nymphs overwinter in that wheat.",
+  "Beet rows are open from sowing in spring until the canopy closes in June – the season of heavy summer storms.",
+  "Ask your sugar company or advisor which SBR region type (hot spot / transition / border) applies to you.",
+]
+evidence_refs = ["brunotte1995", "jki2025", "liz5", "llg2026"]
+scores.planthopper = { score = 1, uncertainty = "medium", note = "Winter wheat directly after sugar beet (high risk by the JKI/LIZ/LLG rule).", ref = ["jki2025", "liz2", "llg2026"] }
+scores.nitrogen = { score = 2, uncertainty = "medium", note = "No legume. The cover crop before beet holds some nitrogen over winter.", ref = ["attia2024"] }
+scores.income = { score = 3, uncertainty = "high", note = "Established markets and contracts, but SBR/Stolbur cuts beet yield and sugar content where the planthopper is present.", ref = ["liz1", "liz_sbr"] }
+
+[[strategy]]
+id = "S1"
+name = "Planthopper break with maize"
+sequence = ["sugar_beet", "grain_maize", "winter_wheat"]
+cover_before = ["sugar_beet"]
+mulch = false
+why = "Removes winter wheat directly after beet, which JKI and LIZ name as the most effective measure against the reed planthopper. Grain maize is already grown in the region."
+facts = ["beet_wheat", "open_rows_rain", "summer_dry", "soil"]
+benefits = [
+  "Dropping winter cereals after beet cut planthopper nymphs by up to 90 % in model regions (LIZ).",
+  "Maize is a known crop in the Kraichgau with regional markets.",
+  "Wheat after maize keeps a winter cereal in the rotation.",
+]
+gaps = [
+  "Maize price, drying cost and storage are not included.",
+  "How many planthopper adults fly in from neighbouring fields with wheat after beet is unknown.",
+]
+risks = [
+  "Maize rows stay open until late June: higher erosion risk on slopes unless the maize is mulch-sown.",
+  "Maize uses most water in July and August, the driest part of the season on this field.",
+  "Fusarium/DON risk in wheat after maize – tillage and variety choice matter (general agronomy).",
+]
+evidence_refs = ["jki2025", "liz5", "liz_sbr"]
+scores.planthopper = { score = 4, uncertainty = "medium", note = "No winter cereal after beet; LIZ lists maize as a non-host crop after beet. Adults can still arrive from neighbours.", ref = ["liz5", "liz_sbr", "jki2025"] }
+scores.nitrogen = { score = 2, uncertainty = "medium", note = "No legume; maize needs a lot of nitrogen.", ref = [] }
+scores.income = { score = 3, uncertainty = "high", note = "Known crop with regional demand; maize income depends on summer rain.", ref = [] }
+
+[[strategy]]
+id = "S2"
+name = "Legume break with soybean"
+sequence = ["sugar_beet", "soybean", "winter_wheat"]
+cover_before = ["sugar_beet"]
+mulch = false
+why = "Breaks the beet → wheat step like S1 and adds a legume: the following wheat can save about 30–50 kg N/ha. About three quarters of Germany's soybean area is in Bavaria and Baden-Württemberg."
+facts = ["beet_wheat", "summer_dry", "frost", "soil"]
+benefits = [
+  "Following wheat can save about 30–50 kg N/ha (Sojaförderring; top agrar).",
+  "No winter wheat after sugar beet, as JKI and LLG advise.",
+  "Soy and wheat after soy need no extra machinery for most arable farms.",
+]
+gaps = [
+  "Whether soy hosts planthopper nymphs is not covered by our sources.",
+  "Soybean is not in the DWD phenology programme: sowing and harvest dates are literature estimates.",
+  "Markets, processing (toasting) and contracts for soy near Heilbronn.",
+]
+risks = [
+  "Soy needs warmth at sowing and water in July–August (pod filling).",
+  "Harvest in late September leaves a short window for sowing wheat.",
+  "Check variety maturity group and inoculation with a local advisor (Sojaförderring).",
+]
+evidence_refs = ["sojafoerderring", "topagrar2012", "topagrar2022", "fixvorsaat"]
+scores.planthopper = { score = 4, uncertainty = "high", note = "No winter cereal after beet. Soy's host status is not stated in our sources.", ref = ["jki2025", "llg2026"] }
+scores.nitrogen = { score = 4, uncertainty = "medium", note = "Following crop saves about 30–50 kg N/ha.", ref = ["sojafoerderring", "topagrar2012"] }
+scores.income = { score = 2.5, uncertainty = "high", note = "Growing but thinner regional market than beet or wheat; yield depends on summer rain.", ref = ["topagrar2022"] }
+
+[[strategy]]
+id = "S3"
+name = "Soil cover with mulch seeding"
+sequence = ["sugar_beet", "winter_wheat", "winter_barley"]
+cover_before = ["sugar_beet", "winter_wheat", "winter_barley"]
+mulch = true
+why = "Keeps the familiar sequence but protects loess slopes: mulch seeding of sugar beet into cover-crop residue is the standard erosion measure in the Kraichgau (Brunotte et al. 2008)."
+facts = ["open_rows_rain", "soil", "beet_wheat"]
+benefits = [
+  "Much less bare soil in the months with heavy rain.",
+  "Cover crops hold nitrogen over winter and can raise soil organic carbon (model study for southwest Germany, Attia et al. 2024).",
+  "No change of crops, contracts or markets.",
+]
+gaps = [
+  "Mulch drill availability and cover-crop seed costs.",
+  "Cover crops between wheat and barley are short – the benefit there is a model assumption.",
+]
+risks = [
+  "Planthopper/SBR risk stays as in S0: wheat still follows beet.",
+  "Cover crops use soil water in late summer and autumn – watch dry years.",
+  "Slugs and mice can increase in mulch systems (general agronomy).",
+]
+evidence_refs = ["brunotte2008", "brunotte1995", "attia2024"]
+scores.planthopper = { score = 1, uncertainty = "medium", note = "Unchanged from S0: winter wheat follows sugar beet.", ref = ["jki2025", "liz2"] }
+scores.nitrogen = { score = 3, uncertainty = "medium", note = "Cover crops on every gap keep nitrogen in the field over winter.", ref = ["attia2024"] }
+scores.income = { score = 3, uncertainty = "high", note = "Same crops as S0, plus cover-crop and mulch-seeding costs.", ref = ["brunotte1995"] }
+
+[[strategy]]
+id = "S4"
+name = "Legume break with field pea"
+optional = true
+sequence = ["sugar_beet", "field_pea", "winter_wheat"]
+cover_before = ["sugar_beet", "winter_wheat"]
+mulch = false
+why = "LIZ names pea as a non-host crop after beet. Peas are harvested in July, which leaves time for a cover crop and early wheat sowing."
+facts = ["beet_wheat", "summer_dry", "soil"]
+benefits = [
+  "No winter cereal after beet (LIZ, LLG).",
+  "Pea has a higher preceding-crop value than soy (Sojaförderring).",
+  "Harvest before the driest weeks of August.",
+]
+gaps = [
+  "Pea yields and markets in the region.",
+  "Pea is not in the DWD phenology programme: dates are estimates.",
+]
+risks = [
+  "Pea yields vary strongly from year to year (general agronomy).",
+  "Pea needs a long break from itself and other pulses (general agronomy).",
+  "Early-sown peas meet late frosts and spring dry spells.",
+]
+evidence_refs = ["liz_sbr", "llg2026", "sojafoerderring"]
+scores.planthopper = { score = 4, uncertainty = "medium", note = "LIZ lists pea as a non-host crop after beet.", ref = ["liz_sbr", "llg2026"] }
+scores.nitrogen = { score = 4.5, uncertainty = "medium", note = "Pea leaves more nitrogen than soy for the following wheat.", ref = ["sojafoerderring"] }
+scores.income = { score = 2, uncertainty = "high", note = "Small regional pea market; yields vary from year to year.", ref = [] }

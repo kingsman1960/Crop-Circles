@@ -1,0 +1,82 @@
+# Crop calendars and water-use coefficients for the rotation model (pipeline/strategies.py).
+# Day of year (DOY): a number under `dwd` is a DWD phase id -> regional median 2001-2026 from
+# data/processed/phenology.parquet; a number under `doy` is a literature estimate used as given.
+# canopy = date the crop covers the soil (beet: closed stand; cereals: heading; others: estimate).
+# kc_mid / kc_end: FAO-56 Table 12 crop coefficients (Allen et al. 1998).
+
+[sugar_beet]
+label = "Sugar beet"
+color = "#b03a72"
+winter = false
+dwd_crop = "sugar_beet"
+dwd = { sow = 10, emerge = 12, canopy = 13, harvest = 24 }
+kc_mid = 1.20
+kc_end = 0.70
+
+[winter_wheat]
+label = "Winter wheat"
+color = "#d9a441"
+winter = true            # sown in autumn of the previous year
+dwd_crop = "winter_wheat"
+dwd = { sow = 10, emerge = 12, canopy = 18, harvest = 24 }
+kc_mid = 1.15
+kc_end = 0.25
+stubble = 0.25         # bareness after harvest until the next sowing (straw and stubble)
+
+[winter_barley]
+label = "Winter barley"
+color = "#e6c97a"
+winter = true
+dwd_crop = "winter_barley"
+dwd = { sow = 10, emerge = 12, canopy = 18, harvest = 24 }
+kc_mid = 1.15
+kc_end = 0.25
+stubble = 0.25         # bareness after harvest until the next sowing (straw and stubble)
+
+[grain_maize]
+label = "Grain maize"
+color = "#35704a"
+winter = false
+dwd_crop = "maize"
+dwd = { sow = 10, emerge = 12 }
+doy = { canopy = 177, harvest = 290 }   # canopy ~50 d after emergence; grain harvest mid-Oct (DWD "harvest" mixes silage maize)
+kc_mid = 1.20
+kc_end = 0.35
+stubble = 0.3          # bareness after harvest until the next sowing (stalks left after grain harvest)
+
+[soybean]
+label = "Soybean"
+color = "#6a9e4f"
+winter = false
+doy = { sow = 125, emerge = 140, canopy = 190, harvest = 268 }   # sowing at ~10 °C soil temp. early May, harvest late Sep (Sojaförderring)
+kc_mid = 1.15
+kc_end = 0.50
+stubble = 0.5          # bareness after harvest until the next sowing (little residue)
+
+[field_pea]
+label = "Field pea"
+color = "#b8d38a"
+winter = false
+doy = { sow = 80, emerge = 100, canopy = 145, harvest = 196 }   # spring pea: sown late March, harvested mid-July (estimate)
+kc_mid = 1.15
+kc_end = 0.30
+stubble = 0.5          # bareness after harvest until the next sowing (little residue)
+
+[cover_crop]
+label = "Cover crop"
+color = "#9fb7a4"
+delay_days = 10        # sown this many days after the preceding harvest
+establish_days = 30    # days until it covers the soil
+bareness = 0.15        # once established
+kc = 0.70
+
+[model]
+# "bareness" works like a soil-loss ratio (ABAG/USLE C factor): 1 = tilled bare soil. Values are model
+# assumptions in the range of Wischmeier & Smith (1978) soil-loss ratios – screening only, to calibrate.
+bare = 1.0             # bareness from sowing to emergence, and after harvest of crops without `stubble` (beet)
+canopy_bareness = 0.05 # under a closed crop
+mulch_bareness = 0.3   # from sowing to emergence with mulch seeding into cover-crop residue
+kc_bare = 0.30         # evaporation from bare soil
+senescence_days = 30   # Kc falls from kc_mid to kc_end over the last days before harvest
+erosive_mm = 20        # heavy-rain days (PRD §7) count towards erosivity – screening proxy for the ABAG R factor
+erosive_months = [5, 6, 7, 8]   # convective storm season; PRD §7 erosion risk uses bare months in May–Aug

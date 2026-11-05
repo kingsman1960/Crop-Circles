@@ -3,3 +3,6 @@
 data/raw/
 *.zip
 __pycache__/
+.playwright-mcp/
+.taste-skill/
+.streamlit/secrets.toml

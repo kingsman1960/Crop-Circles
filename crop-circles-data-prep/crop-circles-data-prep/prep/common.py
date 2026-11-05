@@ -6,6 +6,7 @@ import math
 import netrc
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -51,23 +52,32 @@ def http(method, url, pause=1.0, tries=5, **kw):
     r.raise_for_status()
 
 
-def log(path, dataset_id, **kw):
-    """Write the MANIFEST row for a downloaded file (size + sha256 computed here)."""
+def manifest_row(path, dataset_id, **kw):
+    """One MANIFEST row for a downloaded file (size + sha256 computed here)."""
     path = Path(path)
     h = hashlib.sha256()
     with path.open("rb") as f:
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
-    row = {"file_path": path.relative_to(ROOT).as_posix(), "dataset_id": dataset_id,
-           "size_bytes": path.stat().st_size, "sha256": h.hexdigest(), **kw}
+    return {"file_path": path.relative_to(ROOT).as_posix(), "dataset_id": dataset_id,
+            "size_bytes": path.stat().st_size, "sha256": h.hexdigest(), **kw}
+
+
+def write_manifest(new_rows):
+    """Add rows to MANIFEST; a re-download replaces the file's old row. One rewrite per call."""
+    paths = {r["file_path"] for r in new_rows}
     rows = []
-    if MANIFEST.exists():  # a re-download replaces the file's old row
+    if MANIFEST.exists():
         with MANIFEST.open(newline="", encoding="utf-8") as f:
-            rows = [r for r in csv.DictReader(f) if r["file_path"] != row["file_path"]]
+            rows = [r for r in csv.DictReader(f) if r["file_path"] not in paths]
     with MANIFEST.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, MANIFEST_HEADER)
         w.writeheader()
-        w.writerows(rows + [row])
+        w.writerows(rows + list(new_rows))
+
+
+def log(path, dataset_id, **kw):
+    write_manifest([manifest_row(path, dataset_id, **kw)])
 
 
 def dist_km(lon1, lat1, lon2, lat2):
@@ -96,28 +106,42 @@ def appeears_task(token, task, state_file):
     return task_id
 
 
+def appeears_status(token, task_id):
+    return http("GET", APPEEARS + f"task/{task_id}", headers={"Authorization": f"Bearer {token}"}).json()["status"]
+
+
 def appeears_wait(token, task_id, every=60):
-    auth = {"Authorization": f"Bearer {token}"}
-    while (status := http("GET", APPEEARS + f"task/{task_id}", headers=auth).json()["status"]) != "done":
+    while (status := appeears_status(token, task_id)) != "done":
         print(f"  {now_utc()} AppEEARS task {task_id}: {status}")
         if status == "error":
             raise RuntimeError(f"AppEEARS task {task_id} failed")
         time.sleep(every)
 
 
-def appeears_download(token, task_id, dest):
-    """Download every file of a finished task into `dest`; returns [(path, url)]."""
+def appeears_download(token, task_id, dest, workers=4):
+    """Download every file of a finished task into `dest`; returns [(path, url)].
+    `workers` files at a time (downloads of finished results only: allowed by the user 2026-11-04; an HLS task has
+    ~1,500 small files). A file already on disk with the bundle's size is kept, so a re-run resumes."""
     auth = {"Authorization": f"Bearer {token}"}
-    out = []
-    for f in http("GET", APPEEARS + f"bundle/{task_id}", headers=auth).json()["files"]:
+
+    def get(f):
         url = APPEEARS + f"bundle/{task_id}/{f['file_id']}"
         path = dest / f["file_name"]
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with http("GET", url, headers=auth, stream=True) as r, path.open("wb") as fh:
-            for chunk in r.iter_content(1 << 20):
-                fh.write(chunk)
-        out.append((path, url))
-    return out
+        if not (path.exists() and path.stat().st_size == f.get("file_size")):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with http("GET", url, headers=auth, stream=True, pause=0.1) as r, path.open("wb") as fh:
+                for chunk in r.iter_content(1 << 20):
+                    fh.write(chunk)
+        return path, url
+
+    files = http("GET", APPEEARS + f"bundle/{task_id}", headers=auth).json()["files"]
+    with ThreadPoolExecutor(workers) as pool:
+        futures = [pool.submit(get, f) for f in files]
+        try:
+            return [fu.result() for fu in futures]
+        except BaseException:
+            pool.shutdown(cancel_futures=True)  # e.g. a dead token: don't send the remaining requests
+            raise
 
 
 def appeears_logout(token):

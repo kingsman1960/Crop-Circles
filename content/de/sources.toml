@@ -1,0 +1,86 @@
+# Deutsche Texte zu content/sources.toml. Eigennamen der Datensätze, Lizenzzeilen (rechtliche Namensnennung)
+# und Literaturtitel bleiben wie in der englischen Basisdatei. [[dataset]]-Einträge werden über ihre id zugeordnet.
+
+[[dataset]]
+id = "nasa_power"
+resolution = "Rasterzelle von 0,5° × 0,625° je Acker"
+used_for = "Temperatur, Niederschlag, ET0, Kennzahlen zu Hitze, Frost und Trockenperioden, Szenario-Regler, Feuchte von Oberboden und Wurzelraum (GWETTOP/GWETROOT)"
+
+[[dataset]]
+id = "gpm_imerg"
+resolution = "Zelle von 0,1° je Acker"
+used_for = "Starkregentage, Trockenperioden, Wasserbilanz, Gewichtung der erosiven Regen im Fruchtfolgemodell"
+
+[[dataset]]
+id = "dem"
+name = "NASADEM, 1 Bogensekunde"
+used_for = "Hangneigung und S-Faktor je Acker, Karte zum Bodenabtrag"
+
+[[dataset]]
+id = "modis_ndvi"
+period = "2001 → aktuell"
+resolution = "250 m, 16 Tage"
+used_for = "Sommergrün je Acker seit 2001, neben den trockensten Sommern"
+
+[[dataset]]
+id = "smap"
+name = "SMAP L3 Bodenfeuchte, erweitert (SPL3SMP_E)"
+period = "31.03.2015 → aktuell"
+used_for = "Abweichung der Bodenfeuchte"
+
+[[dataset]]
+id = "hls_ndvi"
+period = "2019 → aktuell"
+used_for = "Was in dieser Saison auf jedem Flurstück wächst; Monate mit offenem Boden"
+
+[[dataset]]
+id = "dwd_climate"
+name = "DWD-Tageswerte der Klimastationen (KL)"
+resolution = "7 Stationen, 1,5–44 km von den Äckern entfernt"
+used_for = "Vergleichswerte vom Boden für Temperatur und Niederschlag; Kennzahlen von der nächstgelegenen Station mit Daten"
+
+[[dataset]]
+id = "dwd_phenology"
+name = "DWD-Pflanzenphänologie (Jahresmelder)"
+resolution = "129 Stationen im Umkreis von 40 km um Heilbronn"
+used_for = "Termine für Saat, Auflaufen, Reihenschluss und Ernte; Zeitfenster des Ährenschiebens für die Hitze; Kalender des offenen Bodens"
+
+[[dataset]]
+id = "bk50"
+name = "LGRB-Bodenkarte BK50"
+period = "statisch"
+resolution = "Polygone im Maßstab 1:50 000"
+used_for = "Bodeneinheit, K-Faktor (Erodierbarkeit), nFK, gesättigte Wasserleitfähigkeit; Karte zum Bodenabtrag"
+
+[[dataset]]
+id = "soilgrids"
+period = "statisch"
+used_for = "Bodenart, organischer Kohlenstoff und pH-Wert des Oberbodens"
+
+[[dataset]]
+id = "thuenen_ctm"
+name = "Thünen-Kulturartenkarten"
+period = "2017 → 2025 (2025 vorläufig)"
+used_for = "Fruchtfolge in jedem Block, Anteil Weizen nach Rüben, Kartenebene der Kulturen"
+
+[[dataset]]
+id = "fiona"
+name = "FIONA-Schläge Baden-Württemberg (InVeKoS)"
+resolution = "Schlag"
+used_for = "Angemeldete Kulturen der Schläge in jedem Block"
+
+[[dataset]]
+id = "esa_cci_sm"
+used_for = "Abweichung der Bodenfeuchte aus dem Satelliten"
+
+[[dataset]]
+id = "c3s_sm"
+name = "C3S-Bodenfeuchte (CCI-Algorithmus)"
+used_for = "Aktuelle Abweichung der Bodenfeuchte"
+
+[[dataset]]
+id = "fields"
+name = "OpenStreetMap-Ackerflächen"
+period = "Stand 04.11.2026"
+resolution = "Vektor"
+used_for = "Umrisse der Demo-Äcker F1–F3"

@@ -1,0 +1,15 @@
+# SI-use log
+
+The submission must describe how SI tools were used. One entry per SI-assisted step: date, tool, purpose, what was kept, what a human must still check.
+
+| date | tool | purpose | kept | to check |
+|---|---|---|---|---|
+| 2026-11-04 | Claude Code (Claude Opus) | Data fetch scripts in `prep/` and the data catalog | all scripts and `docs/DATA_CATALOG.md` | – |
+| 2026-11-04 | Claude Code (Claude Opus) | Build the pipeline (`pipeline/`), the content files (`content/`) and the Streamlit app (`app/`) from `docs/PRD.md` and `docs/PLAN.md` | all code; card texts and rule scores as a first draft | thresholds (PRD §7), rule scores and card texts in `content/strategies.toml`, soil-loss ratios in `content/crops.toml`, literature dates for soybean and pea – agronomy lead to review |
+| 2026-11-04 | Claude Code (Claude Opus) | Analyse Thünen crop sequences for the planthopper nursery idea; build the landscape planner (`pipeline/landscape.py`, `pipeline/pressure.py`, `app/views/landscape.py`); restyle the UI with the tasteskill app rules | all code; the targeted-vs-random result | flight-distance assumption, the side-effect weights, the 2023 beet-area anomaly in the Thünen map |
+| 2026-11-04 | Claude Code (Claude Opus) | Define the primary user (the beet farmer, PRD §3) and rewrite every screen and number in plain words (`app/plain.py`, `content/plain.toml`); visual design after the Wise and Claude DESIGN.md files and the tasteskill rules | all code and texts | risk-level thresholds on *My field* (planthopper by regional rank; dry summers and heat by years out of 10) and the "What helps" lines – agronomy lead to review |
+| 2026-11-04 | Claude Code (Claude Opus) | i18n: move every UI string into `app/locales/en.toml`, translate it and the content overlays (`content/de/`) into German, locale-aware numbers and months (Babel); a landing page (`app/views/home.py`) that explains the platform, with real screenshots | all code; German texts as a first draft | German wording by a native speaker, especially the coined terms "Kinderstube", "Zikadendruck" and the JKI region names |
+| 2026-11-04 | Claude Code (Claude Opus) | HLS 30 m season check (`pipeline/hls.py`, *My field*): per-parcel NDVI, a threshold rule for winter cereal and sugar beet, checked against the Thünen maps 2019–2025; measured bare-soil months | all code; the rule thresholds | thresholds were set with the same years they are checked on (17 parcels after beet for F1) – recheck once F2 and F3 arrive; the 2026 status is unverified by any map |
+| 2026-11-05 | Claude Code (Claude Opus) | Rerun with all downloads (HLS F1–F3, MODIS, SMAP); June window added to the beet rule after F2 showed maize as beet; MODIS summer green 2001 → next to the driest summers (*My field*) | all code; the new thresholds (June 0.5, autumn 0.45) | thresholds now chosen on all three fields that they are checked on (46 beet parcel-years) – no held-out field; MODIS 250 m pixels mix neighbouring parcels |
+
+Scores are rule-based and a transparent model – no trained model and no LLM at runtime. Every number in the app comes from the pipeline and the datasets in `content/sources.toml`.

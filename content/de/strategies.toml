@@ -1,0 +1,134 @@
+# Deutsche Texte zu content/strategies.toml. Nur Texte; Fruchtfolgen, Punkte und Quellenschlüssel stehen in der
+# englischen Basisdatei. [[strategy]]-Einträge werden über ihre id zugeordnet.
+
+[criteria.erosion]
+label = "Boden auf dem Acker halten"
+help = "Wie offen der Boden liegt, wenn im Sommer die Starkregen kommen – auf Ihrem Hang und Ihrem Boden."
+
+[criteria.water]
+label = "Wasser in trockenen Monaten"
+help = "Wie viel Wasser die Kulturen in den Monaten brauchen, in denen auf Ihrem Acker der Regen nicht reicht."
+
+[criteria.nitrogen]
+label = "Stickstoff für die Nachfrucht"
+help = "Leguminosen hinterlassen Stickstoff für den folgenden Weizen; Zwischenfrüchte halten ihn über Winter im Feld."
+
+[criteria.planthopper]
+label = "Zikade bremsen (SBR)"
+help = "Winterweizen direkt nach Zuckerrüben ist der Ort, an dem die Schilf-Glasflügelzikade überwintert (JKI, LIZ, LLG)."
+
+[criteria.income]
+label = "Sicheres Einkommen"
+help = "Bekannte Kulturen mit Absatz und Verträgen. Eine grobe Regel: Preise und Verträge fließen nicht ein."
+
+# ---------------------------------------------------------------------------
+
+[[strategy]]
+id = "S0"
+name = "Bisherige Fruchtfolge"
+why = "Ihr Ausgangspunkt: die häufigste Fruchtfolge auf dem Kraichgauer Löss, die auch Brunotte et al. (1995) als Modellbetrieb nutzen. Alle anderen Möglichkeiten werden damit verglichen."
+benefits = [
+  "Vertraute Kulturen, Maschinen und Verträge (Zuckerrübe, Brotweizen, Futtergerste).",
+  "Die Zwischenfrucht vor der Rübe schützt den Boden schon über Winter.",
+]
+gaps = [
+  "Wie stark Schilf-Glasflügelzikade und SBR/Stolbur auf diesem Acker auftreten, wird hier nicht gemessen.",
+  "Preise, Verträge und Erträge fließen nicht ein.",
+]
+risks = [
+  "Winterweizen direkt nach Zuckerrüben ist genau der Schritt, den JKI, LIZ und LLG unterbrechen wollen: In diesem Weizen überwintern die Larven der Zikade.",
+  "Die Rübenreihen liegen von der Saat im Frühjahr bis zum Reihenschluss im Juni offen – in der Zeit der Sommergewitter.",
+  "Fragen Sie Ihre Zuckerfabrik oder Ihren Berater, zu welchem SBR-Gebietstyp (Befallsschwerpunkt / Übergangsgebiet / Randgebiet) Sie gehören.",
+]
+scores.planthopper = { note = "Winterweizen direkt nach Zuckerrüben (nach der Regel von JKI/LIZ/LLG ein hohes Risiko)." }
+scores.nitrogen = { note = "Keine Leguminose. Die Zwischenfrucht vor der Rübe hält über Winter etwas Stickstoff." }
+scores.income = { note = "Eingespielter Absatz und Verträge, aber SBR/Stolbur senkt Rübenertrag und Zuckergehalt, wo die Zikade vorkommt." }
+
+[[strategy]]
+id = "S1"
+name = "Zikaden-Pause mit Mais"
+why = "Nimmt den Winterweizen direkt nach der Rübe heraus – laut JKI und LIZ die wirksamste Maßnahme gegen die Schilf-Glasflügelzikade. Körnermais wird in der Region schon angebaut."
+benefits = [
+  "Ohne Wintergetreide nach der Rübe gab es in Modellregionen bis zu 90 % weniger Zikadenlarven (LIZ).",
+  "Mais ist im Kraichgau eine bekannte Kultur mit regionalem Absatz.",
+  "Weizen nach Mais hält ein Wintergetreide in der Fruchtfolge.",
+]
+gaps = [
+  "Maispreis, Trocknungskosten und Lagerung fließen nicht ein.",
+  "Wie viele erwachsene Zikaden von Nachbarflächen mit Weizen nach Rüben zufliegen, ist unbekannt.",
+]
+risks = [
+  "Die Maisreihen bleiben bis Ende Juni offen: mehr Bodenabtrag am Hang, wenn der Mais nicht in Mulchsaat steht.",
+  "Mais braucht das meiste Wasser im Juli und August, dem trockensten Teil der Saison auf diesem Acker.",
+  "Fusarium-/DON-Risiko im Weizen nach Mais – Bodenbearbeitung und Sortenwahl sind wichtig (allgemeine Pflanzenbaupraxis, nicht aus unseren Quellen).",
+]
+scores.planthopper = { note = "Kein Wintergetreide nach der Rübe; das LIZ nennt Mais als Nichtwirtspflanze nach Rüben. Erwachsene Zikaden können trotzdem von Nachbarn zufliegen." }
+scores.nitrogen = { note = "Keine Leguminose; Mais braucht viel Stickstoff." }
+scores.income = { note = "Bekannte Kultur mit regionaler Nachfrage; das Einkommen aus Mais hängt vom Sommerregen ab." }
+
+[[strategy]]
+id = "S2"
+name = "Leguminosen-Pause mit Soja"
+why = "Unterbricht wie S1 den Schritt Rübe → Weizen und bringt eine Leguminose dazu: Der folgende Weizen kann etwa 30–50 kg N/ha sparen. Rund drei Viertel der deutschen Sojafläche liegen in Bayern und Baden-Württemberg."
+benefits = [
+  "Der folgende Weizen kann etwa 30–50 kg N/ha sparen (Sojaförderring; top agrar).",
+  "Kein Winterweizen nach Zuckerrüben, wie JKI und LLG raten.",
+  "Soja und Weizen nach Soja brauchen auf den meisten Ackerbaubetrieben keine zusätzlichen Maschinen.",
+]
+gaps = [
+  "Ob Soja eine Wirtspflanze für Zikadenlarven ist, steht in unseren Quellen nicht.",
+  "Soja ist nicht im phänologischen Beobachtungsprogramm des DWD: Saat- und Erntetermine sind Literaturschätzungen.",
+  "Absatz, Verarbeitung (Toasten) und Verträge für Soja rund um Heilbronn.",
+]
+risks = [
+  "Soja braucht zur Saat Wärme und im Juli und August Wasser (Hülsenfüllung).",
+  "Die Ernte Ende September lässt wenig Zeit für die Weizensaat.",
+  "Reifegruppe der Sorte und Impfung mit einem Berater vor Ort klären (Sojaförderring).",
+]
+scores.planthopper = { note = "Kein Wintergetreide nach der Rübe. Ob Soja eine Wirtspflanze ist, steht nicht in unseren Quellen." }
+scores.nitrogen = { note = "Die Nachfrucht spart etwa 30–50 kg N/ha." }
+scores.income = { note = "Wachsender, aber kleinerer regionaler Markt als bei Rübe oder Weizen; der Ertrag hängt vom Sommerregen ab." }
+
+[[strategy]]
+id = "S3"
+name = "Bodenbedeckung mit Mulchsaat"
+why = "Behält die vertraute Fruchtfolge, schützt aber die Lösshänge: Die Mulchsaat der Zuckerrübe in Zwischenfruchtreste ist im Kraichgau die übliche Maßnahme gegen Bodenabtrag (Brunotte et al. 2008)."
+benefits = [
+  "Viel weniger offener Boden in den Monaten mit Starkregen.",
+  "Zwischenfrüchte halten über Winter Stickstoff und können den Humusgehalt erhöhen (Modellstudie für Südwestdeutschland, Attia et al. 2024).",
+  "Keine Änderung bei Kulturen, Verträgen oder Absatz.",
+]
+gaps = [
+  "Verfügbarkeit einer Mulchsaattechnik und Kosten für das Zwischenfruchtsaatgut.",
+  "Zwischen Weizen und Gerste ist die Zeit für eine Zwischenfrucht kurz – der Nutzen dort ist eine Modellannahme.",
+]
+risks = [
+  "Das Risiko durch Zikade und SBR bleibt wie bei S0: Weizen folgt weiter auf die Rübe.",
+  "Zwischenfrüchte verbrauchen im Spätsommer und Herbst Bodenwasser – in trockenen Jahren darauf achten.",
+  "In Mulchsystemen können Schnecken und Mäuse zunehmen (allgemeine Pflanzenbaupraxis, nicht aus unseren Quellen).",
+]
+scores.planthopper = { note = "Unverändert gegenüber S0: Winterweizen folgt auf Zuckerrüben." }
+scores.nitrogen = { note = "Zwischenfrüchte in jeder Lücke halten den Stickstoff über Winter im Feld." }
+scores.income = { note = "Dieselben Kulturen wie bei S0, dazu Kosten für Zwischenfrucht und Mulchsaat." }
+
+[[strategy]]
+id = "S4"
+name = "Leguminosen-Pause mit Erbse"
+why = "Das LIZ nennt die Erbse als Nichtwirtspflanze nach Rüben. Erbsen werden im Juli geerntet – so bleibt Zeit für eine Zwischenfrucht und eine frühe Weizensaat."
+benefits = [
+  "Kein Wintergetreide nach der Rübe (LIZ, LLG).",
+  "Die Erbse hat einen höheren Vorfruchtwert als Soja (Sojaförderring).",
+  "Ernte vor den trockensten Wochen im August.",
+]
+gaps = [
+  "Erbsenerträge und Absatz in der Region.",
+  "Die Erbse ist nicht im phänologischen Beobachtungsprogramm des DWD: Die Termine sind Schätzungen.",
+]
+risks = [
+  "Erbsenerträge schwanken stark von Jahr zu Jahr (allgemeine Pflanzenbaupraxis, nicht aus unseren Quellen).",
+  "Die Erbse braucht eine lange Anbaupause zu sich selbst und zu anderen Körnerleguminosen (allgemeine Pflanzenbaupraxis, nicht aus unseren Quellen).",
+  "Früh gesäte Erbsen geraten in Spätfröste und Trockenperioden im Frühjahr.",
+]
+scores.planthopper = { note = "Das LIZ nennt die Erbse als Nichtwirtspflanze nach Rüben." }
+scores.nitrogen = { note = "Die Erbse hinterlässt dem folgenden Weizen mehr Stickstoff als Soja." }
+scores.income = { note = "Kleiner regionaler Erbsenmarkt; die Erträge schwanken von Jahr zu Jahr." }

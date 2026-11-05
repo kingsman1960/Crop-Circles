@@ -1,0 +1,25 @@
+# Deutsche Texte für die Risikokarten auf „Mein Acker“. Die Zahlen des Ackers ergänzt app/views/field.py.
+
+[planthopper]
+title = "Zikade und Gummirüben (SBR)"
+what = "Die Schilf-Glasflügelzikade überträgt die Bakterien hinter niedrigem Zuckergehalt und Gummirüben. Ihre Larven überwintern im Weizen, der direkt nach Rüben gesät wird, und fliegen im Juni zu den Rüben ringsum."
+helps = "Kein Winterweizen direkt nach Ihren Rüben – und dasselbe auf den Äckern ringsum. Das klappt nur, wenn die Nachbarn mitmachen."
+source = "LIZ, JKI, LLG Sachsen-Anhalt; Thünen-Kulturartenkarten"
+
+[erosion]
+title = "Bodenabtrag"
+what = "Löss ist feiner Boden. Starkregen spült ihn von den Hängen, vor allem solange die Reihen von Rübe, Mais oder Soja im Frühjahr noch offen sind."
+helps = "Rüben in die Reste einer Zwischenfrucht säen (Mulchsaat) und offene Äcker mit Zwischenfrüchten bedeckt halten."
+source = "Brunotte et al.; LGRB-Bodenkarte; NASADEM; GPM IMERG"
+
+[dry]
+title = "Trockene Sommer"
+what = "Wenn es nicht regnet, leben die Kulturen vom Wasser, das im Boden gespeichert ist. Tiefer Löss speichert viel – lange Trockenperioden leeren den Speicher trotzdem."
+helps = "Kulturen, die vor den trockensten Wochen im August geerntet werden (Gerste, Körnererbse), und ein bedeckt gehaltener Boden."
+source = "GPM IMERG; NASA POWER; LGRB-Bodenkarte"
+
+[heat]
+title = "Hitze"
+what = "Tage über 30 °C setzen jeder Kultur zu. Hitze während der Weizenblüte kostet Ertrag und Kornqualität."
+helps = "Fragen Sie Ihren Berater nach früher blühenden Sorten (allgemeine Pflanzenbaupraxis, nicht aus unseren Quellen)."
+source = "DWD-Wetterstation und phänologische Beobachtungen"

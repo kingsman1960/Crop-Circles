@@ -1,0 +1,4124 @@
+{
+ "generated": "2026-11-05",
+ "recent_years": [
+  2015,
+  2024
+ ],
+ "crop_dates": {
+  "sugar_beet": {
+   "sow": 88,
+   "emerge": 112,
+   "canopy": 159,
+   "harvest": 280
+  },
+  "winter_wheat": {
+   "sow": 287,
+   "emerge": 300,
+   "canopy": 146,
+   "harvest": 204
+  },
+  "winter_barley": {
+   "sow": 268,
+   "emerge": 280,
+   "canopy": 130,
+   "harvest": 186
+  },
+  "grain_maize": {
+   "canopy": 177,
+   "harvest": 290,
+   "sow": 113,
+   "emerge": 127
+  },
+  "soybean": {
+   "sow": 125,
+   "emerge": 140,
+   "canopy": 190,
+   "harvest": 268
+  },
+  "field_pea": {
+   "sow": 80,
+   "emerge": 100,
+   "canopy": 145,
+   "harvest": 196
+  }
+ },
+ "fields": {
+  "F1": {
+   "deficit_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "strategies": {
+    "S0": {
+     "erosion_index": 2.7604949851331035,
+     "water_mm": 575.0728048526481,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.25,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.38,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.96,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.83,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.69,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.56,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.43,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.29,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.16,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.06,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.16,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [],
+     "erosion_rel": 1.0,
+     "water_rel": 1.0,
+     "scores": {
+      "erosion": {
+       "score": 3.0,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.0
+      },
+      "water": {
+       "score": 3.0,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.0,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 1,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 2,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 3,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S1": {
+     "erosion_index": 3.7601869756430513,
+     "water_mm": 629.3655910339577,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.79,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.83,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.26,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.05,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.05,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.05,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.32,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.96,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.81,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.67,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.53,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.39,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.24,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [],
+     "erosion_rel": 1.3621422954556628,
+     "water_rel": 1.0944102828775237,
+     "scores": {
+      "erosion": {
+       "score": 2.3,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.362
+      },
+      "water": {
+       "score": 2.1,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.094,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 4,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 2,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 3,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S2": {
+     "erosion_index": 4.4778299312703815,
+     "water_mm": 595.3943079748451,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.79,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.97,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.51,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.07,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.05,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.12,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.77,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [
+      "soybean"
+     ],
+     "erosion_rel": 1.6221112356248213,
+     "water_rel": 1.0353372702564225,
+     "scores": {
+      "erosion": {
+       "score": 1.7,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.622
+      },
+      "water": {
+       "score": 2.6,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.035,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 4,
+       "uncertainty": "high",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 4,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 2.5,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S3": {
+     "erosion_index": 2.1458042554252885,
+     "water_mm": 599.5531704606427,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.16,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.29,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.17,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.06,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.29,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.96,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.83,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.69,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.56,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.43,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.29,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.16,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.06,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.16,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [],
+     "erosion_rel": 0.7773259024130499,
+     "water_rel": 1.042569158898528,
+     "scores": {
+      "erosion": {
+       "score": 3.5,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 0.777
+      },
+      "water": {
+       "score": 2.6,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.043,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 1,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 3,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 3,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S4": {
+     "erosion_index": 3.2924402889318967,
+     "water_mm": 586.0281202147804,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.79,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 0.86,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.26,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.05,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.28,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.26,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.62,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [
+      "field_pea"
+     ],
+     "erosion_rel": 1.1926992465712247,
+     "water_rel": 1.0190503102732174,
+     "scores": {
+      "erosion": {
+       "score": 2.6,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.193
+      },
+      "water": {
+       "score": 2.8,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.019,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 4,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 4.5,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 2,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    }
+   },
+   "facts": {
+    "beet_wheat": {
+     "source": "thuenen",
+     "share": 0.286,
+     "region": 0.636
+    },
+    "open_rows_rain": {
+     "source": "imerg_phenology",
+     "n": 7
+    },
+    "heat_heading": {
+     "source": "dwd_phenology",
+     "station": "Eppingen-Elsenz",
+     "n": 8,
+     "trend": 4.0
+    },
+    "summer_dry": {
+     "source": "imerg_power",
+     "n": 4,
+     "cwb": 191
+    },
+    "frost": {
+     "source": "dwd_phenology",
+     "station": "Eppingen-Elsenz",
+     "n": 3
+    },
+    "soil": {
+     "source": "bk50_nasadem",
+     "k_class": "4–5",
+     "slope": 5.7,
+     "nfk": "≥140 mm"
+    }
+   }
+  },
+  "F2": {
+   "deficit_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "strategies": {
+    "S0": {
+     "erosion_index": 1.9733058744266672,
+     "water_mm": 578.1072901321866,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.25,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.38,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.96,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.83,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.69,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.56,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.43,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.29,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.16,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.06,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.16,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [],
+     "erosion_rel": 1.0,
+     "water_rel": 1.0,
+     "scores": {
+      "erosion": {
+       "score": 3.0,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.0
+      },
+      "water": {
+       "score": 3.0,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.0,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 1,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 2,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 3,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S1": {
+     "erosion_index": 2.7196311134838127,
+     "water_mm": 632.4722070683928,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.79,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.83,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.26,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.05,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.05,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.05,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.32,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.96,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.81,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.67,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.53,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.39,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.24,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [],
+     "erosion_rel": 1.3782106204259825,
+     "water_rel": 1.094039493817446,
+     "scores": {
+      "erosion": {
+       "score": 2.4,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.378
+      },
+      "water": {
+       "score": 2.1,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.094,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 4,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 2,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 3,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S2": {
+     "erosion_index": 3.2207613501067662,
+     "water_mm": 598.3628853837544,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.79,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.97,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.51,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.07,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.05,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.12,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.77,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [
+      "soybean"
+     ],
+     "erosion_rel": 1.6321652876255386,
+     "water_rel": 1.0350377786222629,
+     "scores": {
+      "erosion": {
+       "score": 2.0,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.632
+      },
+      "water": {
+       "score": 2.6,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.035,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 4,
+       "uncertainty": "high",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 4,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 2.5,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S3": {
+     "erosion_index": 1.5201018285712573,
+     "water_mm": 602.6834146393289,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.16,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.29,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.17,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.06,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.29,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.96,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.83,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.69,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.56,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.43,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.29,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.16,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.06,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.16,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [],
+     "erosion_rel": 0.77033259175439,
+     "water_rel": 1.0425113554640055,
+     "scores": {
+      "erosion": {
+       "score": 3.4,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 0.77
+      },
+      "water": {
+       "score": 2.6,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.043,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 1,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 3,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 3,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S4": {
+     "erosion_index": 2.3649278264640747,
+     "water_mm": 588.9881251979847,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.79,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 0.86,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.26,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.05,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.28,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.26,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.62,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [
+      "field_pea"
+     ],
+     "erosion_rel": 1.1984598318551052,
+     "water_rel": 1.0188214804613693,
+     "scores": {
+      "erosion": {
+       "score": 2.7,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.198
+      },
+      "water": {
+       "score": 2.8,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.019,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 4,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 4.5,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 2,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    }
+   },
+   "facts": {
+    "beet_wheat": {
+     "source": "thuenen",
+     "share": 0.87,
+     "region": 0.636
+    },
+    "open_rows_rain": {
+     "source": "imerg_phenology",
+     "n": 6
+    },
+    "heat_heading": {
+     "source": "dwd_phenology",
+     "station": "Obersulm-Willsbach",
+     "n": 9,
+     "trend": 5.2
+    },
+    "summer_dry": {
+     "source": "imerg_power",
+     "n": 4,
+     "cwb": 197
+    },
+    "frost": {
+     "source": "dwd_phenology",
+     "station": "Obersulm-Willsbach",
+     "n": 1
+    },
+    "soil": {
+     "source": "bk50_nasadem",
+     "k_class": "4–5",
+     "slope": 4.6,
+     "nfk": "≥140 mm"
+    }
+   }
+  },
+  "F3": {
+   "deficit_months": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "strategies": {
+    "S0": {
+     "erosion_index": 3.9556173816552618,
+     "water_mm": 575.107712840631,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.25,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.38,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.96,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.83,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.69,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.56,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.43,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.29,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.16,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.06,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.16,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [],
+     "erosion_rel": 1.0,
+     "water_rel": 1.0,
+     "scores": {
+      "erosion": {
+       "score": 3.0,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.0
+      },
+      "water": {
+       "score": 3.0,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.0,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 1,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 2,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 3,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S1": {
+     "erosion_index": 5.393669072622526,
+     "water_mm": 629.4055476624958,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.79,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.83,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.26,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.05,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.05,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.05,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.32,
+       "state": "grain_maize"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.96,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.81,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.67,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.53,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.39,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.24,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [],
+     "erosion_rel": 1.3635467114783228,
+     "water_rel": 1.0944133309457307,
+     "scores": {
+      "erosion": {
+       "score": 2.0,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.364
+      },
+      "water": {
+       "score": 2.1,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.094,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 4,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 2,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 3,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S2": {
+     "erosion_index": 6.432795523824737,
+     "water_mm": 595.4314223797629,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.79,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.97,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.51,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.07,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.05,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.12,
+       "state": "soybean"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.77,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [
+      "soybean"
+     ],
+     "erosion_rel": 1.6262431128090753,
+     "water_rel": 1.0353389618768054,
+     "scores": {
+      "erosion": {
+       "score": 1.2,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.626
+      },
+      "water": {
+       "score": 2.6,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.035,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 4,
+       "uncertainty": "high",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 4,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 2.5,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S3": {
+     "erosion_index": 3.0758741042592814,
+     "water_mm": 599.5911485452124,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.16,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.29,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.17,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.06,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.29,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.96,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.83,
+       "state": "winter_barley"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.69,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.56,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.43,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.29,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.16,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.06,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_barley"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.16,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [],
+     "erosion_rel": 0.7775964678798524,
+     "water_rel": 1.042571913326723,
+     "scores": {
+      "erosion": {
+       "score": 3.6,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 0.778
+      },
+      "water": {
+       "score": 2.6,
+       "uncertainty": "medium",
+       "basis": "model",
+       "rel": 1.043,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 1,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 3,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 3,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    },
+    "S4": {
+     "erosion_index": 4.712942816624817,
+     "water_mm": 586.0643257617528,
+     "months": [
+      {
+       "year": 1,
+       "month": 1,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 2,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 3,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 1,
+       "month": 4,
+       "bare": 0.98,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 5,
+       "bare": 0.52,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 6,
+       "bare": 0.07,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 7,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 8,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 9,
+       "bare": 0.05,
+       "state": "sugar_beet"
+      },
+      {
+       "year": 1,
+       "month": 10,
+       "bare": 0.79,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 11,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 1,
+       "month": 12,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 1,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 2,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 3,
+       "bare": 1.0,
+       "state": "bare"
+      },
+      {
+       "year": 2,
+       "month": 4,
+       "bare": 0.86,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 5,
+       "bare": 0.26,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 6,
+       "bare": 0.05,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 7,
+       "bare": 0.28,
+       "state": "field_pea"
+      },
+      {
+       "year": 2,
+       "month": 8,
+       "bare": 0.26,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 2,
+       "month": 10,
+       "bare": 0.62,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 11,
+       "bare": 0.92,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 2,
+       "month": 12,
+       "bare": 0.78,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 1,
+       "bare": 0.64,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 2,
+       "bare": 0.5,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 3,
+       "bare": 0.37,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 4,
+       "bare": 0.23,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 5,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 6,
+       "bare": 0.05,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 7,
+       "bare": 0.1,
+       "state": "winter_wheat"
+      },
+      {
+       "year": 3,
+       "month": 8,
+       "bare": 0.2,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 9,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 10,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 11,
+       "bare": 0.15,
+       "state": "cover_crop"
+      },
+      {
+       "year": 3,
+       "month": 12,
+       "bare": 0.15,
+       "state": "cover_crop"
+      }
+     ],
+     "literature_dates": [
+      "field_pea"
+     ],
+     "erosion_rel": 1.1914556848904951,
+     "water_rel": 1.0190514101558537,
+     "scores": {
+      "erosion": {
+       "score": 2.5,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.191
+      },
+      "water": {
+       "score": 2.8,
+       "uncertainty": "high",
+       "basis": "model",
+       "rel": 1.019,
+       "months": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+       ]
+      },
+      "planthopper": {
+       "score": 4,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "nitrogen": {
+       "score": 4.5,
+       "uncertainty": "medium",
+       "basis": "rule"
+      },
+      "income": {
+       "score": 2,
+       "uncertainty": "high",
+       "basis": "rule"
+      }
+     }
+    }
+   },
+   "facts": {
+    "beet_wheat": {
+     "source": "thuenen",
+     "share": 0.812,
+     "region": 0.636
+    },
+    "open_rows_rain": {
+     "source": "imerg_phenology",
+     "n": 6
+    },
+    "heat_heading": {
+     "source": "dwd_phenology",
+     "station": "Eppingen-Elsenz",
+     "n": 8,
+     "trend": 3.9
+    },
+    "summer_dry": {
+     "source": "imerg_power",
+     "n": 4,
+     "cwb": 189
+    },
+    "frost": {
+     "source": "dwd_phenology",
+     "station": "Eppingen-Elsenz",
+     "n": 1
+    },
+    "soil": {
+     "source": "bk50_nasadem",
+     "k_class": "4–5",
+     "slope": 6.4,
+     "nfk": "≥140 mm"
+    }
+   }
+  }
+ }
+}

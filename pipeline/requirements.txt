@@ -1,0 +1,4 @@
+# raw -> processed; on top of crop-circles-data-prep/prep/requirements.txt (numpy, pandas, rasterio, pyproj)
+pyarrow==26.0.1
+shapely==2.2.0
+pillow==13.0.0

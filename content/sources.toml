@@ -1,0 +1,225 @@
+# Datasets (from crop-circles-data-prep/docs/DATA_CATALOG.md) and literature (from reference/sources.md).
+# status: "used" = shown in the app now; "pending" = downloaded later, the app shows it when data/processed has it.
+
+[[dataset]]
+id = "nasa_power"
+name = "NASA POWER Daily (MERRA-2, CERES)"
+nasa = true
+status = "used"
+period = "1981-01-01 → 2026-10-31"
+resolution = "0.5° × 0.625° grid cell per field"
+used_for = "Temperature, precipitation, ET0, heat/frost/dry-spell indicators, scenario slider, topsoil and root-zone wetness (GWETTOP/GWETROOT)"
+licence = "The data was obtained from the National Aeronautics and Space Administration (NASA) Langley Research Center's Prediction Of Worldwide Energy Resources (POWER) project funded through the NASA Earth Science Division. The data was obtained from the POWER Project's Daily v2.10.2 on 2026/11/04."
+
+[[dataset]]
+id = "gpm_imerg"
+name = "GPM IMERG Final daily V07"
+nasa = true
+status = "used"
+period = "2001-01-01 → 2025-09-30"
+resolution = "0.1° cell per field"
+used_for = "Heavy-rain days, dry spells, water balance, erosivity weights for the rotation model"
+licence = "Huffman et al. (2023), GPM IMERG Final Precipitation L3 1 day 0.1° V07, GES DISC, doi:10.5067/GPM/IMERGDF/DAY/07."
+
+[[dataset]]
+id = "dem"
+name = "NASADEM 1 arc second"
+nasa = true
+status = "used"
+period = "2000"
+resolution = "~30 m"
+used_for = "Slope and S factor per field, erosion map layer"
+licence = "NASA JPL (2020), NASADEM Merged DEM Global 1 arc second V001, LP DAAC."
+
+[[dataset]]
+id = "modis_ndvi"
+name = "MODIS MOD13Q1 / MYD13Q1 NDVI v061"
+nasa = true
+status = "used"
+period = "2001 → latest"
+resolution = "250 m, 16-day"
+used_for = "Summer green per field since 2001, next to the driest summers"
+licence = "Didan, K. (2021), MODIS/Terra and Aqua Vegetation Indices 16-Day L3 Global 250m SIN Grid V061, NASA LP DAAC (via AppEEARS)."
+
+[[dataset]]
+id = "smap"
+name = "SMAP L3 enhanced soil moisture (SPL3SMP_E)"
+nasa = true
+status = "used"
+period = "2015-03-31 → latest"
+resolution = "9 km"
+used_for = "Soil-moisture anomaly"
+licence = "O'Neill et al., SMAP Enhanced L3 Radiometer Global and Polar Grid Daily 9 km EASE-Grid Soil Moisture, NSIDC DAAC (via AppEEARS)."
+
+[[dataset]]
+id = "hls_ndvi"
+name = "HLS L30 / S30 v2.0 (Landsat + Sentinel-2)"
+nasa = true
+status = "used"
+period = "2019 → latest"
+resolution = "30 m"
+used_for = "What grows on each parcel this season; bare-soil months"
+licence = "Masek et al., HLS Operational Land Surface Reflectance v2.0, NASA LP DAAC (via AppEEARS)."
+
+[[dataset]]
+id = "dwd_climate"
+name = "DWD daily station climate (KL)"
+nasa = false
+status = "used"
+period = "1947 → 2026-11-03"
+resolution = "7 stations, 1.5–44 km from the fields"
+used_for = "Ground truth for temperature and precipitation; indicators from the nearest station with data"
+licence = "CC BY 4.0 – Source: Deutscher Wetterdienst (DWD), Climate Data Center (CDC)."
+
+[[dataset]]
+id = "dwd_phenology"
+name = "DWD crop phenology (annual reporters)"
+nasa = false
+status = "used"
+period = "2001 → 2026"
+resolution = "129 stations within 40 km of Heilbronn"
+used_for = "Sowing, emergence, canopy and harvest dates; heading window for heat; bare-soil calendar"
+licence = "CC BY 4.0 – Source: Deutscher Wetterdienst (DWD), Climate Data Center (CDC)."
+
+[[dataset]]
+id = "bk50"
+name = "LGRB soil map BK50"
+nasa = false
+status = "used"
+period = "static"
+resolution = "1:50 000 polygons"
+used_for = "Soil unit, K factor (erodibility), nFK, saturated conductivity; erosion map"
+licence = "dl-de/by-2-0 – Datenquelle: Regierungspräsidium Freiburg – LGRB, https://www.lgrb-bw.de"
+
+[[dataset]]
+id = "soilgrids"
+name = "SoilGrids 2.0"
+nasa = false
+status = "used"
+period = "static"
+resolution = "250 m"
+used_for = "Topsoil texture, organic carbon, pH"
+licence = "CC BY 4.0 – SoilGrids 2.0, ISRIC (Poggio et al. 2021)."
+
+[[dataset]]
+id = "thuenen_ctm"
+name = "Thünen crop type maps"
+nasa = false
+status = "used"
+period = "2017 → 2025 (2025 preliminary)"
+resolution = "10 m"
+used_for = "Crop history inside each field block, beet → wheat share, crop map layer"
+licence = "CC BY 4.0 – Thünen Institute (Blickensdörfer et al. 2022; Pham et al. 2024), Zenodo."
+
+[[dataset]]
+id = "fiona"
+name = "FIONA parcels Baden-Württemberg (InVeKoS)"
+nasa = false
+status = "used"
+period = "2022"
+resolution = "parcel"
+used_for = "Declared crops of the parcels inside each block"
+licence = "dl-de/by-2-0 – Datengrundlage: MLR (2026), Datenlizenz Deutschland – Namensnennung – Version 2.0, https://mlr.baden-wuerttemberg.de"
+
+[[dataset]]
+id = "esa_cci_sm"
+name = "ESA CCI Soil Moisture COMBINED v09.2"
+nasa = false
+status = "used"
+period = "2020-01-01 → 2024-12-31"
+resolution = "0.25°"
+used_for = "Satellite soil-moisture anomaly"
+licence = "CC BY 4.0 – ESA CCI Soil Moisture v09.2 (Dorigo et al. 2017; Gruber et al. 2019; Preimesberger et al. 2021)."
+
+[[dataset]]
+id = "c3s_sm"
+name = "C3S Soil Moisture (CCI algorithm)"
+nasa = false
+status = "used"
+period = "2025-01-01 → 2026-10-10"
+resolution = "0.25°"
+used_for = "Recent soil-moisture anomaly"
+licence = "Contains modified Copernicus Climate Change Service information (2026)."
+
+[[dataset]]
+id = "fields"
+name = "OpenStreetMap farmland polygons"
+nasa = false
+status = "used"
+period = "snapshot 2026-11-04"
+resolution = "vector"
+used_for = "Demo field outlines F1–F3"
+licence = "ODbL 1.0 – © OpenStreetMap contributors"
+
+# ---------------------------------------------------------------------------
+# Literature. Keys are cited in content/strategies.toml.
+
+[refs.brunotte1995]
+title = "Einzelbetrieblicher Nutzen-Kosten-Vergleich von Erosionsschutz durch Mulchsaatverfahren"
+who = "Brunotte, Roth, Hollmann, Sommer – Landbauforschung Völkenrode 45(3), 1995"
+url = "https://www.openagrar.de/receive/timport_mods_00031803"
+
+[refs.brunotte2008]
+title = "Mulchsaat gegen Erosion: worauf es bei Zuckerrüben ankommt"
+who = "Brunotte, Schäfer, Wollenweber – BW agrar 60(12), 2008"
+url = "https://www.openagrar.de/receive/timport_mods_00024189"
+
+[refs.attia2024]
+title = "Do rotations with cover crops increase yield and soil organic carbon? A modeling study in southwest Germany"
+who = "Attia et al. – Agriculture, Ecosystems & Environment, 2024"
+url = "https://www.openagrar.de/receive/openagrar_mods_00098896"
+
+[refs.jki2025]
+title = "Regionale Maßnahmenempfehlung zur Schilf-Glasflügelzikade"
+who = "Julius Kühn-Institut (JKI), 12.05.2025"
+url = "https://www.julius-kuehn.de/a/aktuelles-a/n/regionale-massnahmenempfehlung-zur-schilf-glasfluegelzikade"
+
+[refs.liz1]
+title = "SBR und Stolbur erklärt – Teil 1: Herkunft und Verbreitung"
+who = "LIZ, 12.09.2025"
+url = "https://www.liz-online.de/meldungen/meldung-ueberregional/sbr-und-stolbur-erklaert-teil-1-herkunft-und-verbreitung-der-schilf-glasfluegelzikade"
+
+[refs.liz2]
+title = "SBR und Stolbur erklärt – Teil 2: Biologie und Lebenszyklus"
+who = "LIZ, 19.09.2025"
+url = "https://www.liz-online.de/meldungen/meldung-ueberregional/sbr-und-stolbur-erklaert-teil-2-die-biologie-und-der-lebenszyklus-der-schilf-glasfluegelzikade-der-erreger"
+
+[refs.liz5]
+title = "SBR und Stolbur erklärt – Teil 5: Bekämpfungsmöglichkeiten"
+who = "LIZ, 17.10.2025"
+url = "https://www.liz-online.de/meldungen/meldung-ueberregional/sbr-und-stolbur-erklaert-teil-5-bekaempfungsmoeglichkeiten-der-schilf-glasfluegelzikade"
+
+[refs.liz_sbr]
+title = "SBR-Krankheitskomplex – Niedrige Zuckergehalte & Gummirüben (Ausgabe 2026)"
+who = "LIZ, 2026"
+url = "https://www.liz-online.de/fileadmin/user_upload/pdf/Syndrome_Basses_Richesses/SyndromeBassesRichesses.pdf"
+
+[refs.llg2026]
+title = "Brennpunkte im Pflanzenschutz: Schilfglasflügelzikade im Zuckerrüben- und Kartoffelanbau"
+who = "LLG Sachsen-Anhalt, 2026"
+url = "https://llg.sachsen-anhalt.de/themen/landespraesentation-sachsen-anhalt-auf-den-dlg-feldtagen-2026/themen/schilfglasfluegelzikade"
+
+[refs.sojafoerderring]
+title = "Fruchtfolge (Anbauratgeber)"
+who = "Deutscher Sojaförderring e.V."
+url = "https://sojafoerderring.de/anbauratgeber/fruchtfolge/"
+
+[refs.topagrar2012]
+title = "Soja: Der Star von morgen?"
+who = "top agrar, 23.07.2012 (paywall)"
+url = "https://www.topagrar.com/acker/aus-dem-heft/soja-der-star-von-morgen-9678436.html"
+
+[refs.topagrar2022]
+title = "Alternative Kulturen: Was die Sojabohne leistet"
+who = "top agrar, 12.06.2022 (paywall)"
+url = "https://www.topagrar.com/acker/news/das-leistet-die-sojabohne-13110200.html"
+
+[refs.fixvorsaat]
+title = "FixVorSaat Soja – Vorfruchtwert, N2-Fixierung, reduzierte Bodenbearbeitung"
+who = "Butz (LTZ Augustenberg), Paeßens, Urbatzka (LfL) – Organic Eprints, 2019"
+url = "https://orgprints.org/id/eprint/36906/"
+
+[refs.fao56]
+title = "Crop evapotranspiration – FAO Irrigation and Drainage Paper 56"
+who = "Allen, Pereira, Raes, Smith – FAO, 1998"
+url = "https://www.fao.org/4/x0490e/x0490e00.htm"

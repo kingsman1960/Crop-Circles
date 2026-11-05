@@ -1,0 +1,22 @@
+# Deutsche Texte zu content/crops.toml. Nur Beschriftungen; alle Daten stehen in der englischen Basisdatei.
+
+[sugar_beet]
+label = "Zuckerrübe"
+
+[winter_wheat]
+label = "Winterweizen"
+
+[winter_barley]
+label = "Wintergerste"
+
+[grain_maize]
+label = "Körnermais"
+
+[soybean]
+label = "Sojabohne"
+
+[field_pea]
+label = "Körnererbse"
+
+[cover_crop]
+label = "Zwischenfrucht"

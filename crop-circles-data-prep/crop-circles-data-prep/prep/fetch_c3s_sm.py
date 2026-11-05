@@ -9,7 +9,9 @@ values (COMBINED included); use v202505_2 from 2026-09-01.
 """
 import csv
 import math
+import os
 import re
+import tempfile
 import zipfile
 
 import cdsapi
@@ -54,16 +56,19 @@ def main():
         zips.append(target)
 
     rows = []
-    for z in zips:
-        names = sorted(n for n in zipfile.ZipFile(z).namelist() if n.endswith(".nc"))
-        for n in names:
-            day = re.search(r"(\d{8})\d{6}", n).group(1)
-            for var in VARS:
-                with rasterio.open(f'netcdf:"/vsizip/{z.as_posix()}/{n}":{var}') as src:
-                    a = src.read(1)
-                    for la, lo in cells:
-                        r, c = src.index(lo, la)
-                        rows.append((f"{day[:4]}-{day[4:6]}-{day[6:]}", la, lo, var, float(a[r, c]), z.name))
+    with tempfile.TemporaryDirectory() as tmp:  # GDAL's netCDF driver cannot read inside a zip on Windows
+        for z in zips:
+            zf = zipfile.ZipFile(z)
+            for n in sorted(n for n in zf.namelist() if n.endswith(".nc")):
+                day = re.search(r"(\d{8})\d{6}", n).group(1)
+                nc = zf.extract(n, tmp)
+                for var in VARS:
+                    with rasterio.open(f"netcdf:{nc}:{var}") as src:
+                        a = src.read(1)
+                        for la, lo in cells:
+                            r, c = src.index(lo, la)
+                            rows.append((f"{day[:4]}-{day[4:6]}-{day[6:]}", la, lo, var, float(a[r, c]), z.name))
+                os.remove(nc)
     # long -> one row per date and cell
     table = {}
     for d, la, lo, var, v, src_zip in rows:

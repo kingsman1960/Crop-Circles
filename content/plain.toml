@@ -1,0 +1,26 @@
+# Texts for the risk cards on "My field". The field's own numbers are added by app/views/field.py.
+# Written for a farmer, not a scientist: what it is, what helps. Edit freely; keep each line short.
+
+[planthopper]
+title = "Planthopper and rubbery beet (SBR)"
+what = "The reed planthopper carries the bacteria behind low sugar content and rubbery beet. Its young spend the winter in wheat sown right after beet and fly to the beet around them in June."
+helps = "No winter wheat right after your beet – and the same on the fields around you, which only works if neighbours agree."
+source = "LIZ, JKI, LLG Sachsen-Anhalt; Thünen crop maps"
+
+[erosion]
+title = "Soil washing away"
+what = "Loess is fine soil. Heavy rain carries it off slopes, mostly while beet, maize or soybean rows are still open in spring."
+helps = "Sow beet into the remains of a cover crop (mulch seeding) and keep cover crops on bare fields."
+source = "Brunotte et al.; LGRB soil map; NASADEM; GPM IMERG"
+
+[dry]
+title = "Dry summers"
+what = "Crops live on the water stored in the soil when it does not rain. Deep loess stores a lot – but long dry spells still empty it."
+helps = "Crops that are harvested before the driest weeks of August (barley, field pea) and soil kept covered."
+source = "GPM IMERG; NASA POWER; LGRB soil map"
+
+[heat]
+title = "Heat"
+what = "Days above 30 °C stress every crop. Heat while wheat flowers costs yield and grain quality."
+helps = "Ask your advisor about earlier-flowering varieties (general agronomy, not from our sources)."
+source = "DWD weather station and crop observations"

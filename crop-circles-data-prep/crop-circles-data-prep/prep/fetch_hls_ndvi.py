@@ -7,17 +7,21 @@ refuses a single 2019 -> now task per field (too many output files). Re-running 
 """
 import math
 import sys
+import time
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 
 import rasterio
 
-from common import RAW, appeears_download, appeears_login, appeears_logout, appeears_task, appeears_wait, load_config, log, now_utc
+from common import (MANIFEST, RAW, appeears_download, appeears_login, appeears_logout, appeears_status, appeears_task, load_config,
+                    manifest_row, now_utc, write_manifest)
 
 LAYERS = {"HLSL30.020": ["B04", "B05", "Fmask"], "HLSS30.020": ["B04", "B8A", "Fmask"]}
 START = "2019-01-01"
 CHUNKS = [("2019-01-01", "2021-12-31"), ("2022-01-01", "2023-12-31"), ("2024-01-01", None)]  # None = today
 MIN_SIDE_M, MARGIN_M = 1000, 60
+TASKS_AT_ONCE = 1  # x 4 files each; 2 (= 8 parallel) drew a growing number of HTTP 429 on 2026-11-04
 OUT = RAW / "hls_ndvi"
 
 
@@ -52,21 +56,36 @@ def main():
             print(f"{f['id']} {d0} -> {d1}: AppEEARS task {tasks[key][0]}")
         if "--submit-only" in sys.argv:
             return
-        files_by_field = {}
-        for (fid, d0, d1, label), (task_id, ring) in tasks.items():
-            appeears_wait(token, task_id)
+        logged = MANIFEST.read_text(encoding="utf-8")  # a task's rows are written once all its files are in
+        pending = {k: v for k, v in tasks.items() if f"(task {v[0]})" not in logged}
+        while pending:  # download tasks in the order they finish, TASKS_AT_ONCE at a time
+            status = {k: appeears_status(token, task_id) for k, (task_id, _) in pending.items()}
+            if "error" in status.values():
+                raise RuntimeError(f"AppEEARS task failed: {[k for k, s in status.items() if s == 'error']}")
+            ready = [k for k, s in status.items() if s == "done"]
+            if not ready:
+                print(f"  {now_utc()} {len(pending)} HLS tasks still processing")
+                time.sleep(120)
+                continue
             when = now_utc()
-            files = appeears_download(token, task_id, OUT / fid / f"appeears_{label}")
-            files_by_field.setdefault(fid, []).extend(files)
-            for path, url in files:
-                log(path, "hls_ndvi", source="NASA AppEEARS area subset (LP DAAC)", product_version=", ".join(LAYERS),
-                    query_or_url=f"{url} (task {task_id})", spatial=f"{fid} box {ring[0]} - {ring[2]}",
-                    temporal=f"{d0} -> {d1}", downloaded_at_utc=when, license="NASA open data (no restrictions)",
-                    attribution="Masek, J., et al. HLS Operational Land Surface Reflectance and TOA Brightness Daily "
-                                "Global 30m v2.0 (HLSL30/HLSS30). NASA LP DAAC, retrieved via AppEEARS")
-        for fid, files in files_by_field.items():
-            tifs = [p for p, _ in files if p.suffix == ".tif"]
-            print(f"\n{fid}: {len(files)} files, {len(tifs)} GeoTIFF, {sum(p.stat().st_size for p, _ in files) / 1e6:.1f} MB")
+            with ThreadPoolExecutor(TASKS_AT_ONCE) as pool:  # MANIFEST is written here only, one task at a time
+                jobs = {pool.submit(appeears_download, token, pending[k][0], OUT / k[0] / f"appeears_{k[3]}"): k for k in ready}
+                for job in as_completed(jobs):
+                    fid, d0, d1, label = key = jobs[job]
+                    task_id, ring = pending.pop(key)
+                    files = job.result()
+                    write_manifest([manifest_row(
+                        path, "hls_ndvi", source="NASA AppEEARS area subset (LP DAAC)", product_version=", ".join(LAYERS),
+                        query_or_url=f"{url} (task {task_id})", spatial=f"{fid} box {ring[0]} - {ring[2]}",
+                        temporal=f"{d0} -> {d1}", downloaded_at_utc=when, license="NASA open data (no restrictions)",
+                        attribution="Masek, J., et al. HLS Operational Land Surface Reflectance and TOA Brightness Daily "
+                                    "Global 30m v2.0 (HLSL30/HLSS30). NASA LP DAAC, retrieved via AppEEARS")
+                        for path, url in files])
+                    print(f"  {fid} {label}: {len(files)} files downloaded")
+        for fid in (f["id"] for f in cfg["fields"]):  # check what is on disk, including earlier runs
+            files = [p for p in (OUT / fid).glob("appeears_*-*/**/*") if p.is_file()]
+            tifs = [p for p in files if p.suffix == ".tif"]
+            print(f"\n{fid}: {len(files)} files, {len(tifs)} GeoTIFF, {sum(p.stat().st_size for p in files) / 1e6:.1f} MB")
             # AppEEARS names: <product>.<version>_<layer>_doy<YYYYDDD>..._aid0001.tif (cf. the NASADEM output)
             for prod, layers in LAYERS.items():
                 for layer in layers:

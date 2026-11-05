@@ -1,0 +1,67 @@
+# Deutsche Texte zu content/indicators.toml. better/flip stehen in der englischen Basisdatei.
+
+[heat_days]
+label = "Heiße Tage (über 30 °C)"
+unit = "Tage im Jahr"
+definition = "Tage mit einer Höchsttemperatur von 30 °C oder mehr."
+meaning = "Mehr heiße Tage bedeuten mehr Hitzestress für die Kulturen und mehr Wasserverlust."
+
+[heat_days_heading]
+label = "Hitze während der Weizenblüte"
+unit = "Tage im Jahr"
+definition = "Tage über 30 °C zwischen dem Ährenschieben und der Kornfüllung (vom DWD rund um Heilbronn jedes Jahr beobachtete Termine)."
+meaning = "Hitze während der Blüte und der frühen Kornfüllung senkt Ertrag und Kornqualität beim Weizen."
+
+[frost_after_emergence]
+label = "Frost auf junge Rüben"
+unit = "Tage im Jahr"
+definition = "Nächte mit −2 °C oder kälter zwischen dem Auflaufen der Rüben und dem Reihenschluss."
+meaning = "Spätfrost kann junge Rübenpflanzen töten und eine Neusaat nötig machen."
+
+[dry_spells_spring]
+label = "Trockenperioden im Frühjahr"
+unit = "Perioden im Jahr"
+definition = "Zwei Wochen oder länger fast ohne Regen (unter 1 Liter pro m² am Tag), Beginn zwischen März und Mai."
+meaning = "Trockenperioden zur Saat und zum Auflaufen führen zu ungleichmäßigen Beständen."
+
+[dry_spells_summer]
+label = "Trockenperioden im Sommer"
+unit = "Perioden im Jahr"
+definition = "Zwei Wochen oder länger fast ohne Regen (unter 1 Liter pro m² am Tag), Beginn zwischen Juni und August."
+meaning = "Sommerkulturen (Rübe, Mais, Soja) brauchen genau dann Wasser."
+
+[heavy_rain_days]
+label = "Starkregen von Mai bis Juli"
+unit = "Tage im Jahr"
+definition = "Tage mit 20 Litern Regen pro m² oder mehr im Mai, Juni oder Juli, solange die Reihenkulturen noch offen stehen."
+meaning = "Starkregen auf offenem Boden spült den Löss von den Hängen."
+
+[cwb_year]
+label = "Wasserdefizit über das Jahr"
+unit = "Liter pro m²"
+definition = "Wie viel mehr Wasser das Wetter einem grünen Feld entzieht, als der Regen bringt (Verdunstung minus Regen). Höher = trockener."
+meaning = "Unter null heißt: Der Regen bringt mehr, als das Wetter entzieht."
+
+[cwb_spring]
+label = "Wasserdefizit im Frühjahr"
+unit = "Liter pro m²"
+definition = "Wie viel mehr Wasser das Wetter einem grünen Feld entzieht, als der Regen bringt, März bis Mai (Verdunstung minus Regen). Höher = trockener."
+meaning = "Ein Defizit trocknet Oberboden und Saatbett aus."
+
+[cwb_summer]
+label = "Wasserdefizit im Sommer"
+unit = "Liter pro m²"
+definition = "Wie viel mehr Wasser das Wetter einem grünen Feld entzieht, als der Regen bringt, Juni bis August (Verdunstung minus Regen). Höher = trockener."
+meaning = "Das Sommerdefizit müssen die Kulturen aus dem im Boden gespeicherten Wasser decken."
+
+[precip]
+label = "Regen pro Jahr"
+unit = "Liter pro m²"
+definition = "Gesamte Regen- und Schneemenge im Jahr."
+meaning = "Die Menge allein sagt wenig – wichtiger ist, wann der Regen fällt (siehe Trockenperioden und Starkregen)."
+
+[t_mean]
+label = "Durchschnittstemperatur"
+unit = "°C"
+definition = "Die mittlere Lufttemperatur über das ganze Jahr."
+meaning = "Der langfristige Erwärmungstrend hinter den meisten anderen Kennzahlen."

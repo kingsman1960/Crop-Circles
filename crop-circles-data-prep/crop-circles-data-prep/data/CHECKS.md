@@ -57,6 +57,13 @@ Short check summary per dataset (written by the fetch run on 2026-11-04). Raw fi
 - Immediate reporters 2024–2026: 11–18 station-years per phase (5–6 stations); beet only sowing/emergence/closed stand, no harvest.
 - All other phases are kept too (see the script output, e.g. heading, yellow ripeness, flowering).
 
+## 5 · modis_ndvi (done)
+
+- MOD13Q1.061 + MYD13Q1.061 via AppEEARS point sample, 7 pixels per field (pixel centre inside the polygon) → `F{n}_MOD13Q1.csv`, `F{n}_MYD13Q1.csv`. AppEEARS restarted the task once on 4 Nov; done 5 Nov 08:29 CET.
+- Terra: 595 composites, 2000-12-18 → 2026-10-16 (the first composite starts before 2001-01-01). Aqua: 559 composites, 2002-07-04 → 2026-10-08. 23 per full year for both.
+- No fill or NaN in `ndvi`; values −0.09 … 0.98 (AppEEARS applies the 0.0001 scale). Median of good-quality values 0.51–0.56.
+- `reliability` per field and product: 0 good 63–75 %, 1 marginal 17–25 %, 2 snow/ice 2–3 %, 3 cloudy 6–14 %.
+
 ## 6 · soilgrids (done)
 
 - 3 JSON files, 7 properties × 4 depths × (mean, Q0.05, Q0.95), no nulls. Values are integers in mapped units (divide by `d_factor` given in each layer, e.g. clay g/kg ÷ 10 → %).
@@ -73,6 +80,21 @@ Short check summary per dataset (written by the fetch run on 2026-11-04). Raw fi
 - 3 files, each 9,039 rows, 2001-01-01 → **2025-09-30** (latest Final daily granule in CMR; Final run lags ~1 year now), no missing days, 0 `undef` (-9999.9), unit mm/day.
 - Cell centres: F1 49.15/8.95, F2 49.25/9.15, F3 49.15/9.05 (three different cells).
 - The API returned HTTP 500 for ~1 h earlier on 2026-11-04 and then recovered; the Hydrology Data Rods service is discontinued.
+
+## 9 · smap (done)
+
+- SPL3SMP_E.006 via AppEEARS point sample at the three centroids → `F{n}.csv`, each 4,149 days, 2015-03-31 → 2026-11-03, no missing dates.
+- Three different 9 km cells (no identical values between fields; r = 0.95–0.97).
+- Valid (≠ −9999): AM 59–60 %, PM 59 % per field, the same share every year (57–62 %); the rest are days without a retrieval (no overpass or retrieval skipped, `qual` 7). sm 0.02–0.45 m³/m³.
+- `qual` 0 (recommended) on most valid days; F2 has many more `qual` 1 days (~740 vs ~80) – use `qual = 0` when comparing fields.
+
+## 10 · hls_ndvi (done)
+
+- 9 AppEEARS area tasks (3 fields × 2019–2021 / 2022–2023 / 2024–now), 12,399 files, 60 MB, all logged in MANIFEST. Each task also holds Fmask lookup tables, QA statistics, the request JSON and a README.
+- Per field: L30 441–442 scenes, S30 843 (F1) / 966 (F2, F3) scenes; each with red, NIR and Fmask. 2019-01-02 → 2026-11-01 (doy 2026305).
+- L30 ~33 scenes/year 2019–2021, ~70/year from 2022 (Landsat 9). S30 100–140/year.
+- EPSG:32632, 30 m, boxes 34–47 × 34–39 px, nodata −9999. Scenes are not cloud-filtered: most need masking with Fmask.
+- Download note: the AppEEARS token was rejected once mid-download (HTTP 403); re-runs resume (files with the bundle's size are skipped, tasks in MANIFEST are skipped). Downloads ran 4 files at a time (8 drew HTTP 429).
 
 ## 12 · fiona (done)
 
@@ -100,6 +122,14 @@ Short check summary per dataset (written by the fetch run on 2026-11-04). Raw fi
 - `cci_sm_combined_v09.2_daily.csv`: 3,654 rows = 1,827 days × 2 cells, no missing days, no duplicates. Fill `-9999.0`, unit m³/m³.
   - 49.125 N 8.875 E (F1): 1,759 valid (96 %), sm 0.19–0.38; invalid days are flag 9 (56) / 13 (12). `flag` is a bit field (meanings in the file's `flag_meanings`); 9 and 13 both include bit 1 = snow cover or temperature below zero.
   - 49.125 N 9.125 E (F2, F3): 1,730 valid (95 %), sm 0.21–0.35; flags 9 (80), 13 (16), 64 (3), 1 (1).
+
+## 16 · c3s_sm (done, auxiliary)
+
+- CDS `satellite-soil-moisture`, COMBINED daily icdr: 3 zips (2025 v202505 675 MB, 2026-01→08 v202505 417 MB, 2026-09→10 v202505_2 90 MB), one global NetCDF per day.
+- `c3s_sm_combined_daily.csv`: 1,296 rows = 648 days × 2 cells, 2025-01-01 → **2026-10-10**, no missing days, no duplicates.
+  - 49.125 N 8.875 E: 626 valid (97 %); 49.125 N 9.125 E: 606 valid (94 %). Flags as in CCI (9, 13, 1).
+- CDS notice applied: v202505 has many gaps on 1–20 Sep 2026 → September/October taken from v202505_2.
+- Version step CCI v09.2 → C3S v202505 cannot be checked yet (no overlap year). Mean sm: CCI 2024 0.303 / 0.289, C3S 2025 0.275 / 0.278 – different years, not a version comparison. If needed, fetch C3S 2024 (~650 MB) for an overlap check.
 
 ## 11 · reference (done)
 

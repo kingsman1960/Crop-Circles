@@ -1,0 +1,108 @@
+{
+ "bounds": [
+  8.799861111111111,
+  48.950138888888894,
+  9.399861111111111,
+  49.35013888888889
+ ],
+ "title": "Crop types 2024",
+ "source": "Thünen crop type map 2024 (v202), CC BY 4.0",
+ "legend": [
+  [
+   "Permanent grassland",
+   "#69c229"
+  ],
+  [
+   "Winter wheat",
+   "#fbfb16"
+  ],
+  [
+   "Winter barley",
+   "#e4ce3f"
+  ],
+  [
+   "Winter rye",
+   "#ea7f12"
+  ],
+  [
+   "Spring barley",
+   "#c24b2d"
+  ],
+  [
+   "Spring oat",
+   "#b41717"
+  ],
+  [
+   "Maize",
+   "#37edd8"
+  ],
+  [
+   "Potato",
+   "#c37dee"
+  ],
+  [
+   "Sugar beet",
+   "#9a0cee"
+  ],
+  [
+   "Winter rapeseed",
+   "#ee439c"
+  ],
+  [
+   "Sunflower",
+   "#e300f7"
+  ],
+  [
+   "Cultivated grassland",
+   "#91ff00"
+  ],
+  [
+   "Vegetables",
+   "#fb2111"
+  ],
+  [
+   "Peas",
+   "#5eb084"
+  ],
+  [
+   "Broad bean",
+   "#5bf09e"
+  ],
+  [
+   "Lupin",
+   "#9df5a3"
+  ],
+  [
+   "Soy",
+   "#d4edb1"
+  ],
+  [
+   "Small woody features",
+   "#058305"
+  ],
+  [
+   "Other agricultural areas",
+   "#d4d4d4"
+  ],
+  [
+   "Fallow land",
+   "#b2ce44"
+  ],
+  [
+   "Other areas",
+   "#6f6f6f"
+  ],
+  [
+   "Small woody features on other land",
+   "#0d4a07"
+  ],
+  [
+   "Grapevine",
+   "#8280ba"
+  ],
+  [
+   "Orchard",
+   "#6a51a3"
+  ]
+ ]
+}

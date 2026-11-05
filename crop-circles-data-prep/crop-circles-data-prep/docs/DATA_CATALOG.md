@@ -23,18 +23,18 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 | 2 | nasa_power | daily weather per field | 0.5° × 0.625° (MERRA-2) | 1981-01-01 → 2026-10-31 | point | ✅ |
 | 3 | dwd_climate | daily station climate, 7 stations | station | 1947 → 2026-11-03 | point | ✅ |
 | 4 | dwd_phenology | crop phase dates (sowing … harvest) | station | 1925 → 2026 | point | ✅ |
-| 5 | modis_ndvi | NDVI, 7 MODIS pixels per field | 250 m, 16-day | 2001 → latest | point | ⏳ AppEEARS |
+| 5 | modis_ndvi | NDVI, 7 MODIS pixels per field | 250 m, 16-day | 2000-12-18 → 2026-10-16 | point | ✅ |
 | 6 | soilgrids | texture, SOC, pH, CEC, bulk density | 250 m | static | point | ✅ |
 | 7 | dem | NASADEM elevation | 1″ (~30 m) | 2000 | EPSG:4326 | ✅ |
 | 8 | gpm_imerg | IMERG Final daily precipitation | 0.1° | 2001-01-01 → 2025-09-30 | point | ✅ |
-| 9 | smap | SMAP L3 enhanced soil moisture AM/PM | 9 km | 2015-03-31 → latest | point | ⏳ AppEEARS |
-| 10 | hls_ndvi | HLS red / NIR / Fmask around each field | 30 m | 2019 → latest | UTM 32N | ⏳ AppEEARS |
+| 9 | smap | SMAP L3 enhanced soil moisture AM/PM | 9 km | 2015-03-31 → 2026-11-03 | point | ✅ |
+| 10 | hls_ndvi | HLS red / NIR / Fmask around each field | 30 m | 2019-01-02 → 2026-11-01 | UTM 32N | ✅ |
 | 11 | reference | literature and rules links | – | – | – | ✅ |
 | 12 | fiona | BW parcels with declared crop | parcel | 2022 only | EPSG:25832 | ✅ |
 | 13 | bk50 | LGRB soil map 1:50 000 (K factor, nFK, …) | polygon | static | EPSG:25832 | ✅ |
 | 14 | thuenen_ctm | crop type maps | 10 m | 2017 → 2025 (2025 preliminary) | EPSG:3035 | ✅ |
 | 15 | esa_cci_sm | ESA CCI soil moisture COMBINED v09.2 | 0.25° | 2020-01-01 → 2024-12-31 | point | ✅ |
-| 16 | c3s_sm | C3S soil moisture COMBINED (CCI algorithm) | 0.25° | 2025-01-01 → 2026-10-10 | point | ⏳ CDS |
+| 16 | c3s_sm | C3S soil moisture COMBINED (CCI algorithm) | 0.25° | 2025-01-01 → 2026-10-10 | point | ✅ |
 
 ---
 
@@ -91,14 +91,14 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 - Since 2001 within 40 km: 340–490 station-years per crop and main phase (annual reporters); immediate reporters only from 2024.
 - Licence: CC BY 4.0 (DWD).
 
-## 5 · modis_ndvi (⏳ AppEEARS still processing)
+## 5 · modis_ndvi
 
 - Raw: `data/raw/modis_ndvi/appeears/` (AppEEARS point-sample CSVs per product + request JSON + README).
 - Derived: `F{n}_MOD13Q1.csv`, `F{n}_MYD13Q1.csv` with `date, pixel_id, lat, lon, ndvi, reliability, vi_quality`.
   - `pixel_id` = `F1_<row>_<col>` in the global MODIS 250 m sinusoidal grid; 7 pixels per field (pixel centre inside the field polygon).
   - **`ndvi` is already scaled by AppEEARS** (−0.2 … 1; scale factor 0.0001 applied, unlike ORNL raw integers).
   - `reliability`: 0 good, 1 marginal, 2 snow/ice, 3 cloudy, −1 fill. `vi_quality`: 16-bit QA field.
-- Terra 2001 →, Aqua from 2002-07-04; ~23 composites per year each.
+- Terra 595 composites (2000-12-18 → 2026-10-16), Aqua 559 (2002-07-04 → 2026-10-08); 23 per full year each. No fill values.
 
 ## 6 · soilgrids
 
@@ -120,17 +120,18 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 - **Ends 2025-09-30** (latest IMERG Final V07 granule); use POWER / DWD after that.
 - Citation: Huffman et al. (2023), GPM IMERG Final Precipitation L3 1 day 0.1° V07, GES DISC, doi:10.5067/GPM/IMERGDF/DAY/07.
 
-## 9 · smap (⏳ AppEEARS still processing)
+## 9 · smap
 
 - Raw: `data/raw/smap/appeears/`; derived `F{n}.csv`: `date, lat, lon, sm_am, qual_am, sm_pm, qual_pm`.
 - SPL3SMP_E.006, 9 km EASE-Grid 2.0, m³/m³; fill −9999; `qual_*` = retrieval quality bit flag (0 = recommended quality).
-- All three fields may fall into one or two 9 km cells – check before comparing fields.
+- The three fields are in three different 9 km cells. ~59 % of days have a value (the rest: no retrieval); F2 has more `qual` 1 days – filter on `qual = 0`.
 
-## 10 · hls_ndvi (⏳ AppEEARS still processing)
+## 10 · hls_ndvi
 
 - `data/raw/hls_ndvi/F{n}/appeears_<2019-2021|2022-2023|2024-now>/` – one GeoTIFF per scene and band: L30 `B04` (red), `B05` (NIR); S30 `B04` (red), `B8A` (NIR narrow); both `Fmask`.
 - Box: field bbox, at least 1 km per side, + 60 m. Native UTM 32N, 30 m.
 - Reflectance scale 0.0001. NDVI: L30 (B05 − B04)/(B05 + B04), S30 (B8A − B04)/(B8A + B04). Mask cloud, cloud shadow, adjacent, snow and water with `Fmask` bits (see HLS v2.0 user guide).
+- 12,399 files (60 MB); per field ~440 L30 and 840–970 S30 scenes, 2019-01-02 → 2026-11-01. Names: `<product>_<band>_doy<YYYYDDD>_aid0001_32N.tif`.
 
 ## 11 · reference
 
@@ -172,10 +173,10 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 - `sm` m³/m³, fill −9999.0; `flag` bit field (0 = valid; 1 = snow / frozen); 95–96 % valid days.
 - Licence: CC BY 4.0 – ESA CCI Soil Moisture v09.2 (Dorigo et al. 2017; Gruber et al. 2019; Preimesberger et al. 2021).
 
-## 16 · c3s_sm (⏳ CDS download running)
+## 16 · c3s_sm
 
-- Raw: `data/raw/c3s_sm/c3s_sm_combined_daily_<year>_<version>.zip` – one global NetCDF per day (2025 zip: 644 MB).
-- Derived: `c3s_sm_combined_daily.csv` – `date, lat, lon, sm, sm_uncertainty, flag, source_zip`, same two cells as dataset 15.
+- Raw: `data/raw/c3s_sm/c3s_sm_combined_daily_<year>_<version>.zip` – one global NetCDF per day (3 zips, 1.2 GB). GDAL cannot open the NetCDFs inside the zip on Windows: extract first.
+- Derived: `c3s_sm_combined_daily.csv` – `date, lat, lon, sm, sm_uncertainty, flag, source_zip`, same two cells as dataset 15; 648 days, 94–97 % valid.
 - Versions: v202505 icdr 2025-01 → 2026-08, v202505_2 from 2026-09-01 (CDS notice: v202505 has many gaps on 1–20 Sep 2026).
 - **Version step at 2024/2025** against CCI v09.2 – compare the overlap before joining the series.
 - Licence: Copernicus licence (CC-BY) – "Contains modified Copernicus Climate Change Service information (2026)".

@@ -3,11 +3,21 @@
 This folder collects the raw data our team will use during the hackathon.
 The full task list is in @docs/DATA_COLLECTION.md – read it before doing anything.
 
-## Scope rule (important)
+## Scope (updated 2026-11-04)
 
-- OK: download scripts in `prep/`, downloading, unzipping, checking that files are complete, writing `data/MANIFEST.csv`.
-- NOT OK before the event: analysis, indicators, models, scoring logic, plots for the app, any web app code.
-- If a task looks like analysis ("compute heat days", "make an NDVI curve"), stop and ask.
+- The "no analysis / no app code before the event" rule is lifted: the team decided on 2026-11-04 to start the build early.
+- Data prep (this folder) keeps its rules below. App and pipeline live next to it at the repo root:
+
+```
+pipeline/        raw -> data/processed (python -m pipeline, from the repo root)
+app/             Streamlit app (streamlit run app/app.py); smoke test: python app/smoke_test.py
+content/         strategy cards, crop calendars, indicators, glossary, sources (TOML, edited without code)
+submission/      SI-use log, demo material
+crop-circles-data-prep/data/processed/   small app-ready files, committed
+```
+
+- Definition of done (WORKFLOW.md §4): runs from a clean clone with the documented command; every chart shows unit, source and period; every dataset used is in `docs/DATA_CATALOG.md` and `content/sources.toml` with its licence line; no hard-coded coordinates (read `config/study_area.json`); the app reads only `data/processed/` and `content/`.
+- Log every SI-assisted step in `submission/si_log.md`.
 
 ## How to work
 
@@ -17,6 +27,7 @@ The full task list is in @docs/DATA_COLLECTION.md – read it before doing anyth
 - Before writing a fetcher, check the endpoint and parameter names against the official docs linked in the plan. If the docs differ from the plan, follow the docs and tell me.
 - Ask before any single download larger than 2 GB, and before anything that runs longer than ~15 minutes.
 - Be polite to servers: sleep between requests, retry with backoff, never run requests in parallel against the same service.
+  Exception (2026-11-04): downloading finished AppEEARS results may run in parallel: 4 files at a time (8 drew repeated HTTP 429).
 - Keep raw files exactly as downloaded under `data/raw/<dataset_id>/`. Never edit them in place.
 
 ## Credentials

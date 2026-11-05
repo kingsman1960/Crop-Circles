@@ -1,0 +1,93 @@
+# "What is this?" texts. Keys are used as tooltips in the app; order here = order on the glossary page.
+
+[ET0]
+term = "Evapotranspiration (ET, ET0)"
+text = "Water that leaves the field as evaporation from soil plus transpiration from plants. ET0 is the reference value for a short, well-watered grass; a crop uses about Kc × ET0 (Kc = crop coefficient, FAO-56). We estimate ET0 from daily temperature with the Hargreaves formula."
+
+[water_balance]
+term = "Climatic water balance"
+text = "Rain minus ET0 (P − ET0). Below zero means the weather takes more water than it brings, so crops live on soil water. In the Kraichgau this is usually negative from April to August."
+
+[anomaly]
+term = "Anomaly"
+text = "How far a value is from what is normal for that day of the year. We show it as a z-score: 0 = normal, −1 = drier than usual by one standard deviation, +1 = wetter."
+
+[NDVI]
+term = "NDVI (vegetation index)"
+text = "A satellite measure of green plant cover, from red and near-infrared light: about 0.1–0.2 for bare soil, 0.6–0.9 for a dense green crop. We call a field 'bare' below 0.3 (screening value)."
+
+[frost_risk]
+term = "Frost risk"
+text = "Here: days with −2 °C or colder after the crop has emerged. Young beet, maize and soy plants are sensitive; winter cereals are hardened."
+
+[heat_stress]
+term = "Heat stress"
+text = "Here: days with 30 °C or more. Most harmful during wheat flowering and grain filling (heading to milk ripeness)."
+
+[dry_spell]
+term = "Dry spell"
+text = "14 or more days in a row with less than 1 mm of rain each day."
+
+[heavy_rain]
+term = "Heavy-rain day"
+text = "A day with 20 mm of rain or more. On bare loess slopes such storms cause most of the soil loss."
+
+[K_factor]
+term = "K factor (soil erodibility)"
+text = "How easily a soil is washed away, from the ABAG/USLE soil-loss equation. Loess soils are among the most erodible (classes 4–6 in the LGRB BK50 soil map)."
+
+[slope]
+term = "Slope and S factor"
+text = "Steeper slopes lose more soil. The S factor (Wischmeier & Smith) turns slope into a multiplier; K × S gives a screening erosion class for the field."
+
+[nFK]
+term = "nFK (plant-available water)"
+text = "Usable field capacity: how much water the soil can store for plants in the top metre. Deep loess stores a lot (≥ 140 mm), which buffers dry spells."
+
+[soil_moisture]
+term = "Satellite soil moisture"
+text = "Microwave satellites (SMAP, ESA CCI) measure water in the top few centimetres of soil over cells of 9–25 km. NASA POWER's GWETTOP / GWETROOT come from a model (MERRA-2) for the topsoil and the root zone."
+
+[satellite_vs_ground]
+term = "Satellite vs ground data"
+text = "Satellite and model data (NASA POWER, GPM IMERG) cover every field and day but average over 10–60 km cells. Weather stations (DWD) measure one point exactly but can be 5–40 km away and have gaps. Using both shows how sure we can be."
+
+[block_average]
+term = "Block average"
+text = "Each demo field is a block of 11–17 real parcels with different crops. Field values are averages over the block, not one parcel."
+
+[phenology]
+term = "Phenology"
+text = "Dates of crop stages (sowing, emergence, heading, harvest). We use regional medians from DWD observers within 40 km of Heilbronn."
+
+[cover_crop]
+term = "Cover crop"
+text = "A crop sown after harvest to cover the soil until the next main crop (e.g. mustard, phacelia). It protects against erosion and holds nitrogen."
+
+[mulch_seeding]
+term = "Mulch seeding"
+text = "Sowing the main crop into the residue of a cover crop without ploughing. The residue protects the soil while the crop is small."
+
+[planthopper]
+term = "Reed planthopper and SBR / Stolbur"
+text = "The reed planthopper (Pentastiridius leporinus) carries the bacteria behind SBR (low sugar content) and Stolbur (rubbery beets). Its nymphs feed on beet roots and then overwinter in the winter wheat sown after beet."
+
+[nursery]
+term = "Nursery (planthopper)"
+text = "A field with winter wheat sown right after sugar beet. The planthopper nymphs that fed on the beet roots move to the wheat roots, overwinter 40–50 cm deep and fly out as adults in June (LIZ)."
+
+[pressure]
+term = "Planthopper pressure"
+text = "How much nursery area lies within flight reach of a beet field, nearer nurseries counting more: Σ nursery ha × e^(−distance / flight distance). A relative screening value, not a pest forecast."
+
+[flight_distance]
+term = "Flight distance"
+text = "How far the adult planthoppers typically fly from a nursery to beet fields. Our sources do not give a number, so you can set 0.5, 1 or 2 km; the ranking of fields barely changes."
+
+[coordination]
+term = "Coordinated switching"
+text = "Instead of every farm deciding alone, neighbours (or the sugar company's field staff) choose which wheat-after-beet fields get another crop. Ranking by pressure removed per hectare – and by soil, water and income side effects – removes more pressure for the same effort than switching at random."
+
+[uncertainty]
+term = "Uncertainty badge"
+text = "Low: based on measured data for this field. Medium: rule or model with field data, or literature rule. High: rough rule without local data – check with your advisor."

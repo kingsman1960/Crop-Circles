@@ -1,11 +1,13 @@
 # PRD – Field Shift Kraichgau (working title)
 
 NASA Space Apps Challenge 2026 · challenge "Field Shift: Adapting Farms with NASA Data" · team Crop Circles
-Status: draft 2026-11-04. Build starts at the hackathon kickoff (Sat 14 Nov 2026).
+Status: draft 2026-11-04, revised the same day: the product's core is now the landscape planner (§1, §6 item 0). Build started early by decision of the team lead.
 
 ## 1. One-liner
 
-A web app that lets a farmer on Kraichgau loess pick a field, see how heat, drought, heavy rain, soil and bare-soil periods have hit it, and compare the current rotation with at least three alternatives – each with the reasons, the evidence, the benefits, the gaps and the risks.
+**Landscape Shift.** The reed planthopper is a neighbourhood problem: its nymphs overwinter in winter wheat sown after sugar beet and fly to the beet around it. The app shows every such "nursery" in the Kraichgau from 10 m crop maps, and tells a sugar company or an advisor **which** fields should switch – and to what crop – so that the most pressure is removed while soil and water stay safe (NASA terrain, rain and climate data). Measured on 2017–2025: switching the best-placed 20 % of the nursery area removes 30–44 % of the pressure; the same area at random removes about 20 %.
+
+Under it, the field view: a web app that lets a farmer on Kraichgau loess pick a field, see how heat, drought, heavy rain, soil and bare-soil periods have hit it, and compare the current rotation with at least three alternatives – each with the reasons, the evidence, the benefits, the gaps and the risks.
 
 ## 2. Problem
 
@@ -16,11 +18,35 @@ A web app that lets a farmer on Kraichgau loess pick a field, see how heat, drou
 
 ## 3. Users
 
-| persona | needs | uses the app to |
+**Primary: the sugar-beet farmer in the Kraichgau.** 30–60, opens the app on a phone in the yard or a
+laptop in the office, a few times a season – not every day. Knows the fields, the crops and the weather in litres per m²;
+is not a GIS user and does not read K factors, z-scores or "pressure indices". Wants three answers: *What threatens my
+field? What should I grow after this year's beet? Does it help if I change alone?*
+
+**Secondary: the advisor** – sugar-company field staff, LTZ, Maschinenring. Sits with the farmer or runs the growers'
+meeting. Uses *Our region* and the switch list, and opens the details and sources to back up what the farmer sees.
+
+**Also: judges and the demo audience** – must follow one field from data to recommendation in three minutes.
+
+| page | for | answers |
 |---|---|---|
-| Farmer (primary), 30–60, smartphone/laptop, not a GIS user | plain language, own field, honest uncertainty | check field conditions, compare rotations, take a summary to the advisor |
-| Advisor (LTZ, Maschinenring, sugar company field staff) | evidence and sources | discuss options with farmers, see the data behind each claim |
-| Judges / demo audience | understand in 3 minutes | follow one field from data to recommendation |
+| About (landing) | first-time visitors, judges | what the platform does and how to use it; one button opens the platform |
+| My field (start of the platform) | farmer | the four risks on my field in plain words, with a level and what helps; the best-matching rotation |
+| What to grow | farmer + advisor | the options against what I grow now, ranked by what matters to me |
+| Our region | advisor (farmer reads the headline) | which wheat-after-beet fields should switch, and to what |
+| How we know | advisor, judges | words explained, every dataset and licence, the method |
+
+### Writing for farmers (applies to every screen)
+
+1. Every number comes with what it means: a level (low / medium / high), a comparison ("7 of the last 10 years",
+   "22 days a year, against 9 in 1981–2010") or a fraction ("about a third less").
+2. Units farmers use: litres per m² for rain and water, days, hectares, °C, "a drop of 6 m over 100 m" for slope.
+   No z-scores, K·S, ET0 or index values on the main screens – those stay in *How we know* and in tooltips.
+3. Headings are the farmer's questions or plain statements ("Soil washing away", "What to grow after sugar beet").
+4. One control before the first answer; expert settings are folded away.
+5. Scores are shown as five dots plus words against today's rotation ("a little worse", "much better"), not decimals.
+6. Each risk card ends with "What helps" and its source; general agronomy that is not from our sources says so.
+7. The tool supports, it does not decide: no "you must", and every page closes with the disclaimer.
 
 ## 4. Goals and non-goals
 
@@ -29,9 +55,10 @@ Goals
 - G2 Compare ≥ 3 rotation strategies including the existing one, against farmer priorities.
 - G3 Every statement traceable to a dataset or a source in `reference/sources.md`.
 - G4 Clear about uncertainty and about what needs local expert review.
+- G5 Show that coordinated, targeted switching removes more planthopper pressure than the same effort spent at random, and which crop fits each switched field.
 
 Non-goals
-- No yield or profit prediction. No prescriptive advice ("you must"). No pest forecasting model.
+- No yield or profit prediction. No prescriptive advice ("you must"). No pest forecasting model: the planner applies the published rotation rule (no wheat after beet) in space, it does not predict infestation.
 - No user accounts, no farmer data upload in the MVP.
 - No coverage beyond the Kraichgau bbox.
 
@@ -53,10 +80,13 @@ Non-goals
 ## 6. Features
 
 P0 – must have for the demo
+0. **Landscape planner**: nurseries (winter wheat on last year's beet) per FIONA parcel from the Thünen maps 2017–2025; pressure on every beet parcel (Σ nursery ha × e^(−d / r), r = flight distance 0.5–2 km as a setting); a ranked list of nurseries to switch, each with the crop that replaces the wheat (maize, soybean or pea, by erosion, water and income side effects); targeted vs. random comparison; CSV export; the pressure on F1–F3 before and after.
 1. **Field picker**: map of the Kraichgau with F1–F3 (and context layers); click a field → field page.
 2. **Field profile**: soil (BK50 unit, K factor, nFK; SoilGrids texture/SOC/pH), slope from DEM, crop history (Thünen 2017–2025 composition inside the block, FIONA 2022 parcels).
 3. **Conditions timeline**: per year and season – heat days, frost after emergence, dry spells, heavy-rain days, climatic water balance, soil-moisture anomaly; long-term trend line (1981 →).
-4. **Bare-soil calendar**: months with low NDVI (MODIS 2001 →, HLS 2019 →) next to DWD sowing/harvest dates.
+4. **Bare-soil calendar**: months with low NDVI (MODIS 2001 →, HLS 2019 →) next to DWD sowing/harvest dates. Done for F1–F3 with HLS (share of the field bare per month).
+4a. **This season from space** (*My field*): HLS 30 m tells winter cereal and sugar beet apart per parcel, so the newest season (2026) shows which of last year's beet parcels became planthopper nurseries and which parcels carry beet now – a year before the Thünen map. Rule checked against Thünen 2019–2025 on F1–F3: winter cereal or not after beet 40/41; beet found 33/46, 33 of 44 beet calls right. The June window was added after F2 showed late maize still green in autumn (before: 32 of 56 calls right).
+4b. **Summer green since 2001** (*My field*, weather tab): MODIS June–August NDVI per year; the least green summers are named and checked against the 5 driest summers (NASA POWER water balance). F1: 3 of 4, F2: 2 of 4, F3: 4 of 4.
 5. **Rotation comparison**: S0 + S1–S3 as cards (why / evidence / benefits / gaps / risks) and a score table per criterion.
 6. **Priorities**: sliders (erosion, water, nitrogen, planthopper risk, income stability) re-weight the score table.
 7. **Sources & attribution page**: every dataset with licence line (from `DATA_CATALOG.md`).
@@ -65,7 +95,7 @@ P1 – should have
 8. Erosion map: K factor × slope × crop cover by month (simplified ABAG) as a map layer.
 9. Scenario slider: +1/+2 °C, −10/−20 % spring rain → indicator shifts.
 10. Satellite vs ground: POWER / IMERG vs DWD station for the same days.
-11. German / English toggle.
+11. German / English toggle. Done as i18n: `app/locales/<tag>.toml` per language, content overlays in `content/<tag>/`, locale-aware numbers and dates; a new language is a new file (README › Languages).
 
 P2 – nice to have
 12. Click any FIONA parcel in the bbox (not only F1–F3).
@@ -87,6 +117,7 @@ Definitions are proposals; thresholds to be checked against sources on day 1.
 | bare-soil period | NDVI < 0.3 (to calibrate), length and season | MODIS, HLS |
 | erosion risk | K factor class × slope class × months bare in May–Aug × heavy-rain days | BK50, DEM, NDVI, IMERG |
 | planthopper risk | rule: winter wheat directly after sugar beet = high; maize/pea/soy/fallow after beet = low (JKI / LIZ / LLG) | reference |
+| planthopper pressure (landscape) | Σ over nurseries of nursery ha × e^(−distance / r) at each beet parcel; nursery = winter wheat on last season's beet | Thünen CTM, FIONA |
 | N credit | legume before cereal: +30–50 kg N/ha (soy), peas higher | reference |
 | water demand | crop water use in the season of highest deficit (Kc table) vs water balance | literature + POWER |
 
@@ -104,7 +135,8 @@ Each card states what the data shows for *this* field (e.g. "F1: 3 of 5 recent M
 
 ## 9. User flow
 
-1. Landing: one sentence, map, "pick your field".
+1. My field (start): four risk cards in plain words (planthopper, soil washing away, dry summers, heat), the best-matching rotation, the block on the map, the numbers behind it.
+1b. Our region: the planthopper finding in one sentence, one question ("how many fields switch?"), the map, the demo fields before and after, the switch list as CSV; expert settings folded away.
 2. Field page, top: profile tiles (soil, slope, erosion class, water storage, last crops).
 3. Middle: conditions timeline and bare-soil calendar, each with a one-line "what this means".
 4. Priorities: five sliders with defaults.
@@ -129,7 +161,8 @@ Each card states what the data shows for *this* field (e.g. "F1: 3 of 5 recent M
 
 ## 12. Success criteria / demo
 
-- A judge can go landing → F1 → strategies in under 3 minutes and repeat the reason S1 or S2 ranks first.
+- A judge can repeat the one finding: "switching the best-placed 20 % of wheat-after-beet fields removes about a third of the planthopper pressure; random switching removes a fifth".
+- A judge can go overview → planner → F1 → rotations in under 3 minutes and repeat the reason S1 or S2 ranks first.
 - All four challenge "for each strategy" items are visible for every strategy.
 - At least six NASA datasets used visibly; each chart names its source.
 - Demo script and video follow the Project Submission Guide (published 13 Nov).
@@ -139,8 +172,11 @@ Each card states what the data shows for *this* field (e.g. "F1: 3 of 5 recent M
 | risk / question | mitigation |
 |---|---|
 | Fields are parcel blocks; MODIS pixels mix crops | show block-level values honestly; use HLS + Thünen for parcel-scale views |
-| AppEEARS outputs (MODIS, SMAP, HLS) not ready | still processing on 2026-11-04; fall back to POWER GWET + CCI for soil moisture, Thünen for crop cover |
+| AppEEARS outputs (MODIS, SMAP, HLS) not ready | All in on 2026-11-05: HLS F1–F3 (→ 2026-11-01), MODIS (→ 2026-10-16), SMAP (→ 2026-11-03). The app still falls back to MODIS for bare-soil months and to POWER GWET + CCI for soil moisture when a download is missing |
 | Indicator thresholds not validated | cite source per threshold; mark as "screening" |
 | No price / contract data | list as information gap on every card; user slider for income weight only |
 | Challenge resources (13 Nov) may add required datasets | review on 13 Nov, update this PRD |
 | Judging criteria unknown until 13 Nov | re-check §12 against the Judging and Awards Guide |
+| Planthopper flight distance not in our sources | a setting (0.5 / 1 / 2 km); results shown for each – the ranking barely changes |
+| Planner not validated against SBR / Stolbur incidence | call it a relative pressure screening; ask LIZ / ISIP for monitoring data |
+| FIONA parcel outlines only for 2022; Thünen 2025 preliminary; 2023 beet area about half of other years in the map | stated on the planner; re-run when newer maps or parcels appear |

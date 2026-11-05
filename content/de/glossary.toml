@@ -1,0 +1,93 @@
+# Deutsche Texte zu content/glossary.toml ("Was ist das?").
+
+[ET0]
+term = "Verdunstung (ET, ET0)"
+text = "Wasser, das den Acker verlässt: Verdunstung aus dem Boden plus Transpiration der Pflanzen. ET0 ist der Bezugswert für kurzes, gut versorgtes Gras; eine Kultur verbraucht etwa Kc × ET0 (Kc = Kulturkoeffizient, FAO-56). Wir schätzen ET0 aus der täglichen Temperatur nach der Hargreaves-Formel."
+
+[water_balance]
+term = "Klimatische Wasserbilanz"
+text = "Regen minus ET0 (P − ET0). Unter null entzieht das Wetter mehr Wasser, als es bringt – die Kulturen leben dann vom Bodenwasser. Im Kraichgau ist sie meist von April bis August negativ."
+
+[anomaly]
+term = "Abweichung (Anomalie)"
+text = "Wie weit ein Wert von dem abweicht, was für diesen Tag im Jahr normal ist. Wir zeigen sie als z-Wert: 0 = normal, −1 = um eine Standardabweichung trockener als üblich, +1 = feuchter."
+
+[NDVI]
+term = "NDVI (Vegetationsindex)"
+text = "Ein Satellitenmaß für grüne Pflanzendecke, aus rotem und nahinfrarotem Licht: etwa 0,1–0,2 bei offenem Boden, 0,6–0,9 bei einem dichten grünen Bestand. Unter 0,3 nennen wir einen Acker „offen“ (Richtwert)."
+
+[frost_risk]
+term = "Frostrisiko"
+text = "Hier: Tage mit −2 °C oder kälter, nachdem die Kultur aufgelaufen ist. Junge Rüben-, Mais- und Sojapflanzen sind empfindlich; Wintergetreide ist abgehärtet."
+
+[heat_stress]
+term = "Hitzestress"
+text = "Hier: Tage mit 30 °C oder mehr. Am schädlichsten während der Weizenblüte und der Kornfüllung (vom Ährenschieben bis zur Milchreife)."
+
+[dry_spell]
+term = "Trockenperiode"
+text = "14 oder mehr Tage hintereinander mit jeweils weniger als 1 Liter Regen pro m²."
+
+[heavy_rain]
+term = "Starkregentag"
+text = "Ein Tag mit 20 Litern Regen pro m² oder mehr. Auf offenen Lösshängen verursachen solche Gewitter den größten Teil des Bodenabtrags."
+
+[K_factor]
+term = "K-Faktor (Erodierbarkeit des Bodens)"
+text = "Wie leicht ein Boden abgespült wird, aus der Allgemeinen Bodenabtragsgleichung (ABAG/USLE). Lössböden gehören zu den am leichtesten abtragbaren (Klassen 4–6 in der Bodenkarte BK50 des LGRB)."
+
+[slope]
+term = "Hangneigung und S-Faktor"
+text = "Steilere Hänge verlieren mehr Boden. Der S-Faktor (Wischmeier & Smith) macht aus der Hangneigung einen Faktor; K × S ergibt eine grobe Erosionsklasse für den Acker."
+
+[nFK]
+term = "nutzbare Feldkapazität (nFK)"
+text = "Wie viel Wasser der Boden im obersten Meter für die Pflanzen speichern kann. Tiefer Löss speichert viel (≥ 140 Liter pro m²) und puffert so Trockenperioden ab."
+
+[soil_moisture]
+term = "Bodenfeuchte aus dem Satelliten"
+text = "Mikrowellensatelliten (SMAP, ESA CCI) messen das Wasser in den obersten Zentimetern des Bodens in Rasterzellen von 9–25 km. GWETTOP und GWETROOT von NASA POWER stammen aus einem Modell (MERRA-2) für den Oberboden und den Wurzelraum."
+
+[satellite_vs_ground]
+term = "Satellit oder Wetterstation"
+text = "Satelliten- und Modelldaten (NASA POWER, GPM IMERG) decken jeden Acker und jeden Tag ab, mitteln aber über Zellen von 10–60 km. Wetterstationen (DWD) messen an einem Punkt genau, können aber 5–40 km entfernt sein und Lücken haben. Beides zusammen zeigt, wie sicher wir sein können."
+
+[block_average]
+term = "Mittelwert über den Block"
+text = "Jeder Demo-Acker ist ein Block aus 11–17 echten Schlägen mit unterschiedlichen Kulturen. Die Werte sind Mittelwerte über den Block, nicht über einen einzelnen Schlag."
+
+[phenology]
+term = "Phänologie"
+text = "Termine der Entwicklungsstadien einer Kultur (Saat, Auflaufen, Ährenschieben, Ernte). Wir nutzen regionale Mittelwerte der DWD-Beobachter im Umkreis von 40 km um Heilbronn."
+
+[cover_crop]
+term = "Zwischenfrucht"
+text = "Eine Kultur, die nach der Ernte gesät wird und den Boden bis zur nächsten Hauptfrucht bedeckt (z. B. Senf, Phacelia). Sie schützt vor Bodenabtrag und hält Stickstoff."
+
+[mulch_seeding]
+term = "Mulchsaat"
+text = "Die Hauptfrucht wird ohne Pflug in die Reste einer Zwischenfrucht gesät. Die Reste schützen den Boden, solange die Kultur noch klein ist."
+
+[planthopper]
+term = "Schilf-Glasflügelzikade und SBR / Stolbur"
+text = "Die Schilf-Glasflügelzikade (Pentastiridius leporinus) überträgt die Bakterien hinter SBR (niedriger Zuckergehalt) und Stolbur (Gummirüben). Ihre Larven saugen an den Rübenwurzeln und überwintern dann im Winterweizen, der nach der Rübe gesät wird."
+
+[nursery]
+term = "Kinderstube (Zikade)"
+text = "Ein Acker mit Winterweizen, der direkt nach Zuckerrüben gesät wurde. Die Zikadenlarven, die an den Rübenwurzeln gesaugt haben, wechseln an die Weizenwurzeln, überwintern in 40–50 cm Tiefe und fliegen im Juni als erwachsene Tiere aus (LIZ)."
+
+[pressure]
+term = "Zikadendruck"
+text = "Wie viel Kinderstuben-Fläche in Flugweite eines Rübenschlags liegt, nähere Flächen zählen mehr: Σ Kinderstube ha × e^(−Entfernung / Flugweite). Ein relativer Richtwert, keine Schädlingsprognose."
+
+[flight_distance]
+term = "Flugweite"
+text = "Wie weit die erwachsenen Zikaden typischerweise von einer Kinderstube zu Rübenschlägen fliegen. Unsere Quellen nennen keine Zahl, deshalb können Sie 0,5, 1 oder 2 km einstellen; die Reihenfolge der Äcker ändert sich dabei kaum."
+
+[coordination]
+term = "Abgestimmter Fruchtwechsel"
+text = "Statt dass jeder Betrieb allein entscheidet, legen Nachbarn (oder der Außendienst der Zuckerfabrik) fest, welche Äcker mit Weizen nach Rüben eine andere Kultur bekommen. Wer nach dem entfernten Druck pro Hektar auswählt – und dabei Nebenwirkungen auf Boden, Wasser und Einkommen beachtet –, nimmt mit demselben Aufwand mehr Druck heraus als bei zufälliger Auswahl."
+
+[uncertainty]
+term = "Sicherheit der Aussage"
+text = "Niedrig: beruht auf gemessenen Daten für diesen Acker. Mittel: Regel oder Modell mit Daten zum Acker oder eine Regel aus der Literatur. Hoch: grobe Regel ohne Daten vor Ort – fragen Sie Ihren Berater."

@@ -1,0 +1,83 @@
+# Indicator labels and plain-language text for the field page (computed in pipeline/climate.py).
+# Thresholds are screening values from PRD §7, not validated for this region yet.
+# better: which direction is good for the farmer ("lower" / "higher").
+
+[heat_days]
+label = "Hot days (above 30 °C)"
+unit = "days a year"
+definition = "Days with a maximum temperature of 30 °C or more."
+meaning = "More heat days mean more heat stress for crops and more water loss."
+better = "lower"
+
+[heat_days_heading]
+label = "Heat while wheat flowers"
+unit = "days a year"
+definition = "Days above 30 °C between the ears appearing and the grain filling (dates observed by DWD near Heilbronn each year)."
+meaning = "Heat during flowering and early grain filling lowers wheat yield and grain quality."
+better = "lower"
+
+[frost_after_emergence]
+label = "Frost on young beet"
+unit = "days a year"
+definition = "Nights of −2 °C or colder between the beet coming up and its leaves closing over the rows."
+meaning = "Late frost can kill young beet plants and force re-sowing."
+better = "lower"
+
+[dry_spells_spring]
+label = "Dry spells in spring"
+unit = "spells a year"
+definition = "Two weeks or more with hardly any rain (under 1 litre per m² a day), starting in March to May."
+meaning = "Dry spells at sowing and emergence give uneven stands."
+better = "lower"
+
+[dry_spells_summer]
+label = "Dry spells in summer"
+unit = "spells a year"
+definition = "Two weeks or more with hardly any rain (under 1 litre per m² a day), starting in June to August."
+meaning = "Summer crops (beet, maize, soy) need water exactly then."
+better = "lower"
+
+[heavy_rain_days]
+label = "Downpours in May–July"
+unit = "days a year"
+definition = "Days with 20 litres per m² of rain or more in May, June or July, while row crops are still open."
+meaning = "Heavy rain on bare or open soil washes loess off the slopes."
+better = "lower"
+
+[cwb_year]
+label = "Water shortfall over the year"
+unit = "litres per m²"
+definition = "How much more water the weather draws out of a green field than the rain brings (evaporation minus rain). Higher = drier."
+meaning = "Below zero means the rain brings more than the weather takes."
+better = "lower"
+flip = true  # stored as rain minus evaporation; shown the other way round
+
+[cwb_spring]
+label = "Water shortfall in spring"
+unit = "litres per m²"
+definition = "How much more water the weather draws out of a green field than the rain brings, March to May (evaporation minus rain). Higher = drier."
+meaning = "A shortfall dries out the topsoil and the seedbed."
+better = "lower"
+flip = true  # stored as rain minus evaporation; shown the other way round
+
+[cwb_summer]
+label = "Water shortfall in summer"
+unit = "litres per m²"
+definition = "How much more water the weather draws out of a green field than the rain brings, June to August (evaporation minus rain). Higher = drier."
+meaning = "The summer shortfall is what crops must take from the water stored in the soil."
+better = "lower"
+flip = true  # stored as rain minus evaporation; shown the other way round
+
+[precip]
+label = "Rain per year"
+unit = "litres per m²"
+definition = "Total rain and snow per year."
+meaning = "The amount alone says little – timing matters more (see dry spells and heavy rain)."
+better = "higher"
+
+[t_mean]
+label = "Average temperature"
+unit = "°C"
+definition = "The average air temperature over the whole year."
+meaning = "The long-term warming trend behind most other indicators."
+better = "lower"

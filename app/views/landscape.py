@@ -1,0 +1,177 @@
+import altair as alt
+import numpy as np
+import pandas as pd
+import pydeck as pdk
+import streamlit as st
+
+from data import (GREY, HUE, INK, MODES, PALE, POS, chart, content, crop_names, fields, footer, geojson, header, kpis,
+                  landscape, legend, neighbourhood, plan, planner_weights, priority_control, rgb, source_line, tip)
+from i18n import num, pct, t
+from plain import fraction, level, of_ten
+
+crops = content("crops")
+par, _, summary = landscape()
+names = crop_names()
+stats = {s["season"]: s for s in summary["seasons"]}
+SHARES = (0.1, 0.2, 0.3, 0.5)
+share_word = lambda v: t(f"region.share.{round(v * 100)}")
+
+# containers in reading order; the expert settings at the bottom are read first
+title_row, choose_row, numbers_row, map_row, list_row = (st.container() for _ in range(5))
+st.space("medium")
+with st.expander(t("region.expert.title")):
+    a, b, c = st.columns([1.2, 1, 2])
+    season = a.select_slider(t("region.expert.season"), list(stats), value=2025, key="ls_season", persist_state="session",
+                             help=t("region.expert.season_help"))
+    r = b.select_slider(t("region.expert.distance"), [500, 1000, 2000], value=1000, key="ls_r", persist_state="session",
+                        format_func=lambda v: f"{num(v / 1000, 1 if v % 1000 else 0)} km", help=tip("flight_distance"))
+    mode = c.segmented_control(t("region.expert.mode"), MODES, default="balanced", required=True, key="ls_mode",
+                               format_func=lambda m: t("region.mode." + m), persist_state="session", help=tip("coordination"))
+    st.markdown(t("region.expert.side_effects"))
+    with st.container(horizontal=True, gap="medium"):
+        for k in ("erosion", "water", "income"):
+            priority_control(k)
+    expert = st.container()
+
+with choose_row:
+    share = st.segmented_control(t("region.share_question"), SHARES, default=0.2, format_func=share_word, required=True,
+                                 key="ls_share_word", persist_state="session")
+
+plans = {m: plan(season, r, share, m, planner_weights()) for m in MODES}
+nur, beet = plans[mode]
+removed = lambda n: n.impact[n.switch].sum() / n.impact.sum()
+sw = nur[nur.switch].copy()
+s = stats[season]
+q33, q67 = beet.pressure.quantile([1 / 3, 2 / 3])
+lvl = lambda v: "high" if v >= q67 else "medium" if v >= q33 else "low"
+
+with title_row:
+    header(t("region.title"), t("region.sub", season=season, share=of_ten(s["beet_to_wheat"]), part=share_word(share),
+                                less=fraction(removed(plans["balanced"][0])), random=fraction(removed(plans["random"][0]))))
+
+with numbers_row:
+    high_before = beet.beet_ha[beet.pressure >= q67].sum() / beet.beet_ha.sum()
+    high_after = beet.beet_ha[beet.after >= q67].sum() / beet.beet_ha.sum()
+    kpis([
+        (t("region.kpi.followed"), of_ten(s["beet_to_wheat"]), None, t("region.kpi.followed_note", year=season - 1), None,
+         t("region.kpi.followed_help", beet=num(s["beet_prev_ha"]), prev=season - 1, wheat=num(s["nursery_ha"]), season=season)),
+        (t("region.kpi.nurseries"), num(s["nursery_ha"]), "ha", t("region.kpi.nurseries_note", n=num(len(nur))), None,
+         tip("nursery")),
+        (t("region.kpi.switching"), num(len(sw)), None, f"{num(sw.nursery_ha.sum())} ha", None, None),
+        (t("region.kpi.pressure"), "−" + pct(removed(nur)), None, t("region.kpi.pressure_note", fraction=fraction(removed(nur))),
+         "good", tip("pressure")),
+        (t("region.kpi.high"), t("region.kpi.high_value", n=num(high_after * 100)), None,
+         t("region.kpi.high_note", n=num(high_before * 100)), "good" if high_after < high_before else None,
+         t("region.kpi.high_help")),
+    ], lead=3)
+
+# --- map ------------------------------------------------------------------
+pale, full = np.array(rgb(PALE)), np.array(rgb(HUE, 235))
+v = np.clip(beet.after / beet.pressure.quantile(0.9), 0, 1).to_numpy()[:, None]
+radius = lambda d: np.sqrt(d.area_ha * 1e4 / np.pi).clip(lower=20)
+years = [f"c{y}" for y in range(season - 3, season + 1)]
+history = lambda d: d[years].apply(lambda col: col.map(names).fillna("–")).agg(" → ".join, axis=1)
+level_word = lambda v_: t("plain.level." + lvl(v_)).lower()
+beet = beet.assign(color=[[int(x) for x in c] for c in (pale + (full - pale) * v)], radius=radius(beet),  # plain ints for JSON
+                   tip=[t("region.tip.beet", season=season, ha=num(b_, 1), level=level_word(p_))
+                        + (t("region.tip.beet_after", level=level_word(a_)) if lvl(a_) != lvl(p_) else "")
+                        for b_, a_, p_ in zip(beet.beet_ha, beet.after, beet.pressure)])
+nur = nur.assign(color=[rgb(POS, 245) if x else rgb(GREY, 150) for x in nur.switch], radius=radius(nur),
+                 tip=[f"<b>{t('region.tip.switch', crop=crops[a_]['label']) if x else t('region.tip.wheat')}</b> · "
+                      f"{num(h, 1)} ha<br/>{hs}" for a_, x, h, hs in zip(nur.alt, nur.switch, nur.nursery_ha, history(nur))])
+cols = ["lon", "lat", "radius", "color", "tip"]
+dots = lambda id_, d, **kw: pdk.Layer("ScatterplotLayer", id=id_, data=d[cols], get_position="[lon, lat]",
+                                     get_radius="radius", get_fill_color="color", pickable=True, **kw)
+layers = [dots("wheat", nur[~nur.switch], radius_min_pixels=1.5), dots("beet", beet, radius_min_pixels=1.5),
+          dots("switch", nur[nur.switch], radius_min_pixels=2.5, stroked=True, get_line_color=[255, 255, 255],
+               line_width_min_pixels=1),
+          pdk.Layer("GeoJsonLayer", data=geojson("fields"), stroked=True, filled=False, get_line_color=[22, 33, 62],
+                    line_width_min_pixels=2),
+          pdk.Layer("TextLayer", data=[{"id": i, "pos": [p["lon"], p["lat"]]} for i, p in fields().items()],
+                    get_position="pos", get_text="id", get_size=15, get_color=[22, 33, 62], get_pixel_offset=[0, -22],
+                    outline_width=4, outline_color=[255, 255, 255], font_settings={"sdf": True})]
+with map_row:
+    st.space("small")
+    left, right = st.columns([2.1, 1], gap="large")
+    with left:
+        st.subheader(t("region.map.title", season=season))
+        st.pydeck_chart(pdk.Deck(map_style=None, layers=layers, tooltip={"html": "{tip}"},
+                                 initial_view_state=pdk.ViewState(latitude=49.15, longitude=9.1, zoom=9.6)), height=520)
+        legend([(GREY, t("region.map.wheat"), True), (POS, t("region.map.switch"), True),
+                (PALE, t("region.map.beet_low"), True), (HUE, t("region.map.beet_high"), True)])
+        source_line(t("region.map.unit"), t("region.map.source"), t("region.map.period", season=season))
+    with right:
+        st.subheader(t("region.demo.title"))
+        rows = ""
+        for fid, p in fields().items():
+            n = neighbourhood(fid, nur, r)
+            rows += (f'<tr><td><b>{fid}</b><span class="g">'
+                     f'{t("common.near", place=p["label"].removeprefix("Near "))}</span></td>'
+                     f'<td>{level(lvl(n["total"]))}</td><td>{level(lvl(n["after"]))}</td></tr>')
+        st.html(f'<table class="cc-table"><thead><tr><th>{t("region.demo.field")}</th><th>{t("region.demo.now")}</th>'
+                f'<th>{t("region.demo.after")}</th></tr></thead><tbody>{rows}</tbody></table>')
+        st.caption(t("region.demo.note"))
+        st.subheader(t("region.mix.title"))
+        mix = sw.groupby("alt").nursery_ha.agg(["sum", "size"])
+        st.html("".join(f'<div class="cc-score"><span>{crops[a_]["label"]}</span><span class="n">'
+                        f'{t("region.mix.row", n=num(m["size"]), ha=num(m["sum"]))}</span></div>' for a_, m in mix.iterrows())
+                or f"<p>{t('region.mix.none')}</p>")
+        st.caption(t("region.mix.note"))
+
+# --- the list for the meeting -----------------------------------------------
+why = lambda row: ", ".join([x for x in [t("region.why.steep") if row.ks >= 0.55 else "",
+                                         t("region.why.dry") if row.nfk_mm < 140 else ""] if x] or [t("region.why.flat")])
+col = lambda k, **kw: t("region.list.col." + k, **kw)
+table = pd.DataFrame({
+    col("id"): sw.id, col("ha"): sw.nursery_ha.round(1), col("crop"): sw.alt.map(lambda a_: crops[a_]["label"]),
+    col("why"): [why(row) for row in sw.itertuples()],
+    col("history", start=season - 3, end=season): history(sw).to_numpy(),
+    col("share"): sw.impact / nur.impact.sum(), "lat": sw.lat.round(5), "lon": sw.lon.round(5)})
+with list_row:
+    st.space("small")
+    a, b = st.columns([3, 1], vertical_alignment="bottom")
+    a.subheader(t("region.list.title"))
+    b.download_button(t("region.list.download"), table.to_csv(index=False).encode("utf-8"),
+                      f"switch_list_{season}_{round(share * 100)}.csv", "text/csv", type="primary", width="stretch",
+                      disabled=sw.empty)
+    st.dataframe(table.drop(columns=["lat", "lon"]).head(200), hide_index=True, height=340, column_config={
+        col("share"): st.column_config.NumberColumn(format="percent"),
+        col("ha"): st.column_config.NumberColumn(format="%.1f")})
+    st.caption(t("region.list.note", n=num(len(table))))
+
+# --- expert view --------------------------------------------------------------
+with expert:
+    st.markdown(t("region.expert.compare", part=share_word(share)))
+    a, b = st.columns([1, 1.25], gap="large")
+    with a:
+        rows = ""
+        for m, (n, _) in plans.items():
+            x = n[n.switch]
+            area = max(x.nursery_ha.sum(), 1e-9)
+            rows += (f'<tr class="{"top" if m == mode else ""}"><td>{t("region.mode." + m)}</td>'
+                     f'<td class="num">{pct(removed(n))}</td><td class="num">{pct(x.nursery_ha[x.ks >= 0.55].sum() / area)}</td></tr>')
+        st.html(f'<table class="cc-table"><thead><tr><th>{t("region.expert.col.mode")}</th>'
+                f'<th class="num">{t("region.expert.col.less")}</th><th class="num">{t("region.expert.col.eroded")}</th>'
+                f'</tr></thead><tbody>{rows}</tbody></table>')
+        o = [pct(s[f"targeted20_r{x}"]) for x in (500, 1000, 2000)]
+        st.caption(t("region.expert.robust", a=o[0], b=o[1], c=o[2]))
+    with b:
+        curve = []
+        for m, (n, _) in plans.items():
+            x, y = np.cumsum(n.nursery_ha) / n.nursery_ha.sum(), np.cumsum(n.impact) / n.impact.sum()
+            idx = np.linspace(0, len(n) - 1, 120).astype(int)
+            curve.append(pd.DataFrame({"area": x.iloc[idx].to_numpy(), "removed": y.iloc[idx].to_numpy(),
+                                       "how": t("region.mode." + m)}))
+        labels = [t("region.mode." + m) for m in MODES]
+        base = alt.Chart(pd.concat(curve)).mark_line(strokeWidth=2).encode(
+            x=alt.X("area:Q", title=t("region.expert.x"), axis=alt.Axis(format="%", tickCount=5)),
+            y=alt.Y("removed:Q", title=t("region.expert.y"), axis=alt.Axis(format="%", tickCount=5)),
+            color=alt.Color("how:N", title=None, legend=alt.Legend(orient="top", direction="vertical"),
+                            scale=alt.Scale(domain=labels, range=[HUE, INK, GREY])),
+            tooltip=[alt.Tooltip("area:Q", format=".0%"), alt.Tooltip("removed:Q", format=".0%"), "how"])
+        layers_ = [base.transform_filter(alt.datum.how == t("region.mode." + m)) for m in [*[x for x in MODES if x != mode], mode]]
+        rule = alt.Chart(pd.DataFrame({"x": [share]})).mark_rule(color=INK, strokeDash=[3, 3]).encode(x="x:Q")
+        chart(alt.layer(*layers_) + rule, width="stretch", height=260)
+    st.markdown(t("region.expert.method", season=season,
+                  status=t("region.expert.preliminary") if season == 2025 else t("region.expert.final")))
+footer()
