@@ -64,10 +64,17 @@ period = "2017 → 2025 (2025 vorläufig)"
 used_for = "Fruchtfolge in jedem Block, Anteil Weizen nach Rüben, Kartenebene der Kulturen"
 
 [[dataset]]
+id = "dlr_croptypes"
+name = "DLR CropTypes v2.1 (Sentinel-1 + Sentinel-2)"
+period = "2017 → 2025"
+used_for = "Zweite Meinung zu jeder Zikaden-Kinderstube in der Region; der Plan auf beiden Karten geprüft"
+
+[[dataset]]
 id = "fiona"
 name = "FIONA-Schläge Baden-Württemberg (InVeKoS)"
 resolution = "Schlag"
-used_for = "Angemeldete Kulturen der Schläge in jedem Block"
+period = "2022–2025"
+used_for = "Angemeldete Kulturen der Schläge in jedem Block, je Jahr; Bodenwahrheit für die Satellitenprüfung (ab 2023: WMS FIONA ab 2023)"
 
 [[dataset]]
 id = "esa_cci_sm"

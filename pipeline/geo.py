@@ -137,21 +137,34 @@ def soilgrids(fid):
 
 
 # ---------- FIONA ----------
-def fiona_parcels(fields25832):
-    hits = []
+def fiona_features():
+    """(year, feature): FIONA 2022 (WFS, whole bbox) and 2023 on (WMS answers around the demo fields, once per parcel)."""
     for p in sorted((RAW / "fiona").glob("fiona_bbox_p*.json")):
         for f in json.loads(p.read_text(encoding="utf-8"))["features"]:
-            x0, y0, x1, y1 = f["bbox"]
-            for fid, fg in fields25832.items():
-                fx0, fy0, fx1, fy1 = fg.bounds
-                if x1 < fx0 or x0 > fx1 or y1 < fy0 or y0 > fy1:
-                    continue
-                g = shape(f["geometry"])
-                inter = g.intersection(fg).area
-                if inter >= 0.5 * g.area or inter >= 2000:
-                    pr = f["properties"]
-                    hits.append({"field": fid, "crop": pr["Bezeichnung"], "group": pr["Kulturartengruppe"],
-                                 "nc": pr["NC"], "ha": round(g.area / 1e4, 2), "geom": g})
+            yield 2022, f
+    seen = set()
+    for p in sorted((RAW / "fiona" / "wms_ab2023").glob("F*_20*.geojson")):
+        for f in json.loads(p.read_text(encoding="utf-8"))["features"]:
+            if f["id"] not in seen:
+                seen.add(f["id"])
+                yield f["properties"]["Antragsjahr"], f
+
+
+def fiona_parcels(fields25832):
+    hits = []
+    for year, f in fiona_features():
+        g = None
+        x0, y0, x1, y1 = f.get("bbox") or (g := shape(f["geometry"])).bounds
+        for fid, fg in fields25832.items():
+            fx0, fy0, fx1, fy1 = fg.bounds
+            if x1 < fx0 or x0 > fx1 or y1 < fy0 or y0 > fy1:
+                continue
+            g = g or shape(f["geometry"])
+            inter = g.intersection(fg).area
+            if inter >= 0.5 * g.area or inter >= 2000:
+                pr = f["properties"]
+                hits.append({"field": fid, "year": year, "crop": pr["Bezeichnung"], "group": pr["Kulturartengruppe"],
+                             "nc": pr["NC"], "ha": round(g.area / 1e4, 2), "geom": g})
     return hits
 
 
@@ -262,7 +275,7 @@ def main():
              "slope_p90_pct": num(np.percentile(sp, 90), 1), "slope_max_pct": num(sp.max(), 1),
              "s_factor": num(s_fac[m].mean()), **soil_profile(f25832[fid], units, attrs)}
         ks = p["k_factor"] * p["s_factor"] if p["k_factor"] is not None else math.nan
-        crops_f = pd.DataFrame([h for h in parcels if h["field"] == fid])
+        crops_f = pd.DataFrame([h for h in parcels if h["field"] == fid and h["year"] == 2022])
         p |= {"erosion_ks": num(ks), "erosion_class": ks_class(ks),
               "erosion_note": "screening classes on K·S; thresholds to verify against GAPKondV/DIN 19708",
               **soilgrids(fid),
@@ -274,7 +287,7 @@ def main():
     out("fields.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": feats}, ensure_ascii=False), encoding="utf-8")
     print(f"  fields.geojson: {len(feats)} fields")
 
-    pf = [{"type": "Feature", "properties": {k: h[k] for k in ("field", "crop", "group", "nc", "ha")},
+    pf = [{"type": "Feature", "properties": {k: h[k] for k in ("field", "year", "crop", "group", "nc", "ha")},
            "geometry": mapping(shapely.set_precision(reproj(h["geom"], 25832, 4326), 1e-6))} for h in parcels]
     out("parcels.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": pf}, ensure_ascii=False), encoding="utf-8")
     print(f"  parcels.geojson: {len(pf)} parcels")

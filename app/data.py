@@ -2,6 +2,7 @@
 import base64
 import html
 import json
+import re
 import sys
 import tomllib
 from pathlib import Path
@@ -25,6 +26,19 @@ from i18n import lang, t  # noqa: E402
 INK, HUE, POS, GREY, GREY_LIGHT = "#16213e", "#b03a72", "#2f6a3f", "#8a94a6", "#c3cad4"
 PALE = "#e7bfd2"  # sugar beet that is not (yet) under pressure
 UNCERTAINTY = {"low": POS, "medium": "#9a6a12", "high": HUE}
+# crops on the maps: one hue per group, all pairs checked for colour-blind readers (dataviz validator); the rest grey
+CROPS = {"beet": HUE, "cereal": "#eda100", "maize": "#2a78d6", "legume": "#008300", "veg": "#7f3b08", "grass": "#1baf7a",
+         "other": GREY_LIGHT}
+CROP_WORDS = (("beet", ("rübe",)), ("legume", ("erbse", "bohne", "soja", "lupine", "luzerne", "klee", "wicke")),
+              ("maize", ("mais",)), ("cereal", ("weizen", "dinkel", "emmer", "einkorn", "gerste", "hafer", "roggen", "triticale")),
+              ("veg", ("kartoffel", "gemüse", "lauch", "zwiebel", "kürbis", "zucchini", "kohl", "möhre", "spargel", "salat")),
+              ("grass", ("wiese", "weide", "gras", "brache", "blüh", "feldrand", "randstreifen", "puffer", "erzeugung")))
+
+
+def crop_group(name):
+    """FIONA crop name (German) -> map group; legumes before grass so that clover grass counts as a legume."""
+    n = name.lower()
+    return next((g for g, words in CROP_WORDS if any(w in n for w in words)), "other")
 
 
 def crop_scale(names, focus):
@@ -147,9 +161,9 @@ def kpis(items, lead=None):
 
 
 def legend(keys):
-    """Swatches that are the marks they explain: (colour, label, round?)."""
-    st.html("".join(f'<span class="cc-key"><i class="{"round" if r else ""}" style="background:{c}"></i>{l}</span>'
-                    for c, l, r in keys))
+    """Swatches that are the marks they explain: (colour, label, round?[, outline colour])."""
+    st.html("".join(f'<span class="cc-key"><i class="{"round" if r else ""}" style="background:{c}'
+                    f'{f";box-shadow:inset 0 0 0 2px {o[0]}" if o else ""}"></i>{l}</span>' for c, l, r, *o in keys))
 
 
 def tip(key):
@@ -165,6 +179,20 @@ def source_line(unit, source, period):
 def uncertainty(level):
     return (f'<span class="cc-dot" style="background:{UNCERTAINTY[level]}"></span> '
             f'<span class="cc-note">{t("common.uncertainty." + level)}</span>')
+
+
+def takeaway(title, sub, sections):
+    """The field page as one printable HTML page to take to the advisor: sections are (heading, [paragraphs])."""
+    md = lambda s: re.sub(r"\*(.+?)\*", r"<i>\1</i>", re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", s))
+    body = "".join(f"<h2>{h}</h2>" + "".join(f"<p>{md(p)}</p>" for p in ps) for h, ps in sections)
+    logo = base64.b64encode((ASSETS / "symbol.png").read_bytes()).decode()
+    return (f'<!doctype html><html lang="{lang()}"><head><meta charset="utf-8"><title>{html.escape(title)}</title><style>'
+            "body{font:15px/1.55 system-ui,sans-serif;color:#16213e;background:#fff;max-width:46rem;margin:2rem auto;"
+            "padding:0 1rem}h1,h2{font-family:Newsreader,Georgia,serif;font-weight:600}h1{font-size:1.6rem;margin:.4rem 0}"
+            "h2{font-size:1.15rem;margin:1.6rem 0 .4rem;padding-top:1rem;border-top:1px solid #c3cad4}p{margin:.45rem 0}"
+            ".sub,footer{color:#5b6475}footer{margin-top:2rem;font-size:.8rem}@media print{body{margin:0}h2{break-after:avoid}}"
+            f'</style></head><body><img src="data:image/png;base64,{logo}" width="44" alt="Crop Circles"><h1>{title}</h1>'
+            f'<p class="sub">{md(sub)}</p>{body}<footer>{md(t("common.footer"))}</footer></body></html>')
 
 
 def footer():

@@ -47,6 +47,8 @@ file_path,dataset_id,source,product_version,query_or_url,spatial,temporal,downlo
 | 14 | thuenen_ctm | added | Thünen 10 m crop type maps 2017–2025, clipped | ~25 MB |
 | 15 | esa_cci_sm | added (auxiliary) | ESA CCI soil moisture 0.25°, daily, 2020 → 2024 | < 1 MB |
 | 16 | c3s_sm | added (auxiliary) | C3S/CDS soil moisture (CCI algorithm), daily, 2025 → latest | ~1 GB (global zips) |
+| 12b | fiona_wms | added 2026-11-05 | FIONA 2023–2025 around the demo fields (WMS GetFeatureInfo) | < 1 MB |
+| 17 | dlr_croptypes | added 2026-11-05 | DLR CropTypes v2.1 10 m crop maps 2017–2025, clipped | ~15 MB |
 
 Stop after each dataset and report: files, row counts, date range, missing values.
 
@@ -172,6 +174,17 @@ Stop after each dataset and report: files, row counts, date range, missing value
 - CDS `satellite-soil-moisture`, surface volumetric, COMBINED, daily, icdr: v202505 for 2025-01 → 2026-08, v202505_2 from 2026-09-01 (CDS notice: v202505 1–20 Sep 2026 has many missing values).
 - Needs `~/.cdsapirc` (user's token) and the licence accepted on the dataset page. No area subset: global daily NetCDFs in zips; the field cells go to a CSV.
 - CCI v09.2 (2020–2024) and C3S v202505 are different versions: expect a small step at 2024/2025.
+
+### 12b · fiona_wms (added 2026-11-05)
+
+- FIONA 2023 on: `WMS_LW-BW_FIONA_Flaecheninformation_ab2023`, layers `lw:v_fiona_flaecheninformation_<year>`. The bulk WFS listed in the metadata (`…_ab2023`, record c02d198c-72aa-4118-af2e-801fc5b24c31) answered 404 on 2026-11-05.
+- GetFeatureInfo (JSON with polygon, EPSG:25832) at one point inside each FIONA 2022 parcel of the HLS boxes, plus the uncovered pieces of each block; 0.5 s between requests.
+- Licence: dl-de/by-2-0, as dataset 12.
+
+### 17 · dlr_croptypes (added 2026-11-05)
+
+- DLR EOC Geoservice, CropTypes v2.1 (`CROPTYPES_DE_P1Y_<year>_V021.tif`, Germany, EPSG:32632, 10 m, uint8); only the bbox window is read (HTTP range requests). Legend, class accuracies and README kept.
+- Licence: CC BY 4.0 – cite Gessner et al. 2025 (IEEE GRSL 22, 2504805) and Asam et al. 2022 (Remote Sens. 14, 2981).
 
 ## 3. Done when
 

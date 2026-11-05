@@ -30,11 +30,12 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 | 9 | smap | SMAP L3 enhanced soil moisture AM/PM | 9 km | 2015-03-31 → 2026-11-03 | point | ✅ |
 | 10 | hls_ndvi | HLS red / NIR / Fmask around each field | 30 m | 2019-01-02 → 2026-11-01 | UTM 32N | ✅ |
 | 11 | reference | literature and rules links | – | – | – | ✅ |
-| 12 | fiona | BW parcels with declared crop | parcel | 2022 only | EPSG:25832 | ✅ |
+| 12 | fiona | BW parcels with declared crop | parcel | 2022 (WFS, whole bbox); 2023–2025 around F1–F3 (WMS) | EPSG:25832 | ✅ |
 | 13 | bk50 | LGRB soil map 1:50 000 (K factor, nFK, …) | polygon | static | EPSG:25832 | ✅ |
 | 14 | thuenen_ctm | crop type maps | 10 m | 2017 → 2025 (2025 preliminary) | EPSG:3035 | ✅ |
 | 15 | esa_cci_sm | ESA CCI soil moisture COMBINED v09.2 | 0.25° | 2020-01-01 → 2024-12-31 | point | ✅ |
 | 16 | c3s_sm | C3S soil moisture COMBINED (CCI algorithm) | 0.25° | 2025-01-01 → 2026-10-10 | point | ✅ |
+| 17 | dlr_croptypes | DLR CropTypes v2.1 crop type maps | 10 m | 2017 → 2025 | EPSG:32632 | ✅ |
 
 ---
 
@@ -181,10 +182,18 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 - **Version step at 2024/2025** against CCI v09.2 – compare the overlap before joining the series.
 - Licence: Copernicus licence (CC-BY) – "Contains modified Copernicus Climate Change Service information (2026)".
 
+## 17 · dlr_croptypes
+
+- `data/raw/dlr_croptypes/CROPTYPES_DE_P1Y_<year>_V021_bbox.tif` – bbox window of the national COGs, unchanged values. EPSG:32632, 10.003 m, 4392 × 4453 px, uint8, 0 = no data / non-cropland (~51 %).
+- Legend `LEGEND_CropTypes_v21.txt`: 11 winter wheat, 12 winter barley, 13 winter rye, 14 other winter cereals, 21 spring wheat, 22 spring barley, 23 spring oat, 30 maize, 40 legumes, 41 soy, 42 lupin, 50 potato, **60 sugar beet**, 71 rapeseed, 72 sunflower, 83 permanent grassland, 84 forage, 90 vineyard, 100 fruit trees / woody, 110 hops, 111 other agricultural, 120 vegetables.
+- Class F1 (`ACCURACIES_CropTypes_Germany.txt`, 2017–2025): sugar beet 0.89–0.95, winter wheat 0.72–0.84.
+- Unlike Thünen, spelt and triticale are not winter wheat (class 14): the planner counts 11 + 14 as the wheat after beet.
+- Licence: CC BY 4.0 – DLR CropTypes v2.1 (Gessner et al. 2025; Asam et al. 2022).
+
 ## Gaps and caveats (summary)
 
 - Fields are parcel blocks; MODIS (250 m) and all climate grids are coarser than one parcel. HLS (30 m), Thünen (10 m) and FIONA are the only parcel-scale sources.
-- No public parcel crop history for BW except FIONA 2022; use Thünen 2017–2025 for crop sequences.
+- FIONA 2023 on is published as `WMS_LW-BW_FIONA_Flaecheninformation_ab2023` (layers `lw:v_fiona_flaecheninformation_2023` … `_2025`). Its bulk WFS (`…_ab2023`, listed in the Geoportal BW metadata) answered 404 on 2026-11-05, so `prep/fetch_fiona_wms.py` asks the WMS (GetFeatureInfo, JSON with polygon) at one point inside every FIONA 2022 parcel of the HLS boxes plus the uncovered pieces of each block → `data/raw/fiona/wms_ab2023/F*_20*.geojson`. Region-wide history 2017–2025 still comes from Thünen.
 - Soybean: in Thünen maps (1614) and FIONA codes, not in DWD phenology.
 - Precipitation after 2025-09-30: POWER and DWD only.
 - Space Apps challenge resources (partner datasets) are published on 2026-11-13 – check and add here.

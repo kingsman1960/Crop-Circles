@@ -3,9 +3,12 @@
 Outputs:
   landscape_parcels.parquet  parcels that grew sugar beet or were a planthopper nursery in any season:
                              position, area, erosion (K·S) and plant-available water, crop code per year 2017–2025
-  landscape_seasons.parquet  per season y (2018–2025): nursery ha (beet in y-1 -> winter wheat in y) and beet ha
-  landscape_summary.json     regional numbers per season, incl. targeted vs. random switching (see pressure.py)
-Parcels are the FIONA 2022 outlines (the only parcel map); crops per year come from the Thünen 10 m maps.
+  landscape_seasons.parquet  per season y (2018–2025): nursery ha (beet in y-1 -> winter wheat in y) and beet ha,
+                             from the Thünen map and, as a check, from the DLR map (`_dlr`)
+  landscape_summary.json     regional numbers per season, incl. targeted vs. random switching (see pressure.py),
+                             the same from the DLR map, and how much of the Thünen nursery area DLR confirms
+Parcels are the FIONA 2022 outlines (the only parcel map for the whole window); crops per year come from the Thünen
+10 m maps (c<year>); the DLR CropTypes 10 m maps (d<year>) are a second, independently made opinion.
 """
 import json
 
@@ -22,6 +25,9 @@ from pipeline.pressure import impacts
 
 YEARS = range(2017, 2026)
 BEET, WHEAT = 1402, 1101
+# DLR: sugar beet; winter wheat + other winter cereals (spelt, triticale), which Thünen has no own class for
+DLR_BEET, DLR_WHEAT = 60, (11, 14)
+dlr_path = lambda y: RAW / "dlr_croptypes" / f"CROPTYPES_DE_P1Y_{y}_V021_bbox.tif"
 MIN_HA = 0.1  # less than 10 pixels in a parcel = edge noise between map and parcel outline
 NFK_MID = {1: 35, 2: 70, 3: 115, 4: 170, 5: 220}  # mm, middle of the BK50 nFK classes
 
@@ -37,6 +43,27 @@ def zonal_mean(ids, values, n):
     s = np.bincount(ids[ok], values[ok], minlength=n)
     c = np.bincount(ids[ok], minlength=n)
     return np.where(c > 0, s / np.maximum(c, 1), np.nan)
+
+
+def majority(ids, a, n):
+    """Most frequent class per parcel (raster value i = row i-1; 0 = no class pixel; nodata is 0 or -9999)."""
+    valid = (a > 0) & (ids > 0)
+    codes, inv = np.unique(a[valid], return_inverse=True)
+    cnt = np.bincount(ids[valid] * len(codes) + inv, minlength=n * len(codes)).reshape(n, -1)[1:]
+    return np.where(cnt.sum(1) > 0, codes[cnt.argmax(1)], 0).astype("int16")
+
+
+def targeted(cur, xy, n_col, b_col):
+    """Share of the pressure removed when the 20 % of the nursery area that removes most per ha switches."""
+    nur, beet = cur[cur[n_col] > 0], cur[cur[b_col] > 0]
+    res = {}
+    for r in (500, 1000, 2000):
+        imp, _ = impacts(xy.loc[nur.id].values.astype("float32"), nur[n_col].values.astype("float32"),
+                         xy.loc[beet.id].values.astype("float32"), beet[b_col].values.astype("float32"), r)
+        order = np.argsort(-imp / nur[n_col].values)  # most pressure removed per ha switched
+        top = order[: np.searchsorted(np.cumsum(nur[n_col].values[order]), 0.2 * nur[n_col].sum())]
+        res[f"targeted20_r{r}"] = round(float(imp[top].sum() / imp.sum()), 3)
+    return res
 
 
 def legends():
@@ -85,34 +112,40 @@ def main():
     df["ks"] = df.ks.fillna(pd.Series((k_r * s_fac)[row, col]))
     df["nfk_mm"] = df.nfk_mm.fillna(pd.Series(nfk_r[row, col]))
 
-    # crops per parcel and year from the Thünen maps
+    # crops per parcel and year: Thünen (EPSG:3035) and DLR (EPSG:32632, FIONA's EPSG:25832 within a metre), both 10 m
     with rasterio.open(geo.ctm_path(2017)) as src:
-        shp, T3035 = src.shape, src.transform
-    ids = features.rasterize(zip(g3035, range(1, n)), shp, transform=T3035, fill=0, dtype="int32")
-    leg = geo.legend()
-    codes = np.array(sorted(leg))
-    lut = np.zeros(codes.max() + 1, np.int64)
-    lut[codes] = np.arange(1, len(codes) + 1)
-    per_parcel = lambda mask: np.bincount(ids[mask & (ids > 0)], minlength=n)[1:] * 0.01  # ha (10 m pixels)
-    seasons, summary, prev = [], [], None
+        ids = features.rasterize(zip(g3035, range(1, n)), src.shape, transform=src.transform, fill=0, dtype="int32")
+    with rasterio.open(dlr_path(2017)) as src:
+        ids_d = features.rasterize(zip(df.geom.values, range(1, n)), src.shape, transform=src.transform, fill=0,
+                                   dtype="int32")
+        px_d = abs(src.res[0] * src.res[1]) / 1e4
+    per_parcel = lambda ids_, mask, px: np.bincount(ids_[mask & (ids_ > 0)], minlength=n)[1:] * px  # ha
+    area = ["nursery_ha", "beet_ha", "nursery_ha_dlr", "beet_ha_dlr"]
+    seasons, summary, prev, prev_d = [], [], None, None
     for y in YEARS:
         with rasterio.open(geo.ctm_path(y)) as src:
             a = src.read(1)
-        valid = (a > 0) & (ids > 0)  # nodata is -9999 or 0 depending on the year
-        cnt = np.bincount(ids[valid] * (len(codes) + 1) + lut[np.minimum(a[valid], len(lut) - 1)], minlength=n * (len(codes) + 1))
-        cnt = cnt.reshape(n, -1)[1:, 1:]
-        df[f"c{y}"] = np.where(cnt.sum(1) > 0, codes[cnt.argmax(1)], 0).astype("int16")
+        with rasterio.open(dlr_path(y)) as src:
+            d = src.read(1)
+        df[f"c{y}"], df[f"d{y}"] = majority(ids, a, n), majority(ids_d, d, n)
         if prev is not None:
-            nursery = (prev == BEET) & (a == WHEAT)
-            s = pd.DataFrame({"season": y, "id": df.id, "nursery_ha": per_parcel(nursery), "beet_ha": per_parcel(a == BEET)})
-            s[["nursery_ha", "beet_ha"]] = s[["nursery_ha", "beet_ha"]].where(s[["nursery_ha", "beet_ha"]] >= MIN_HA, 0)
-            seasons.append(s[(s.nursery_ha > 0) | (s.beet_ha > 0)])
+            nursery, nursery_d = (prev == BEET) & (a == WHEAT), (prev_d == DLR_BEET) & np.isin(d, DLR_WHEAT)
+            s = pd.DataFrame({"season": y, "id": df.id, "nursery_ha": per_parcel(ids, nursery, 0.01),
+                              "beet_ha": per_parcel(ids, a == BEET, 0.01),
+                              "nursery_ha_dlr": per_parcel(ids_d, nursery_d, px_d),
+                              "beet_ha_dlr": per_parcel(ids_d, d == DLR_BEET, px_d)})
+            s[area] = s[area].where(s[area] >= MIN_HA, 0)
+            seasons.append(s[(s[area] > 0).any(axis=1)])
             summary.append({"season": y, "beet_prev_ha": round((prev == BEET).sum() / 100),
                             "nursery_ha": round(nursery.sum() / 100), "beet_ha": round((a == BEET).sum() / 100),
                             "beet_to_wheat": round(nursery.sum() / max((prev == BEET).sum(), 1), 3),
                             "nursery_in_parcels": round(float(s.nursery_ha.sum() / (nursery.sum() / 100)), 3),
-                            "map": "v302 preliminary" if y == 2025 else "v202"})
-        prev = a
+                            "map": "v302 preliminary" if y == 2025 else "v202",
+                            "dlr": {"beet_prev_ha": round((prev_d == DLR_BEET).sum() * px_d),
+                                    "nursery_ha": round(nursery_d.sum() * px_d),
+                                    "beet_ha": round((d == DLR_BEET).sum() * px_d),
+                                    "beet_to_wheat": round(nursery_d.sum() / max((prev_d == DLR_BEET).sum(), 1), 3)}})
+        prev, prev_d = a, d
 
     seasons = pd.concat(seasons, ignore_index=True)
     keep = df.id.isin(seasons.id)
@@ -126,20 +159,17 @@ def main():
     check("landscape_parcels.parquet", df)
     check("landscape_seasons.parquet", seasons, "season")
 
-    # targeted vs. random switching of 20 % of the nursery area, for three flight distances
+    # targeted vs. random switching of 20 % of the nursery area, for three flight distances, on both maps
     xy = df.set_index("id")[["x", "y"]]
     for s in summary:
         cur = seasons[seasons.season == s["season"]]
-        nur, beet = cur[cur.nursery_ha > 0], cur[cur.beet_ha > 0]
-        for r in (500, 1000, 2000):
-            imp, pres = impacts(xy.loc[nur.id].values.astype("float32"), nur.nursery_ha.values.astype("float32"),
-                                xy.loc[beet.id].values.astype("float32"), beet.beet_ha.values.astype("float32"), r)
-            order = np.argsort(-imp / nur.nursery_ha.values)  # most pressure removed per ha switched
-            top = order[: np.searchsorted(np.cumsum(nur.nursery_ha.values[order]), 0.2 * nur.nursery_ha.sum())]
-            s[f"targeted20_r{r}"] = round(float(imp[top].sum() / imp.sum()), 3)
+        s |= targeted(cur, xy, "nursery_ha", "beet_ha")
+        s["dlr"] |= targeted(cur, xy, "nursery_ha_dlr", "beet_ha_dlr")
+        s["dlr"]["confirmed"] = round(float(cur.nursery_ha[cur.nursery_ha_dlr > 0].sum() / cur.nursery_ha.sum()), 3)
         print(f"  season {s['season']}: beet->wheat {s['beet_to_wheat']:.0%}, nursery {s['nursery_ha']} ha, "
               f"20 % targeted removes {s['targeted20_r500']:.0%} / {s['targeted20_r1000']:.0%} / {s['targeted20_r2000']:.0%} "
-              f"(r = 0.5 / 1 / 2 km; random ~20 %)")
+              f"(r = 0.5 / 1 / 2 km; random ~20 %) | DLR: nursery {s['dlr']['nursery_ha']} ha, removes "
+              f"{s['dlr']['targeted20_r1000']:.0%} at 1 km; {s['dlr']['confirmed']:.0%} of the Thünen nursery area confirmed")
     out("landscape_summary.json").write_text(json.dumps(
         {"seasons": summary, "legends": legends()}, indent=1, ensure_ascii=False), encoding="utf-8")
 

@@ -131,6 +131,17 @@ Short check summary per dataset (written by the fetch run on 2026-11-04). Raw fi
 - CDS notice applied: v202505 has many gaps on 1–20 Sep 2026 → September/October taken from v202505_2.
 - Version step CCI v09.2 → C3S v202505 cannot be checked yet (no overlap year). Mean sm: CCI 2024 0.303 / 0.289, C3S 2025 0.275 / 0.278 – different years, not a version comparison. If needed, fetch C3S 2024 (~650 MB) for an overlap check.
 
+## 12b · fiona_wms (done, 2026-11-05)
+
+- 9 files `F<1-3>_<2023-2025>.geojson`: F1 49 points → 40–44 parcels, F2 54 → 52, F3 153 → 113–124 per year. Gap pass over each block (1–3 extra points per field and year) found no further parcel.
+- Checked by hand: the F1 beet parcel of 2022 answers potato (2023), winter barley (2024), leek (2025).
+
+## 17 · dlr_croptypes (done, 2026-11-05)
+
+- 9 bbox windows 2017–2025, 4392 × 4453 px each, 15 MB together; the same 21 classes every year; 51 % zero (non-cropland).
+- Against FIONA at the demo parcels 2022–2025 (260 arable parcel-years): sugar beet found 24 of 28, no false beet; winter cereal or not 257 of 260 – the same as Thünen (25 of 28, 257 of 260). The two maps agree on 255 of 260.
+- Region: Thünen 2023 sugar beet 4,024 ha vs DLR 6,294 ha – the Thünen dip is not in DLR. Nursery seasons 2018–2023 within about 10 %, 2024 2,378 vs 3,306 ha, 2025 4,231 vs 3,380 ha (Thünen 2025 is preliminary).
+
 ## 11 · reference (done)
 
 - `reference/sources.md`: links for all four topics. The 2026 Project Submission Guide is not out yet (FAQ: 13 Nov 2026), listed under "Not found / to check".

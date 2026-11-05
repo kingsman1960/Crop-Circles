@@ -112,13 +112,23 @@ used_for = "Crop history inside each field block, beet → wheat share, crop map
 licence = "CC BY 4.0 – Thünen Institute (Blickensdörfer et al. 2022; Pham et al. 2024), Zenodo."
 
 [[dataset]]
+id = "dlr_croptypes"
+name = "DLR CropTypes v2.1 (Sentinel-1 + Sentinel-2)"
+nasa = false
+status = "used"
+period = "2017 → 2025"
+resolution = "10 m"
+used_for = "Second opinion on every planthopper nursery in the region; the plan checked on both maps"
+licence = "CC BY 4.0 – DLR, CropTypes v2.1 (Gessner et al. 2025, IEEE GRSL 22, 2504805; Asam et al. 2022, Remote Sens. 14, 2981)."
+
+[[dataset]]
 id = "fiona"
 name = "FIONA parcels Baden-Württemberg (InVeKoS)"
 nasa = false
 status = "used"
-period = "2022"
+period = "2022–2025"
 resolution = "parcel"
-used_for = "Declared crops of the parcels inside each block"
+used_for = "Declared crops of the parcels inside each block, by year; ground truth for the satellite check (2023 on: WMS FIONA ab 2023)"
 licence = "dl-de/by-2-0 – Datengrundlage: MLR (2026), Datenlizenz Deutschland – Namensnennung – Version 2.0, https://mlr.baden-wuerttemberg.de"
 
 [[dataset]]

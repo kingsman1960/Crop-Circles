@@ -55,8 +55,8 @@ with numbers_row:
     kpis([
         (t("region.kpi.followed"), of_ten(s["beet_to_wheat"]), None, t("region.kpi.followed_note", year=season - 1), None,
          t("region.kpi.followed_help", beet=num(s["beet_prev_ha"]), prev=season - 1, wheat=num(s["nursery_ha"]), season=season)),
-        (t("region.kpi.nurseries"), num(s["nursery_ha"]), "ha", t("region.kpi.nurseries_note", n=num(len(nur))), None,
-         tip("nursery")),
+        (t("region.kpi.nurseries"), num(s["nursery_ha"]), "ha", t("region.kpi.nurseries_note", n=num(len(nur)))
+         + " · " + t("region.kpi.dlr", ha=num(s["dlr"]["nursery_ha"])), None, tip("nursery")),
         (t("region.kpi.switching"), num(len(sw)), None, f"{num(sw.nursery_ha.sum())} ha", None, None),
         (t("region.kpi.pressure"), "−" + pct(removed(nur)), None, t("region.kpi.pressure_note", fraction=fraction(removed(nur))),
          "good", tip("pressure")),
@@ -78,7 +78,8 @@ beet = beet.assign(color=[[int(x) for x in c] for c in (pale + (full - pale) * v
                         for b_, a_, p_ in zip(beet.beet_ha, beet.after, beet.pressure)])
 nur = nur.assign(color=[rgb(POS, 245) if x else rgb(GREY, 150) for x in nur.switch], radius=radius(nur),
                  tip=[f"<b>{t('region.tip.switch', crop=crops[a_]['label']) if x else t('region.tip.wheat')}</b> · "
-                      f"{num(h, 1)} ha<br/>{hs}" for a_, x, h, hs in zip(nur.alt, nur.switch, nur.nursery_ha, history(nur))])
+                      f"{num(h, 1)} ha<br/>{hs}<br/>{t('region.tip.both') if d_ > 0 else t('region.tip.one')}"
+                      for a_, x, h, hs, d_ in zip(nur.alt, nur.switch, nur.nursery_ha, history(nur), nur.nursery_ha_dlr)])
 cols = ["lon", "lat", "radius", "color", "tip"]
 dots = lambda id_, d, **kw: pdk.Layer("ScatterplotLayer", id=id_, data=d[cols], get_position="[lon, lat]",
                                      get_radius="radius", get_fill_color="color", pickable=True, **kw)
@@ -126,6 +127,7 @@ table = pd.DataFrame({
     col("id"): sw.id, col("ha"): sw.nursery_ha.round(1), col("crop"): sw.alt.map(lambda a_: crops[a_]["label"]),
     col("why"): [why(row) for row in sw.itertuples()],
     col("history", start=season - 3, end=season): history(sw).to_numpy(),
+    col("maps"): np.where(sw.nursery_ha_dlr > 0, t("region.list.both"), t("region.list.one")),
     col("share"): sw.impact / nur.impact.sum(), "lat": sw.lat.round(5), "lon": sw.lon.round(5)})
 with list_row:
     st.space("small")
@@ -155,6 +157,10 @@ with expert:
                 f'</tr></thead><tbody>{rows}</tbody></table>')
         o = [pct(s[f"targeted20_r{x}"]) for x in (500, 1000, 2000)]
         st.caption(t("region.expert.robust", a=o[0], b=o[1], c=o[2]))
+        d = s["dlr"]
+        st.caption(t("region.expert.dlr", season=season, ha=num(d["nursery_ha"]), thuenen=num(s["nursery_ha"]),
+                     conf=pct(d["confirmed"]), a=pct(d["targeted20_r500"]), b=pct(d["targeted20_r1000"]),
+                     c=pct(d["targeted20_r2000"])))
     with b:
         curve = []
         for m, (n, _) in plans.items():

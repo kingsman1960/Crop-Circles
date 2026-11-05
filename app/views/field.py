@@ -4,9 +4,9 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
-from data import (GREY, GREY_LIGHT, HUE, INK, PALE, POS, chart, content, crop_names, crop_scale, field_picker, footer,
+from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, POS, chart, content, crop_group, crop_names, crop_scale, field_picker, footer,
                   from_space, geojson, header, kpis, layer, legend, neighbourhood, plan, planner_weights, pressure,
-                  rank_options, rgb, source_line, strategies, table, tip)
+                  rank_options, rgb, source_line, strategies, table, takeaway, tip)
 from i18n import day, listing, months, num, pct, t, tn
 from plain import fraction, level, of_ten, weeks
 
@@ -29,16 +29,29 @@ def tone(m, change):
     return "good" if (change < 0) == (m["better"] == "lower") else "bad"
 
 
+def now_vs_years(s, days=14):
+    """Mean of the last `days` days, and how many earlier years were wetter in the same days (of how many)."""
+    end = s.index.max()
+    mean = lambda y: s[(s.index > end - pd.DateOffset(years=y) - pd.Timedelta(days=days))
+                       & (s.index <= end - pd.DateOffset(years=y))].mean()
+    past = pd.Series([mean(y) for y in range(1, end.year - s.index.min().year + 1)]).dropna()
+    return end, mean(0), int((past > mean(0)).sum()), len(past)
+
+
 picker = st.container()
 fid, p = field_picker(picker)
 place = p["label"].removeprefix("Near ")
-parcels = [f for f in geojson("parcels")["features"] if f["properties"]["field"] == fid]
+all_parcels = [f for f in geojson("parcels")["features"] if f["properties"]["field"] == fid]
+years = sorted({f["properties"]["year"] for f in all_parcels})  # FIONA declarations, 2022 → newest
+parcels = [f for f in all_parcels if f["properties"]["year"] == years[-1]]
 facts = strategies()["fields"][fid]["facts"]
 ind = table("indicators")
 ind = ind[ind.field == fid]
 daily = table("daily")
 daily = daily[daily.field == fid]
-header(t("field.title", id=fid, place=place), t("field.sub", ha=num(p["area_ha"]), n=len(parcels)))
+title, sub = t("field.title", id=fid, place=place), t("field.sub", ha=num(p["area_ha"]), n=len(parcels))
+side = header(title, sub)
+report = []  # (heading, paragraphs) for the take-away page
 
 # --- the four risks, in words ------------------------------------------------
 nur, beet = plan(2025, 1000, 0.2, "balanced", planner_weights())
@@ -75,6 +88,8 @@ for row in (cards[:2], cards[2:]):
                     f'<p class="cc-risk-help"><b>{t("field.what_helps")}</b> {tx["helps"]}</p>'
                     f'<p class="cc-note" style="margin:0">{t("field.source")} {tx["source"]}</p></div>')
 st.caption(t("field.levels_note"))
+report.append((t("field.report.risks"), [f"<b>{texts[k]['title']}: {t('plain.level.' + lvl)}.</b> {text} "
+                                         f"<i>{t('field.what_helps')}</i> {texts[k]['helps']}" for k, lvl, text in cards]))
 
 # --- what fits best after this year's beet ----------------------------------
 order, total, options = rank_options(fid)
@@ -88,32 +103,37 @@ with st.container(key="card_best"):
            f'<h3 style="margin:2px 0 6px">{best["name"]}: {seq}</h3><p style="margin:0">{best["why"]}</p>')
     if b.button(t("field.best.button"), type="primary", width="stretch"):
         st.switch_page("views/strategies.py")
+report.append((t("field.best.kicker"), [f"<b>{best['name']}: {seq}</b>", best["why"]]))
 
 # --- the field on the map ---------------------------------------------------
 st.space("small")
 left, right = st.columns([1.6, 1], gap="large")
 with left:
     st.subheader(t("field.map.title"))
-    show_erosion = st.toggle(t("field.map.erosion_toggle"), key="field_erosion", persist_state="session")
-    shade = lambda c: ([176, 58, 114, 190] if "rübe" in c.lower() else [22, 33, 62, 170] if "weizen" in c.lower()
-                       else [195, 202, 212, 200])
-    for f in parcels:
-        f["properties"]["rgb"] = shade(f["properties"]["crop"])
+    row = st.container(horizontal=True, vertical_alignment="center", gap="medium")
+    show_erosion = row.toggle(t("field.map.erosion_toggle"), key="field_erosion", persist_state="session")
+    yr = row.segmented_control(t("field.map.year"), years, default=years[-1], required=True, key="map_year",
+                               label_visibility="collapsed", width="content")
+    parcels_y = [f for f in all_parcels if f["properties"]["year"] == yr]
+    for f in parcels_y:
+        g = crop_group(f["properties"]["crop"])
+        f["properties"] |= {"rgb": rgb(CROPS[g]), "group": t("field.map.group." + g)}
+    groups = [g for g in CROPS if any(crop_group(f["properties"]["crop"]) == g for f in parcels_y)]
     layers = [pdk.Layer("BitmapLayer", image=layer("erosion_ks")[0], bounds=layer("erosion_ks")[1]["bounds"],
                         opacity=0.8)] if show_erosion else []
     outline = {"type": "FeatureCollection", "features": [f for f in geojson("fields")["features"] if f["id"] == fid]}
-    layers += [pdk.Layer("GeoJsonLayer", data={"type": "FeatureCollection", "features": parcels}, pickable=True,
+    layers += [pdk.Layer("GeoJsonLayer", data={"type": "FeatureCollection", "features": parcels_y}, pickable=True,
                          filled=not show_erosion, get_fill_color="properties.rgb", stroked=True,
                          get_line_color=[255, 255, 255], line_width_min_pixels=1),
                pdk.Layer("GeoJsonLayer", data=outline, filled=False, stroked=True, get_line_color=[22, 33, 62],
                          line_width_min_pixels=2)]
-    st.pydeck_chart(pdk.Deck(map_style=None, layers=layers, tooltip={"html": t("field.map.tooltip", crop="{crop}", ha="{ha}")},
+    st.pydeck_chart(pdk.Deck(map_style=None, layers=layers, tooltip={"html": t("field.map.tooltip", group="{group}", crop="{crop}", ha="{ha}", year=yr)},
                              initial_view_state=pdk.ViewState(latitude=p["lat"], longitude=p["lon"], zoom=14.4)),
                     height=430)
-    legend([(HUE, t("field.map.beet"), False), (INK, t("field.map.wheat"), False), (GREY_LIGHT, t("field.map.other"), False)]
+    legend([(CROPS[g], t("field.map.group." + g), False) for g in groups]
            if not show_erosion else [("#c3cad4", t("field.map.slow"), False), ("#7d889c", t("field.map.medium"), False),
                                      ("#16213e", t("field.map.fast"), False)])
-    source_line(t("field.map.unit"), t("field.map.source"), "2022")
+    source_line(t("field.map.unit", year=yr), t("field.map.source"), str(yr))
 with right:
     st.subheader(t("field.soil.title"))
     kpis([(t("field.soil.silt"), num(p["silt_pct"]), "%", t("field.soil.silt_note"), None, t("field.soil.silt_help")),
@@ -136,7 +156,9 @@ if sp is None:
     st.caption(t("field.space.pending"))
 else:
     season, before = sp["season"], sp["season"] - 1
-    colour = {"nursery": HUE, "switched": POS, "beet_now": PALE, "other": GREY_LIGHT, "unknown": GREY}
+    # what grows now in the crop colours of the map above; last year's beet that is cereal now is outlined: the nursery
+    colour = {"nursery": CROPS["cereal"], "winter": CROPS["cereal"], "beet_now": CROPS["beet"], "switched": POS,
+              "other": GREY_LIGHT, "unknown": GREY}
     label = {k: t("field.space.status." + k, season=season, before=before) for k in colour}
     feats = [f for f in geojson("hls_parcels")["features"] if f["properties"]["field"] == fid]
     for f in feats:
@@ -148,23 +170,34 @@ else:
                                  layers=[pdk.Layer("GeoJsonLayer", data={"type": "FeatureCollection", "features": feats},
                                                    pickable=True, get_fill_color="properties.rgb", stroked=True,
                                                    get_line_color=[255, 255, 255], line_width_min_pixels=1),
+                                         pdk.Layer("GeoJsonLayer", data={"type": "FeatureCollection", "features": [
+                                             f for f in feats if f["properties"]["status"] == "nursery"]},
+                                                   filled=False, stroked=True, get_line_color=rgb(HUE, 255),
+                                                   line_width_min_pixels=3),
                                          pdk.Layer("GeoJsonLayer", data=outline, filled=False, stroked=True,
                                                    get_line_color=[22, 33, 62], line_width_min_pixels=2)],
                                  tooltip={"html": t("field.space.tooltip", status="{label}", ha="{ha}")}), height=380)
-        legend([(colour[k], label[k], False) for k in shown])
+        legend([(colour[k], label[k], False) + ((HUE,) if k == "nursery" else ()) for k in shown])
     with right:
         st.markdown(t("field.space.intro", n=num(sp["pictures"]), last=day(pd.Timestamp(sp["last"]))))
-        b = sp["beet_before"]["n"]
-        st.markdown(t("field.space.nursery", nursery=sp["nursery"]["n"], total=b, before=before, season=season) if b
-                    else t("field.space.no_beet_before", before=before, season=season))
-        n_now = sp["beet_now"]["n"]
-        st.markdown(tn("field.space.beet_now", n_now, ha=num(sp["beet_now"]["ha"], 1), season=season) if n_now
-                    else t("field.space.no_beet_now", season=season))
-        c = sp["check"]
-        st.caption(t("field.space.trust", n=c["after_beet"]["n"], agree=c["after_beet"]["agree"],
-                     years=c["after_beet"]["years"].replace("-", "–"), found=c["beet"]["found"], n_beet=c["beet"]["n_beet"],
-                     wrong=c["beet"]["n_said"] - c["beet"]["right"], n_said=c["beet"]["n_said"])
-                   + " " + t("field.space.small", parcels=sp["parcels"]))
+        b, n_now, c = sp["beet_before"]["n"], sp["beet_now"]["n"], sp["check"]
+        said = [t("field.space.nursery", nursery=sp["nursery"]["n"], total=b, before=before, season=season) if b
+                else t("field.space.no_beet_before", before=before, season=season),
+                tn("field.space.beet_now", n_now, ha=num(sp["beet_now"]["ha"], 1), season=season) if n_now
+                else t("field.space.no_beet_now", season=season),
+                t("field.space.trust", n=c["after_beet"]["n"], agree=c["after_beet"]["agree"],
+                  years=c["after_beet"]["years"].replace("-", "–"), found=c["beet"]["found"], n_beet=c["beet"]["n_beet"],
+                  wrong=c["beet"]["n_said"] - c["beet"]["right"], n_said=c["beet"]["n_said"])
+                + (" " + t("field.space.trust_fiona", years=sp["declared"]["years"].replace("-", "–"),
+                           agree=sp["declared"]["winter"]["agree"], n=sp["declared"]["winter"]["n"],
+                           ab_agree=sp["declared"]["after_beet"]["agree"], ab_n=sp["declared"]["after_beet"]["n"],
+                           found=sp["declared"]["beet"]["found"], n_beet=sp["declared"]["beet"]["n_beet"])
+                   if sp.get("declared", {}).get("winter", {}).get("n") else "")
+                + " " + t("field.space.small", parcels=sp["parcels"])]
+        st.markdown(said[0])
+        st.markdown(said[1])
+        st.caption(said[2])
+        report.append((t("field.space.title"), said))
     ser = table("hls_series")
     ser = ser[(ser.field == fid) & (ser.date >= pd.Timestamp(before, 8, 1))]
     ser = ser.assign(status=ser.id.map({f["properties"]["id"]: f["properties"]["status"] for f in feats}))
@@ -174,7 +207,7 @@ else:
     st.markdown(f"**{t('field.space.curves')}**  \n{t('field.space.curves_note')}")
     chart(alt.Chart(curve).mark_line(point=alt.OverlayMarkDef(size=18), strokeWidth=2).encode(
         x=alt.X("date:T", title=None), y=alt.Y("ndvi:Q", title=t("field.space.green"), scale=alt.Scale(domain=[0, 1])),
-        color=alt.Color("what:N", scale=alt.Scale(domain=[label[k] for k in keys], range=[(colour | {"beet_now": "#cf7fa8"})[k] for k in keys]),
+        color=alt.Color("what:N", scale=alt.Scale(domain=[label[k] for k in keys], range=[(colour | {"nursery": "#c98500"})[k] for k in keys]),
                         legend=alt.Legend(orient="top", title=None, labelLimit=400)),
         tooltip=[alt.Tooltip("date:T", format="%d %b %Y", title=t("field.space.date")), "what:N",
                  alt.Tooltip("ndvi:Q", format=".2f", title=t("field.space.green"))]).properties(height=220), width="stretch")
@@ -233,8 +266,9 @@ with t_cond:
         low = sorted(g.nsmallest(4, "ndvi").year)
         cwb = ind[(ind.source == "POWER") & (ind.indicator == "cwb_summer") & (ind.year >= g.year.min())]
         dry = set(cwb.nsmallest(5, "value").year) & set(low)
-        st.markdown(f"**{t('field.green.title')}**  \n" + t("field.green.text", start=g.year.min(), years=listing(map(str, low)))
-                    + (" " + tn("field.green.dry", len(dry)) if dry else ""))
+        said = t("field.green.text", start=g.year.min(), years=listing(map(str, low))) + (" " + tn("field.green.dry", len(dry)) if dry else "")
+        st.markdown(f"**{t('field.green.title')}**  \n" + said)
+        report.append((t("field.green.title"), [said]))
         chart(alt.Chart(g.assign(low=g.year.isin(low))).mark_bar().encode(
             x=alt.X("year:O", title=None, axis=alt.Axis(labelAngle=0, values=list(range(2005, full + 1, 5)))),
             y=alt.Y("ndvi:Q", title=t("field.green.axis"), axis=alt.Axis(tickCount=4)),
@@ -248,25 +282,25 @@ with t_bare:
     st.markdown(t("field.bare.intro"))
     dates = strategies()["crop_dates"]
     d0 = pd.Timestamp("2001-01-01")
-    day = lambda doy: d0 + pd.Timedelta(days=int(doy) - 1)
+    on = lambda doy: d0 + pd.Timedelta(days=int(doy) - 1)
     stage = {k: t("field.bare.stage." + k) for k in ("sown", "growing", "covered")}
     rows = []
     for c, d in dates.items():
         lab = crop_cal[c]["label"] + ("" if "dwd" in crop_cal[c] else t("field.bare.estimate"))
         if crop_cal[c]["winter"]:
-            rows += [(lab, stage["sown"], day(d["sow"]), day(d["emerge"])), (lab, stage["growing"], day(d["emerge"]), day(365)),
-                     (lab, stage["growing"], d0, day(d["canopy"])), (lab, stage["covered"], day(d["canopy"]), day(d["harvest"]))]
+            rows += [(lab, stage["sown"], on(d["sow"]), on(d["emerge"])), (lab, stage["growing"], on(d["emerge"]), on(365)),
+                     (lab, stage["growing"], d0, on(d["canopy"])), (lab, stage["covered"], on(d["canopy"]), on(d["harvest"]))]
         else:
-            rows += [(lab, stage["sown"], day(d["sow"]), day(d["emerge"])),
-                     (lab, stage["growing"], day(d["emerge"]), day(d["canopy"])),
-                     (lab, stage["covered"], day(d["canopy"]), day(d["harvest"]))]
+            rows += [(lab, stage["sown"], on(d["sow"]), on(d["emerge"])),
+                     (lab, stage["growing"], on(d["emerge"]), on(d["canopy"])),
+                     (lab, stage["covered"], on(d["canopy"]), on(d["harvest"]))]
     cal = pd.DataFrame(rows, columns=["crop", "stage", "start", "end"])
     rain = (daily[daily.date.dt.year.between(2001, 2024) & (daily.p_imerg >= 20)]
             .assign(month=lambda x: x.date.dt.month).groupby("month").size().div(24)
             .reindex(range(1, 13), fill_value=0).rename("days").reset_index())
     rain["start"] = pd.to_datetime(dict(year=2001, month=rain.month, day=1))
     rain["end"] = rain.start + pd.offsets.MonthEnd(0)
-    x = alt.X("start:T", title=None, axis=alt.Axis(format="%b", tickCount=12), scale=alt.Scale(domain=[d0, day(365)]))
+    x = alt.X("start:T", title=None, axis=alt.Axis(format="%b", tickCount=12), scale=alt.Scale(domain=[d0, on(365)]))
     rain_chart = alt.Chart(rain).mark_bar(color=INK).encode(
         x=x, x2="end:T", y=alt.Y("days:Q", title=t("field.bare.downpours"), axis=alt.Axis(tickCount=3)), y2=alt.datum(0),
         tooltip=[alt.Tooltip("start:T", format="%B", title=t("grow.card.month")),
@@ -295,6 +329,28 @@ with t_bare:
             tooltip=["year", "mon", alt.Tooltip("bare:Q", format=".0%")]), width="stretch")
         src = "hls" if (nd["product"] == "HLS").all() else "modis"
         source_line(t("field.bare.ndvi_unit"), t("field.bare.src." + src), span)
+    # the winter gap before spring crops: green with a cover crop, or bare (HLS, November–December)
+    hp = table("hls_parcels")
+    w = hp[(hp.field == fid) & hp.covered.notna()] if hp is not None and "covered" in hp else []
+    if len(w):
+        b = w[w.crop == 1402]
+        span = f"{w.year.min() - 1}–{w.year.max() - 1}"
+        said = t("field.winter.text", green=num(w.covered.sum()), n=num(len(w)), period=span) + (
+            " " + t("field.winter.beet", green=num(b.covered.sum()), n=num(len(b)), grow=t("nav.grow")) if len(b) else "")
+        st.markdown(f"**{t('field.winter.title')}**  \n" + said)
+        report.append((t("field.winter.title"), [said]))
+        what = {True: t("field.winter.green"), False: t("field.winter.bare")}
+        per = (w.assign(winter=(w.year - 1).astype(str) + "/" + (w.year % 100).astype(str).str.zfill(2),
+                        what=w.covered.astype(bool).map(what))
+               .groupby(["winter", "what"]).size().rename("n").reset_index())
+        chart(alt.Chart(per).mark_bar(width=34).encode(
+            x=alt.X("winter:O", title=None, axis=alt.Axis(labelAngle=0)),
+            y=alt.Y("n:Q", title=t("field.winter.parcels"), axis=alt.Axis(tickMinStep=1)),
+            color=alt.Color("what:N", scale=alt.Scale(domain=list(what.values()), range=[POS, GREY_LIGHT]),
+                            legend=alt.Legend(orient="top", title=None)),
+            order=alt.Order("what:N", sort="descending"),
+            tooltip=["winter", "what", alt.Tooltip("n:Q", title=t("field.winter.parcels"))]), width="stretch", height=200)
+        source_line(t("field.winter.unit"), t("field.winter.source"), span)
 
 with t_hist:
     st.markdown(t("field.hist.intro"))
@@ -332,6 +388,17 @@ with t_hist:
 with t_sm:
     sm = table("soilmoisture")
     sm = sm[sm.field == fid]
+    # the soil right now: the last two weeks against the same two weeks in every earlier year
+    items = []
+    for k, s_, unit in (("top", "SMAP", "m³/m³"), ("root", "POWER GWETROOT", "")):
+        if (sm.source == s_).any():
+            end, v, wetter, n = now_vs_years(sm[sm.source == s_].set_index("date").sm)
+            items.append((t(f"field.now.{k}", date=day(end)), num(v, 2), unit, t("field.now.vs", k=wetter, n=n), None,
+                          t(f"field.now.help_{k}")))
+    if items:
+        kpis(items)
+        st.caption(t("field.now.unit"))
+        report.append((t("field.now.title"), [f"<b>{l}:</b> {v} {u} – {d}." for l, v, u, d, _, _ in items]))
     srcs = list(sm.source.unique())
     a, b = st.columns([1.4, 1])
     pick = a.pills(t("field.measured_by"), srcs, default=[s for s in srcs if s in ("POWER GWETROOT", "ESA CCI + C3S", "SMAP")],
@@ -395,4 +462,8 @@ with t_scen:
                tone(ind_meta[k], now[k] - base_[k]), ind_meta[k]["definition"]) for k in group])
         st.space("small")
     source_line(t("field.scenario.unit"), t("field.scenario.source"), "2005–2024")
+side.download_button(t("field.report.button"), takeaway(title, sub + " " + t("field.report.made", date=day(pd.Timestamp.today())),
+                                                        report),
+                     file_name=f"crop-circles-{fid}.html", mime="text/html", icon=":material/print:", on_click="ignore",
+                     help=t("field.report.help"), width="stretch")
 footer()

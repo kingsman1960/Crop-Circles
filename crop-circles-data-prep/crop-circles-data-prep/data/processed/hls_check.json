@@ -5,6 +5,7 @@
   "may_low": 0.4,
   "june_green": 0.5,
   "autumn_green": 0.45,
+  "cover_green": 0.5,
   "bare": 0.3
  },
  "fields": {
@@ -24,6 +25,23 @@
      "found": 15,
      "n_said": 21,
      "right": 15
+    }
+   },
+   "declared": {
+    "years": "2022-2025",
+    "winter": {
+     "n": 88,
+     "agree": 82
+    },
+    "after_beet": {
+     "n": 12,
+     "agree": 12
+    },
+    "beet": {
+     "n_beet": 13,
+     "found": 11,
+     "n_said": 14,
+     "right": 11
     }
    },
    "season": 2026,
@@ -66,6 +84,23 @@
      "right": 9
     }
    },
+   "declared": {
+    "years": "2022-2025",
+    "winter": {
+     "n": 80,
+     "agree": 75
+    },
+    "after_beet": {
+     "n": 7,
+     "agree": 6
+    },
+    "beet": {
+     "n_beet": 11,
+     "found": 7,
+     "n_said": 9,
+     "right": 7
+    }
+   },
    "season": 2026,
    "beet_before": {
     "n": 4,
@@ -104,6 +139,23 @@
      "found": 9,
      "n_said": 9,
      "right": 9
+    }
+   },
+   "declared": {
+    "years": "2022-2025",
+    "winter": {
+     "n": 92,
+     "agree": 81
+    },
+    "after_beet": {
+     "n": 4,
+     "agree": 4
+    },
+    "beet": {
+     "n_beet": 4,
+     "found": 1,
+     "n_said": 1,
+     "right": 1
     }
    },
    "season": 2026,
