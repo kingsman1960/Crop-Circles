@@ -1,0 +1,30 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "restyle",
+  "scope": "app",
+  "theme": "brand",
+  "shape": "app screen",
+  "axes": "light/roman-serif/cool",
+  "hero": "kept (Streamlit title row)",
+  "nav": "kept (Streamlit top nav)",
+  "footer": "rule, logo, disclaimer",
+  "imagery": "real screenshots of the product",
+  "photos": [],
+  "entry": "Crop Circles Streamlit app, 5 pages",
+  "fingerprint": "app/brand/editorial",
+  "sections": [
+   "risks",
+   "best match",
+   "map",
+   "figures",
+   "tables"
+  ],
+  "signature": "four risks as sentences with a ten-mark gauge",
+  "waived": [
+   "26b"
+  ],
+  "prompt": "a Streamlit decision tool for sugar-beet farmers: field risks, what to grow, the region map",
+  "date": "2026-11-08"
+ }
+]

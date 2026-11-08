@@ -1,13 +1,12 @@
 """Numbers into words a farmer reads at a glance – in the reader's language (keys under "plain." in app/locales)."""
 from i18n import num, t
 
-LEVEL_COLOURS = {"low": "#2f6a3f", "medium": "#9a6a12", "high": "#b03a72"}
 FRACTIONS = [(0.1, "tenth"), (0.2, "fifth"), (0.25, "quarter"), (1 / 3, "third"), (0.4, "two_fifths"), (0.5, "half"),
              (2 / 3, "two_thirds"), (0.75, "three_quarters"), (0.9, "nine_tenths")]
 
 
 def level(name):
-    return f'<span class="cc-level"><i style="background:{LEVEL_COLOURS[name]}"></i>{t("plain.level." + name)}</span>'
+    return f'<span class="cc-level {name}">{t("plain.level." + name)}</span>'
 
 
 def of_ten(share):
@@ -30,6 +29,13 @@ def dots(score):
     n = int(round(score))
     return (f'<span class="cc-dots" role="img" aria-label="{t("plain.dots", n=n)}" title="{num(score, 1)} / 5">'
             + '<i class="on"></i>' * n + "<i></i>" * (5 - n) + "</span>")
+
+
+def ten(n):
+    """'7 of the last 10 years' as ten dots, next to the level."""
+    n = int(round(n))
+    return (f'<span class="cc-dots" role="img" aria-label="{of_ten(n / 10)}" title="{of_ten(n / 10)}">'
+            + '<i class="on"></i>' * n + "<i></i>" * (10 - n) + "</span>")
 
 
 def compare(diff):

@@ -42,6 +42,16 @@ used_for = "Summer green per field since 2001, next to the driest summers"
 licence = "Didan, K. (2021), MODIS/Terra and Aqua Vegetation Indices 16-Day L3 Global 250m SIN Grid V061, NASA LP DAAC (via AppEEARS)."
 
 [[dataset]]
+id = "ecostress"
+name = "ECOSTRESS LST and ESI (ECO_L2T_LSTE, ECO_L4T_ESI)"
+nasa = true
+status = "used"
+period = "2018-07-09 → latest"
+resolution = "70 m, ISS passes at changing hours"
+used_for = "Surface temperature and evaporative stress index at the field centre: the summers the plants ran short of water, the hottest surface reading"
+licence = "Hook & Hulley, ECOSTRESS Tiled Land Surface Temperature and Emissivity / Evaporative Stress Index PT-JPL v002, LP DAAC (via AppEEARS)."
+
+[[dataset]]
 id = "smap"
 name = "SMAP L3 enhanced soil moisture (SPL3SMP_E)"
 nasa = true

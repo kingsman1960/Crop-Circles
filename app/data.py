@@ -177,8 +177,7 @@ def source_line(unit, source, period):
 
 
 def uncertainty(level):
-    return (f'<span class="cc-dot" style="background:{UNCERTAINTY[level]}"></span> '
-            f'<span class="cc-note">{t("common.uncertainty." + level)}</span>')
+    return f'<span class="cc-note">{t("common.uncertainty." + level)}</span>'
 
 
 def takeaway(title, sub, sections):
@@ -198,7 +197,7 @@ def takeaway(title, sub, sections):
 def footer():
     with st.container(key="footer"):
         a, b = st.columns([1, 2.2], vertical_alignment="center")
-        a.image(str(ASSETS / "logo_wide.png"), width=260)
+        a.image(str(ASSETS / "logo_bar.png"), width=220)
         b.markdown(t("common.footer"))
 
 

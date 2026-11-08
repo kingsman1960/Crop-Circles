@@ -8,7 +8,7 @@ from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, POS, chart, content, crop_g
                   from_space, geojson, header, kpis, layer, legend, neighbourhood, plan, planner_weights, pressure,
                   rank_options, rgb, source_line, strategies, table, takeaway, tip)
 from i18n import day, listing, months, num, pct, t, tn
-from plain import fraction, level, of_ten, weeks
+from plain import fraction, level, of_ten, ten, weeks
 
 SOURCES = ("POWER", "IMERG", "DWD")
 RECENT, EARLY = (2015, 2024), (1981, 2010)
@@ -77,19 +77,19 @@ n_heat = facts["heat_heading"]["n"]
 heat_level = "high" if n_heat >= 6 else "medium" if n_heat >= 3 else "low"
 heat_text = t("field.heat", now=num(hot_now), then=num(hot_then), station=facts["heat_heading"]["station"], n=n_heat)
 
-cards = [("planthopper", ph_level, ph_text), ("erosion", p["erosion_class"], er_text), ("dry", dry_level, dry_text),
-         ("heat", heat_level, heat_text)]
+cards = [("planthopper", ph_level, ph_text, rank * 10), ("erosion", p["erosion_class"], er_text, facts["open_rows_rain"]["n"]),
+         ("dry", dry_level, dry_text, n_dry), ("heat", heat_level, heat_text, n_heat)]
 for row in (cards[:2], cards[2:]):
-    for col, (key, lvl, text) in zip(st.columns(2, gap="medium"), row):
+    for col, (key, lvl, text, n) in zip(st.columns(2, gap="medium"), row):
         with col.container(key=f"card_risk_{key}"):
             tx = texts[key]
-            st.html(f'<div class="cc-risk"><div class="cc-risk-head"><h3>{tx["title"]}</h3>{level(lvl)}</div>'
+            st.html(f'<div class="cc-risk"><div class="cc-risk-head"><h3>{tx["title"]}</h3><span class="cc-risk-gauge">{ten(n)}{level(lvl)}</span></div>'
                     f'<p class="cc-risk-text">{text}</p><p class="cc-note">{tx["what"]}</p>'
                     f'<p class="cc-risk-help"><b>{t("field.what_helps")}</b> {tx["helps"]}</p>'
                     f'<p class="cc-note" style="margin:0">{t("field.source")} {tx["source"]}</p></div>')
 st.caption(t("field.levels_note"))
 report.append((t("field.report.risks"), [f"<b>{texts[k]['title']}: {t('plain.level.' + lvl)}.</b> {text} "
-                                         f"<i>{t('field.what_helps')}</i> {texts[k]['helps']}" for k, lvl, text in cards]))
+                                         f"<i>{t('field.what_helps')}</i> {texts[k]['helps']}" for k, lvl, text, _ in cards]))
 
 # --- what fits best after this year's beet ----------------------------------
 order, total, options = rank_options(fid)
@@ -99,8 +99,8 @@ st.space("small")
 with st.container(key="card_best"):
     a, b = st.columns([3, 1], vertical_alignment="center")
     seq = " → ".join(crop_cal[c]["label"] for c in best["sequence"])
-    a.html(f'<p class="cc-note" style="margin:0">{t("field.best.kicker")}</p>'
-           f'<h3 style="margin:2px 0 6px">{best["name"]}: {seq}</h3><p style="margin:0">{best["why"]}</p>')
+    a.html(f'<h3 style="margin:0 0 8px">{t("field.best.kicker")}</h3>'
+           f'<p style="margin:0"><b>{best["name"]}: {seq}</b> {best["why"]}</p>')
     if b.button(t("field.best.button"), type="primary", width="stretch"):
         st.switch_page("views/strategies.py")
 report.append((t("field.best.kicker"), [f"<b>{best['name']}: {seq}</b>", best["why"]]))
@@ -127,7 +127,7 @@ with left:
                          get_line_color=[255, 255, 255], line_width_min_pixels=1),
                pdk.Layer("GeoJsonLayer", data=outline, filled=False, stroked=True, get_line_color=[22, 33, 62],
                          line_width_min_pixels=2)]
-    st.pydeck_chart(pdk.Deck(map_style=None, layers=layers, tooltip={"html": t("field.map.tooltip", group="{group}", crop="{crop}", ha="{ha}", year=yr)},
+    st.pydeck_chart(pdk.Deck(map_style=None, layers=layers, tooltip={"text": t("field.map.tooltip", group="{group}", crop="{crop}", ha="{ha}", year=yr)},
                              initial_view_state=pdk.ViewState(latitude=p["lat"], longitude=p["lon"], zoom=14.4)),
                     height=430)
     legend([(CROPS[g], t("field.map.group." + g), False) for g in groups]
@@ -145,7 +145,7 @@ with right:
            t("field.soil.erosion_note", k=p["k_class"]), None, tip("K_factor"))])
     st.caption(t("field.soil.unit", legend=p["dominant_legend"], unit=p["dominant_unit"]))
     c24 = crops[(crops.field == fid) & (crops.year == 2024)].nlargest(3, "share")
-    st.markdown(t("field.soil.grown") + "  \n" + " · ".join(f"{names.get(r.code, r.name)} {pct(r.share)}"
+    st.markdown(t("field.soil.grown") + "  \n" + ", ".join(f"{names.get(r.code, r.name)} {pct(r.share)}"
                                                            for r in c24.itertuples()))
 
 # --- this season, seen from space (HLS) --------------------------------------
@@ -176,7 +176,7 @@ else:
                                                    line_width_min_pixels=3),
                                          pdk.Layer("GeoJsonLayer", data=outline, filled=False, stroked=True,
                                                    get_line_color=[22, 33, 62], line_width_min_pixels=2)],
-                                 tooltip={"html": t("field.space.tooltip", status="{label}", ha="{ha}")}), height=380)
+                                 tooltip={"text": t("field.space.tooltip", status="{label}", ha="{ha}")}), height=380)
         legend([(colour[k], label[k], False) + ((HUE,) if k == "nursery" else ()) for k in shown])
     with right:
         st.markdown(t("field.space.intro", n=num(sp["pictures"]), last=day(pd.Timestamp(sp["last"]))))
@@ -205,12 +205,16 @@ else:
     curve = ser[ser.status.isin(keys)].groupby(["status", "date"]).ndvi.median().reset_index()
     curve["what"] = curve.status.map(label)
     st.markdown(f"**{t('field.space.curves')}**  \n{t('field.space.curves_note')}")
+    newest = alt.Chart(pd.DataFrame({"date": [pd.Timestamp(sp["last"])], "label": [t("field.space.newest")]}))
     chart(alt.Chart(curve).mark_line(point=alt.OverlayMarkDef(size=18), strokeWidth=2).encode(
         x=alt.X("date:T", title=None), y=alt.Y("ndvi:Q", title=t("field.space.green"), scale=alt.Scale(domain=[0, 1])),
         color=alt.Color("what:N", scale=alt.Scale(domain=[label[k] for k in keys], range=[(colour | {"nursery": "#c98500"})[k] for k in keys]),
                         legend=alt.Legend(orient="top", title=None, labelLimit=400)),
         tooltip=[alt.Tooltip("date:T", format="%d %b %Y", title=t("field.space.date")), "what:N",
-                 alt.Tooltip("ndvi:Q", format=".2f", title=t("field.space.green"))]).properties(height=220), width="stretch")
+                 alt.Tooltip("ndvi:Q", format=".2f", title=t("field.space.green"))])
+          + newest.mark_rule(color=GREY, strokeDash=[3, 3]).encode(x="date:T")
+          + newest.mark_text(align="right", baseline="top", dx=-4, dy=2, color=GREY, fontSize=12).encode(x="date:T", y=alt.value(0), text="label:N"),
+          width="stretch", height=220)
     source_line(t("field.space.unit"), t("field.space.source"), f"{sp['first'][:4]}–{sp['last'][:4]}")
 
 # --- tabs -----------------------------------------------------------------
@@ -245,13 +249,18 @@ with t_cond:
     s = ind[(ind.source == src) & (ind.indicator == k)]
     s = s.assign(value=-s.value) if m.get("flip") else s
     slope_k = np.polyfit(s.year, s.value, 1)[0] * 10
+    periods = pd.DataFrame({"start": [early[0], RECENT[0]], "end": [early[1], RECENT[1]],
+                            "label": [f"{early[0]}–{early[1]}", f"{RECENT[0]}–{RECENT[1]}"]})
+    bands = (alt.Chart(periods).mark_rect(color=GREY_LIGHT, opacity=0.3).encode(x="start:O", x2="end:O")
+             + alt.Chart(periods).mark_text(align="left", baseline="bottom", dx=2, dy=-3, color=GREY, fontSize=12)
+             .encode(x="start:O", y=alt.value(0), text="label:N"))
     bars = alt.Chart(s).mark_bar(color=GREY_LIGHT).encode(
         x=alt.X("year:O", title=None, axis=alt.Axis(labelAngle=0, values=list(range(1985, 2026, 5)))),
         y=alt.Y("value:Q", title=m["unit"], axis=alt.Axis(tickCount=5)),
         tooltip=[alt.Tooltip("year:O"), alt.Tooltip("value:Q", format=".1f", title=m["unit"])])
     trend = alt.Chart(s).transform_regression("year", "value").mark_line(color=HUE, strokeWidth=2).encode(
         x="year:O", y="value:Q")
-    chart(bars + trend, width="stretch", height=240)
+    chart((bands + bars + trend).properties(padding={"top": 18, "left": 5, "right": 5, "bottom": 5}), width="stretch", height=240)
     source_line(m["unit"], t("field.src." + src) + (t("field.src.imerg_cwb") if src == "IMERG" and "cwb" in k else ""),
                 t("field.complete_years", start=s.year.min(), end=s.year.max()))
     st.markdown(t("field.trend", change=("+" if slope_k > 0 else "") + num(slope_k, 1), unit=m["unit"])
@@ -277,6 +286,28 @@ with t_cond:
             width="stretch", height=200)
         source_line(t("field.green.unit"), t("field.green.source"), f"{g.year.min()}–{full}")
         st.caption(t("field.green.note"))
+    # water stress and surface heat from space (ECOSTRESS 70 m, 2018 ->): the summers the plants ran short of water
+    eco = table("ecostress")
+    if eco is not None and (eco.field == fid).any():
+        eco = eco[eco.field == fid]
+        full = eco.time.max().year - (eco.time.max().month < 9)
+        g = eco[eco.time.dt.month.between(5, 8) & (eco.time.dt.year <= full)].dropna(subset=["esi"])
+        g = g.groupby(g.time.dt.year.rename("year")).agg(esi=("esi", "mean"), n=("esi", "size")).reset_index()
+        g = g[g.n >= 5]
+        low = sorted(g.nsmallest(3, "esi").year)
+        hot = eco.loc[eco.lst.idxmax()]
+        said = t("field.eco.text", start=g.year.min(), years=listing(map(str, low)), lst=num(hot.lst), date=day(hot.time))
+        st.markdown(f"**{t('field.eco.title')}**  \n" + said)
+        report.append((t("field.eco.title"), [said]))
+        chart(alt.Chart(g.assign(low=g.year.isin(low))).mark_bar().encode(
+            x=alt.X("year:O", title=None, axis=alt.Axis(labelAngle=0)),
+            y=alt.Y("esi:Q", title=t("field.eco.axis"), scale=alt.Scale(domain=[0, 1]), axis=alt.Axis(tickCount=4)),
+            color=alt.condition("datum.low", alt.value(HUE), alt.value(GREY_LIGHT)),
+            tooltip=[alt.Tooltip("year:O"), alt.Tooltip("esi:Q", format=".2f", title=t("field.eco.axis")),
+                     alt.Tooltip("n:Q", title=t("field.eco.passes"))]),
+            width="stretch", height=200)
+        source_line(t("field.eco.unit"), t("field.eco.source"), f"{g.year.min()}–{full}")
+        st.caption(t("field.eco.note"))
 
 with t_bare:
     st.markdown(t("field.bare.intro"))
@@ -306,7 +337,7 @@ with t_bare:
         tooltip=[alt.Tooltip("start:T", format="%B", title=t("grow.card.month")),
                  alt.Tooltip("days:Q", format=".1f", title=t("field.bare.downpours"))]).properties(height=90)
     gantt = alt.Chart(cal).mark_bar(height=14).encode(
-        x=x, x2="end:T", y=alt.Y("crop:N", title=None, sort=None),
+        x=x, x2="end:T", y=alt.Y("crop:N", title=None, sort=None, axis=alt.Axis(labelLimit=200)),
         color=alt.Color("stage:N", scale=alt.Scale(domain=list(stage.values()), range=[HUE, GREY_LIGHT, GREY]),
                         legend=alt.Legend(orient="top", title=None)),
         tooltip=["crop", "stage", alt.Tooltip("start:T", format="%d %b"), alt.Tooltip("end:T", format="%d %b")])
@@ -323,7 +354,7 @@ with t_bare:
         span = f"{nd.year.min()}–{nd.year.max()}"
         st.markdown(t("field.bare.measured", share=pct(share[share.month.between(5, 8)].bare.mean()), period=span))
         chart(alt.Chart(share).mark_rect().encode(
-            x=alt.X("mon:O", title=None, sort=months()), y=alt.Y("year:O", title=None),
+            x=alt.X("mon:O", title=None, sort=months(), axis=alt.Axis(labelAngle=0)), y=alt.Y("year:O", title=None),
             color=alt.Color("bare:Q", title=t("field.bare.ndvi_share"), scale=alt.Scale(domain=[0, 1], range=["#ffffff", INK]),
                             legend=alt.Legend(format=".0%")),
             tooltip=["year", "mon", alt.Tooltip("bare:Q", format=".0%")]), width="stretch")
@@ -377,12 +408,13 @@ with t_hist:
     st.subheader(t("field.hist.after"))
     to_order = sorted(after.to.unique(), key=lambda c: c != WHEAT)
     chart(alt.Chart(after).mark_bar(height=22).encode(
-        y=alt.Y("where:N", title=None), x=alt.X("share:Q", stack="normalize", axis=alt.Axis(format="%"), title=None),
+        y=alt.Y("where:N", title=None, axis=alt.Axis(labelLimit=200)),
+        x=alt.X("share:Q", stack="normalize", axis=alt.Axis(format="%"), title=None),
         color=alt.Color("to:N", title=t("field.hist.next_year"), legend=alt.Legend(orient="bottom", columns=6),
                         scale=crop_scale(to_order, (BEET, WHEAT))),
         order=alt.Order("order:Q"),
         tooltip=["where", "to", alt.Tooltip("share:Q", format=".0%")]
-    ).transform_calculate(order=f"datum.to == '{WHEAT}' ? 0 : 1"), width="stretch", height=110)
+    ).transform_calculate(order=f"datum.to == '{WHEAT}' ? 0 : 1"), width="stretch", height=150)
     source_line(t("field.hist.after_unit"), t("field.hist.after_source"), "2017–2024")
 
 with t_sm:
@@ -401,7 +433,7 @@ with t_sm:
         report.append((t("field.now.title"), [f"<b>{l}:</b> {v} {u} – {d}." for l, v, u, d, _, _ in items]))
     srcs = list(sm.source.unique())
     a, b = st.columns([1.4, 1])
-    pick = a.pills(t("field.measured_by"), srcs, default=[s for s in srcs if s in ("POWER GWETROOT", "ESA CCI + C3S", "SMAP")],
+    pick = a.pills(t("field.measured_by"), srcs, default=[s for s in srcs if s in ("POWER GWETROOT", "SMAP")],
                    selection_mode="multi", key="sm_src", help=tip("soil_moisture"))
     y0, y1 = b.slider(t("field.sat.year"), 2001, int(sm.date.dt.year.max()), (2018, int(sm.date.dt.year.max())),
                       key="sm_years")

@@ -80,11 +80,11 @@ for rank, sid in enumerate(order, 1):
     with st.container(key=f"card_{sid}"):
         extra = [t("grow.card.cover", crops=", ".join(crops[c]["label"] for c in s["cover_before"]))] + \
                 ([t("grow.card.mulch")] if s["mulch"] else [])
-        st.html(f'<p class="cc-note" style="margin:0">{t("grow.card.best", id=sid) if rank == 1 else t("grow.card.option", n=rank, id=sid)}</p>'
-                f'<h3 style="margin:2px 0 6px">{s["name"]}</h3><div class="cc-seq">'
+        st.html(f'<h3 style="margin:0 0 8px">{t("grow.card.best", name=s["name"]) if rank == 1 else t("grow.card.option", n=rank, name=s["name"])}</h3>'
+                '<div class="cc-seq">'
                 + " → ".join(f'<span style="white-space:nowrap"><i style="background:{crops[c]["color"]}"></i>'
                              f'{crops[c]["label"]}</span>' for c in s["sequence"])
-                + f' <span class="cc-note">+ {" · ".join(extra)}</span></div>')
+                + f' <span class="cc-note">+ {", ".join(extra)}</span></div>')
         left, right = st.columns([1.15, 1], gap="large")
         with left:
             st.markdown(f"{t('grow.card.why')} {s['why']}")

@@ -10,13 +10,13 @@ linkColor = "#2f6a3f"
 linkUnderline = true
 borderColor = "#d9e0d4"
 showWidgetBorder = true
-baseRadius = "12px"
+baseRadius = "8px"
 buttonRadius = "full"
 baseFontSize = 16
 font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 headingFont = "Newsreader:https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap"
-headingFontSizes = ["34px", "24px", "20px", "16px", "16px", "16px"]
-headingFontWeights = [500, 500, 600, 600, 600, 600]
+headingFontSizes = ["40px", "28px", "24px", "18px", "16px", "16px"]
+headingFontWeights = [500, 500, 500, 500, 500, 500]
 metricValueFontSize = "28px"
 metricValueFontWeight = 500
 chartCategoricalColors = ["#16213e", "#b03a72", "#8a94a6", "#c3cad4", "#2f6a3f"]

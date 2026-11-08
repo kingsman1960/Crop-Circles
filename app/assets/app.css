@@ -1,0 +1,112 @@
+/* Hallmark · shape: app screen · genre: editorial · theme: brand · redesign: restyle
+ * paper: #f1f4ee sage · accent: #2f6a3f green (magenta #b03a72 marks the planthopper only) · display: Newsreader · body: Inter
+ * nav: kept (Streamlit top nav, text links, the current page in bold) · signature: the four risks read as sentences with a ten-mark gauge · states: full, empty (map hint, no glossary match)
+ * axes: light/roman-serif/cool · posture: Restrained · contrast: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E3 S4 R4 V3 · weakest: E, Streamlit owns the controls and their states; the white cards on the sage page, the navy hero box and the dotted pills were cut for rules, wells and words */
+/* Hallmark · waive 26b · no form control is drawn in this sheet · every control is Streamlit's own widget, whose hover, active and disabled states come from .streamlit/config.toml */
+/* Hallmark · answered F16 · selection and scrollbar themed below */
+/* Streamlit injects this after its own stylesheet; selectors are Streamlit's test ids and container keys. */
+html, body { overflow-x: clip; }
+html { scrollbar-color: var(--color-muted) var(--color-paper); }
+::selection { background: color-mix(in oklab, var(--color-accent) 22%, transparent); color: var(--color-ink); }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
+.block-container { max-width: 1180px; padding: var(--space-2xl) var(--space-lg) 0; }
+/* the bar */
+header[data-testid="stHeader"] { background: var(--color-paper); border-bottom: 1px solid var(--color-rule); }
+[data-testid="stAppDeployButton"] { display: none; }
+img.stLogo { height: 30px; max-width: none; }
+[data-testid="stTopNavLink"] p { font-size: 15px; font-weight: 500; color: var(--color-muted); }
+[data-testid="stTopNavLink"][aria-current="page"] p, [data-testid="stTopNavLink"]:hover p { color: var(--color-ink); }
+.st-key-appbar { border-bottom: 1px solid var(--color-rule); padding-bottom: var(--space-2xs); margin-bottom: var(--space-xs); }
+.st-key-appbar [data-testid="stPageLink"] p, .st-key-appbar p { font-size: 16px; }
+.st-key-appbar [data-testid="stPageLink"] a { text-decoration: none; }
+[data-testid="stButtonGroup"] button { padding-left: var(--space-xs); padding-right: var(--space-xs); }
+/* type: one serif weight for every head, Inter for everything else */
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: var(--tracking-display); text-wrap: balance; overflow-wrap: break-word; min-width: 0; }
+h1 { font-size: 40px !important; line-height: 1.1 !important; padding-bottom: 0 !important; }
+h3 { font-size: 24px !important; line-height: 1.2 !important; }
+p, li { line-height: 1.55; }
+.cc-sub { font-size: 19px; line-height: 1.5; max-width: 60ch; margin: var(--space-xs) 0 var(--space-2xs); }
+.cc-sub b { font-weight: 600; }
+.cc-note, [data-testid="stCaptionContainer"] p { font-size: 14px; color: var(--color-muted); }
+.cc-table td.num, .cc-kpi .v { font-variant-numeric: tabular-nums; }
+/* home: the hero sits on the paper, under a rule; the screenshots are real and framed by a hairline */
+.st-key-hero { padding: var(--space-lg) 0 var(--space-xl); border-bottom: 1px solid var(--color-rule); }
+.st-key-hero h1 { font-size: 60px !important; line-height: 1.04 !important; max-width: 18ch; }
+.st-key-hero .cc-sub { font-size: 20px; max-width: 58ch; }
+[class*="st-key-shot_"] img { border-radius: var(--radius-card); border: 1px solid var(--color-rule); }
+.st-key-final { border-top: 1px solid var(--color-rule); border-bottom: 1px solid var(--color-rule); padding: var(--space-lg) 0; }
+/* blocks: a rule above each, a tinted well where a block asks for a decision; never a white card on the sage */
+div[class*="st-key-card"] { border-top: 1px solid var(--color-rule); padding: var(--space-lg) 0 var(--space-sm); }
+div[class*="st-key-card_priorities"], div[class*="st-key-card_best"], div[class*="st-key-card_parcel"], div[class*="st-key-card_neighbours"] {
+  background: var(--color-paper-2); border: 0; border-radius: var(--radius-card); padding: var(--space-lg); }
+/* the four risks: blocks in one row end level */
+[data-testid="stLayoutWrapper"]:has(> div[class*="st-key-card_risk"]) { flex-grow: 1; }
+div[class*="st-key-card_risk"] > [data-testid="stElementContainer"] { flex-grow: 1; }
+div[class*="st-key-card_risk"] [data-testid="stHtml"], .cc-risk { height: 100%; }
+.cc-risk { display: flex; flex-direction: column; }
+.cc-risk .cc-risk-help { margin-top: auto; }
+.cc-risk-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-sm); margin-bottom: var(--space-xs); }
+.cc-risk-head h3 { margin: 0; padding: 0; }
+.cc-risk-gauge { display: inline-flex; align-items: center; gap: var(--space-xs); white-space: nowrap; }
+.cc-risk-text { font-size: 17px; margin: 0 0 var(--space-xs); }
+.cc-risk-help { margin: var(--space-sm) 0 var(--space-2xs); padding-top: var(--space-sm); border-top: 1px solid var(--color-rule); }
+/* the level is a word in its colour, nothing else */
+.cc-level { font-weight: 600; font-size: 15px; white-space: nowrap; }
+.cc-level.low { color: var(--color-accent); } .cc-level.medium { color: var(--color-warn); } .cc-level.high { color: var(--color-hue); }
+/* figures in one strip: rules, serif figures, no box */
+.cc-kpis { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); border-top: 1px solid var(--color-rule); border-bottom: 1px solid var(--color-rule); }
+.cc-kpi { padding: var(--space-md) var(--space-md) var(--space-md) 0; margin-right: var(--space-md); border-right: 1px solid var(--color-rule); min-width: 0; }
+.cc-kpi:last-child { border-right: 0; margin-right: 0; }
+.cc-kpi .l { font-size: 14px; color: var(--color-muted); }
+.cc-kpi .v { font-family: var(--font-display); font-size: 34px; line-height: 1.15; margin-top: var(--space-2xs); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-kpi .v small { font-family: var(--font-body); font-size: 15px; color: var(--color-muted); margin-left: var(--space-2xs); font-weight: 400; }
+.cc-kpi .d { font-size: 14px; color: var(--color-muted); margin-top: var(--space-3xs); }
+.cc-kpi .d.good { color: var(--color-accent); } .cc-kpi .d.bad { color: var(--color-hue); }
+.cc-kpi.lead .v { font-size: 44px; }
+@media (max-width: 640px) {
+  .cc-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cc-kpi { border-right: 0; margin-right: 0; border-top: 1px solid var(--color-rule); padding-right: 0; }
+  .cc-kpi:nth-child(odd) { border-right: 1px solid var(--color-rule); margin-right: var(--space-md); }
+  .cc-kpi:nth-child(-n+2) { border-top: 0; }
+  .cc-kpi:last-child:nth-child(odd) { grid-column: 1 / -1; border-right: 0; margin-right: 0; }
+  .cc-risk-head { flex-wrap: wrap; }
+  h1, .st-key-hero h1 { font-size: 30px !important; }
+  .cc-sub, .st-key-hero .cc-sub { font-size: 16px; }
+}
+/* tables: rules only, no outer box; the best row sits on a tint */
+.cc-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.cc-table th { text-align: left; font-weight: 500; font-size: 14px; color: var(--color-muted); padding: 0 var(--space-sm) var(--space-xs); border-bottom: 1px solid var(--color-rule); }
+.cc-table td { padding: var(--space-sm); border-bottom: 1px solid var(--color-rule); vertical-align: top; }
+.cc-table tr:last-child td { border-bottom: 0; }
+.cc-table .num { text-align: right; white-space: nowrap; }
+.cc-table tr.top td { background: var(--color-paper-2); }
+.cc-table .g { color: var(--color-muted); font-size: 14px; display: block; margin-top: var(--space-3xs); }
+.cc-table .g.good { color: var(--color-accent); font-weight: 500; } .cc-table .g.bad { color: var(--color-hue); font-weight: 500; }
+/* ten marks for "7 of the last 10 years", five for a score: a count the reader takes in at once */
+.cc-dots { display: inline-flex; gap: var(--space-2xs); vertical-align: middle; }
+.cc-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--color-rule); display: inline-block; }
+.cc-dots i.on { background: var(--color-ink); }
+/* legend swatches are the marks on the map and chart beside them */
+.cc-key { display: inline-flex; align-items: center; gap: var(--space-2xs); margin: 0 var(--space-md) var(--space-2xs) 0; font-size: 14px; color: var(--color-muted); }
+.cc-key i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; }
+.cc-key i.round { border-radius: 50%; }
+.cc-seq { font-size: 16px; } .cc-seq i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: var(--space-2xs); }
+.cc-list { margin: 0 0 var(--space-xs); padding-left: var(--space-lg); } .cc-list li { margin-bottom: var(--space-xs); }
+.cc-score { display: grid; grid-template-columns: 1fr auto; gap: var(--space-3xs) var(--space-sm); padding: var(--space-sm) 0; border-bottom: 1px solid var(--color-rule); }
+.cc-score:last-child { border-bottom: 0; }
+.cc-score .n { text-align: right; }
+.cc-score .g { grid-column: 1 / -1; font-size: 14px; color: var(--color-muted); }
+/* one clicked parcel: its crops since 2017, each with the crop map's swatch */
+.cc-chips { display: flex; flex-wrap: wrap; gap: var(--space-2xs) var(--space-md); }
+.cc-chip { display: inline-flex; align-items: center; gap: var(--space-2xs); font-size: 14px; white-space: nowrap; }
+.cc-chip::before { content: ""; width: 10px; height: 10px; border-radius: 2px; background: var(--c); flex-shrink: 0; }
+.cc-chip i { font-style: normal; color: var(--color-muted); }
+/* the close: a rule, the logo, the disclaimer in the muted ink */
+.st-key-footer { border-top: 1px solid var(--color-rule); padding: var(--space-lg) 0 var(--space-xl); margin-top: var(--space-2xl); }
+.st-key-footer p, .st-key-footer li { color: var(--color-muted); font-size: 14px; }
+.st-key-footer strong { color: var(--color-ink); font-weight: 500; }
+[data-testid="stTab"] p { font-size: 15px; }
+[data-testid="stExpander"] details { border-radius: var(--radius-card); background: var(--color-paper-3); }
+[data-testid="stExpander"] summary p { font-weight: 500; }

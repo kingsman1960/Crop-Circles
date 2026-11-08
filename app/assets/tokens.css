@@ -1,0 +1,15 @@
+/* Crop Circles tokens: the brand's own values (logo, .streamlit/config.toml), the Hallmark scale around them. */
+:root {
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.2rem; --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+  --color-paper: #f1f4ee; --color-paper-2: #e6ebe2; --color-paper-3: #fbfcf9;
+  --color-ink: #16213e; --color-ink-2: #3e4a60; --color-muted: #5b6475;
+  --color-rule: #d9e0d4;
+  --color-accent: #2f6a3f; --color-accent-ink: #f1f4ee; --color-focus: #2f6a3f;
+  --color-hue: #b03a72; --color-warn: #9a6a12;
+  --font-display: "Newsreader", Georgia, ui-serif, serif; --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --radius-card: 8px; --radius-pill: 999px; --rule-hair: 1px; --shadow-card: none;
+  --tracking-display: -0.01em;
+}

@@ -25,7 +25,7 @@ def shot(page):
 
 # --- hero -------------------------------------------------------------------
 with st.container(key="hero"):
-    st.image(str(ASSETS / "logo_wide.png"), width=300)
+    st.image(str(ASSETS / "logo_bar.png"), width=260)
     st.title(t("home.hero_title"))
     st.html(f'<p class="cc-sub">{t("home.hero_sub")}</p>')
     row = st.container(horizontal=True, vertical_alignment="center", gap="large")

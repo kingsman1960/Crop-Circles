@@ -4,8 +4,8 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
-from data import (GREY, HUE, INK, MODES, PALE, POS, chart, content, crop_names, fields, footer, geojson, header, kpis,
-                  landscape, legend, neighbourhood, plan, planner_weights, priority_control, rgb, source_line, tip)
+from data import (CROPS, GREY, HUE, INK, MODES, PALE, POS, chart, content, crop_group, crop_names, fields, footer, geojson,
+                  header, kpis, landscape, legend, neighbourhood, plan, planner_weights, priority_control, rgb, source_line, tip)
 from i18n import num, pct, t
 from plain import fraction, level, of_ten
 
@@ -56,7 +56,7 @@ with numbers_row:
         (t("region.kpi.followed"), of_ten(s["beet_to_wheat"]), None, t("region.kpi.followed_note", year=season - 1), None,
          t("region.kpi.followed_help", beet=num(s["beet_prev_ha"]), prev=season - 1, wheat=num(s["nursery_ha"]), season=season)),
         (t("region.kpi.nurseries"), num(s["nursery_ha"]), "ha", t("region.kpi.nurseries_note", n=num(len(nur)))
-         + " · " + t("region.kpi.dlr", ha=num(s["dlr"]["nursery_ha"])), None, tip("nursery")),
+         + "; " + t("region.kpi.dlr", ha=num(s["dlr"]["nursery_ha"])), None, tip("nursery")),
         (t("region.kpi.switching"), num(len(sw)), None, f"{num(sw.nursery_ha.sum())} ha", None, None),
         (t("region.kpi.pressure"), "−" + pct(removed(nur)), None, t("region.kpi.pressure_note", fraction=fraction(removed(nur))),
          "good", tip("pressure")),
@@ -65,9 +65,50 @@ with numbers_row:
          t("region.kpi.high_help")),
     ], lead=3)
 
+why = lambda row: ", ".join([x for x in [t("region.why.steep") if row.ks >= 0.55 else "",
+                                         t("region.why.dry") if row.nfk_mm < 140 else ""] if x] or [t("region.why.flat")])
+
+
+def parcel_card(pid):
+    """One clicked parcel: what it is in the plan, and every crop since 2017 (the same colours as the crop map)."""
+    row, de = par.loc[pid], crop_names("de")
+    in_nur, in_beet = nur[nur.id == pid], beet[beet.id == pid]
+    lines = []
+    if not in_nur.empty:
+        n_ = in_nur.iloc[0]
+        lines.append(f"<b>{t('region.tip.switch', crop=crops[n_.alt]['label']) if n_.switch else t('region.tip.wheat')}</b>"
+                     + (f" ({why(n_)})" if n_.switch else ""))
+        lines.append(t("region.parcel.rank", k=num(in_nur.index[0] + 1), n=num(len(nur)), share=pct(n_.impact / nur.impact.sum()))
+                     + f"<br/>{t('region.tip.both') if n_.nursery_ha_dlr > 0 else t('region.tip.one')}")
+    if not in_beet.empty:
+        b_ = in_beet.iloc[0]
+        lines.append(f"<b>{t('region.tip.beet', season=season, ha=num(b_.beet_ha, 1), level=level_word(b_.pressure)).split(chr(10))[0]}</b>")
+        lines.append(t("region.parcel.beet", now=level(lvl(b_.pressure)), after=level(lvl(b_.after)))
+                     + f"<br/>{t('region.parcel.less', fraction=fraction(1 - b_.after / max(b_.pressure, 1e-9)))}")
+    chips = "".join(f'<span class="cc-chip" style="--c:{CROPS[crop_group(de.get(int(row[f"c{y}"]), ""))]}">'
+                    f'<i>{y}</i>{names.get(int(row[f"c{y}"]), "–")}</span>' for y in range(2017, season + 1))
+    with st.container(key="card_parcel"):
+        st.html(f'<h3 style="margin:0 0 6px">{t("region.parcel.title", id=pid, ha=num(row.area_ha, 1))}</h3>'
+                + "".join(f'<p style="margin:0 0 8px">{x}</p>' for x in lines)
+                + f'<p class="cc-note" style="margin:8px 0 4px">{t("region.parcel.history", start=2017, end=season)}</p>'
+                f'<div class="cc-chips">{chips}</div>')
+        if isinstance(row.field, str) and row.field:
+            if st.button(t("region.parcel.open", id=row.field), key="ls_open_field"):
+                st.session_state.field = row.field
+                st.switch_page("views/field.py")
+
+
 # --- map ------------------------------------------------------------------
+with map_row:  # title and the now / after switch first; the map itself is drawn into `left` further down
+    st.space("small")
+    left, right = st.columns([2.1, 1], gap="large")
+    with left:
+        st.subheader(t("region.map.title", season=season))
+        view = st.segmented_control(t("region.kpi.pressure"), ["pressure", "after"], default="after", required=True,
+                                    key="ls_view", persist_state="session", label_visibility="collapsed",
+                                    format_func=lambda k: t("region.demo." + ("now" if k == "pressure" else "after")))
 pale, full = np.array(rgb(PALE)), np.array(rgb(HUE, 235))
-v = np.clip(beet.after / beet.pressure.quantile(0.9), 0, 1).to_numpy()[:, None]
+v = np.clip(beet[view] / beet.pressure.quantile(0.9), 0, 1).to_numpy()[:, None]
 radius = lambda d: np.sqrt(d.area_ha * 1e4 / np.pi).clip(lower=20)
 years = [f"c{y}" for y in range(season - 3, season + 1)]
 history = lambda d: d[years].apply(lambda col: col.map(names).fillna("–")).agg(" → ".join, axis=1)
@@ -77,10 +118,10 @@ beet = beet.assign(color=[[int(x) for x in c] for c in (pale + (full - pale) * v
                         + (t("region.tip.beet_after", level=level_word(a_)) if lvl(a_) != lvl(p_) else "")
                         for b_, a_, p_ in zip(beet.beet_ha, beet.after, beet.pressure)])
 nur = nur.assign(color=[rgb(POS, 245) if x else rgb(GREY, 150) for x in nur.switch], radius=radius(nur),
-                 tip=[f"<b>{t('region.tip.switch', crop=crops[a_]['label']) if x else t('region.tip.wheat')}</b> · "
-                      f"{num(h, 1)} ha<br/>{hs}<br/>{t('region.tip.both') if d_ > 0 else t('region.tip.one')}"
+                 tip=[f"{t('region.tip.switch', crop=crops[a_]['label']) if x else t('region.tip.wheat')} · "
+                      f"{num(h, 1)} ha\n{hs}\n{t('region.tip.both') if d_ > 0 else t('region.tip.one')}"
                       for a_, x, h, hs, d_ in zip(nur.alt, nur.switch, nur.nursery_ha, history(nur), nur.nursery_ha_dlr)])
-cols = ["lon", "lat", "radius", "color", "tip"]
+cols = ["id", "lon", "lat", "radius", "color", "tip"]
 dots = lambda id_, d, **kw: pdk.Layer("ScatterplotLayer", id=id_, data=d[cols], get_position="[lon, lat]",
                                      get_radius="radius", get_fill_color="color", pickable=True, **kw)
 layers = [dots("wheat", nur[~nur.switch], radius_min_pixels=1.5), dots("beet", beet, radius_min_pixels=1.5),
@@ -92,16 +133,19 @@ layers = [dots("wheat", nur[~nur.switch], radius_min_pixels=1.5), dots("beet", b
                     get_position="pos", get_text="id", get_size=15, get_color=[22, 33, 62], get_pixel_offset=[0, -22],
                     outline_width=4, outline_color=[255, 255, 255], font_settings={"sdf": True})]
 with map_row:
-    st.space("small")
-    left, right = st.columns([2.1, 1], gap="large")
     with left:
-        st.subheader(t("region.map.title", season=season))
-        st.pydeck_chart(pdk.Deck(map_style=None, layers=layers, tooltip={"html": "{tip}"},
-                                 initial_view_state=pdk.ViewState(latitude=49.15, longitude=9.1, zoom=9.6)), height=520)
+        ev = st.pydeck_chart(pdk.Deck(map_style=None, layers=layers, tooltip={"text": "{tip}"},
+                                      initial_view_state=pdk.ViewState(latitude=49.15, longitude=9.1, zoom=9.6)), height=520,
+                             on_select="rerun", selection_mode="single-object", key="ls_map")
         legend([(GREY, t("region.map.wheat"), True), (POS, t("region.map.switch"), True),
                 (PALE, t("region.map.beet_low"), True), (HUE, t("region.map.beet_high"), True)])
         source_line(t("region.map.unit"), t("region.map.source"), t("region.map.period", season=season))
     with right:
+        picked = next((o["id"] for objs in ev.selection.objects.values() for o in objs), None)
+        if picked is None:
+            st.caption(t("region.parcel.hint"))
+        else:
+            parcel_card(picked)
         st.subheader(t("region.demo.title"))
         rows = ""
         for fid, p in fields().items():
@@ -120,8 +164,6 @@ with map_row:
         st.caption(t("region.mix.note"))
 
 # --- the list for the meeting -----------------------------------------------
-why = lambda row: ", ".join([x for x in [t("region.why.steep") if row.ks >= 0.55 else "",
-                                         t("region.why.dry") if row.nfk_mm < 140 else ""] if x] or [t("region.why.flat")])
 col = lambda k, **kw: t("region.list.col." + k, **kw)
 table = pd.DataFrame({
     col("id"): sw.id, col("ha"): sw.nursery_ha.round(1), col("crop"): sw.alt.map(lambda a_: crops[a_]["label"]),

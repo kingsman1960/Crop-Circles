@@ -1,6 +1,6 @@
 # Crop Circles – Field Shift Kraichgau
 
-NASA Space Apps Challenge 2026, challenge "Field Shift: Adapting Farms with NASA Data". The reed planthopper is a neighbourhood problem: its nymphs overwinter in winter wheat sown after sugar beet. The landscape planner finds those fields across the Kraichgau and ranks which ones should switch – and to what crop – so the most pressure is removed while soil and water stay safe. The field view shows how heat, drought, heavy rain and bare soil have hit one field and compares its rotation with three alternatives. Product: `crop-circles-data-prep/crop-circles-data-prep/docs/PRD.md`.
+NASA Space Apps Challenge 2026, challenge "Field Shift: Adapting Farms with NASA Data". The reed planthopper is a neighbourhood problem: its nymphs overwinter in winter wheat sown after sugar beet. The landscape planner finds those fields across the Kraichgau and ranks which ones should switch – and to what crop – so the most pressure is removed while soil and water stay safe. The field view shows how heat, drought, heavy rain and bare soil have hit one field and compares its rotation with three alternatives. Any parcel on the region map can be clicked for its role in the plan and its crops since 2017. Product: `crop-circles-data-prep/crop-circles-data-prep/docs/PRD.md`.
 
 ## Run
 
@@ -19,7 +19,7 @@ python app/smoke_test.py          # every page renders for F1–F3, in English a
 python app/check_i18n.py          # every key used in code exists; translations keep the placeholders
 ```
 
-All AppEEARS downloads (MODIS NDVI, SMAP, HLS for F1–F3), FIONA 2023–2025 around the demo fields (`prep/fetch_fiona_wms.py`) and the DLR CropTypes maps (`prep/fetch_dlr_croptypes.py`) are in as of 2026-11-05. After a new download, run `python -m pipeline` again: the bare-soil, soil-moisture, summer-green and from-space sections pick it up.
+All AppEEARS downloads (MODIS NDVI, SMAP, HLS for F1–F3), FIONA 2023–2025 around the demo fields (`prep/fetch_fiona_wms.py`) and the DLR CropTypes maps (`prep/fetch_dlr_croptypes.py`) are in as of 2026-11-05. ECOSTRESS surface temperature and evaporative stress at the field centres (`prep/fetch_ecostress.py`, one AppEEARS point request) feeds the "seen from space" block on *My field*; without the download the block is simply left out. After a new download, run `python -m pipeline` again: the bare-soil, soil-moisture, summer-green and from-space sections pick it up.
 
 ## Languages
 

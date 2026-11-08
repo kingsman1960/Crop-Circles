@@ -22,7 +22,7 @@ with words:
             f'</thead><tbody>{rows}</tbody></table>')
 with data_tab:
     rows = "".join(
-        f"<tr><td><b>{d.name}</b><span class='g'>{'NASA · ' if d.nasa else ''}{t('know.status.' + d.status)}</span></td>"
+        f"<tr><td><b>{d.name}</b><span class='g'>{'NASA, ' if d.nasa else ''}{t('know.status.' + d.status)}</span></td>"
         f"<td>{d.period}<span class='g'>{d.resolution}</span></td><td>{d.used_for}<span class='g'>{d.licence}</span></td></tr>"
         for d in ds.itertuples())
     st.html(f'<div style="overflow-x:auto"><table class="cc-table"><thead><tr><th>{t("know.col.dataset")}</th>'

@@ -154,12 +154,30 @@ def ndvi(fid):
     return pd.concat(frames) if frames else None
 
 
+def ecostress(fid):
+    """ECOSTRESS at the field centroid (70 m): surface temperature (°C) and evaporative stress index, clear daytime passes.
+    The ISS passes at changing hours; the Date column carries the acquisition time, so night passes are dropped."""
+    path = RAW / "ecostress" / f"{fid}.csv"
+    if not path.exists():
+        return None
+    df = pd.read_csv(path)
+    when = pd.to_datetime(df.Date, utc=True, errors="coerce").dt.tz_localize(None)  # "2018-07-30 17:58:26 UTC"
+    col = lambda name: df[name] if name in df else pd.Series(np.nan, index=df.index)
+    lst = col("ECO_L2T_LSTE_002_LST").where((col("ECO_L2T_LSTE_002_cloud").fillna(0) == 0) & (col("ECO_L2T_LSTE_002_LST") > 0)) - 273.15
+    esi = col("ECO_L4T_ESI_002_ESI").where((col("ECO_L4T_ESI_002_cloud").fillna(0) == 0) & col("ECO_L4T_ESI_002_ESI").between(0, 1))
+    out = pd.DataFrame({"field": fid, "time": when, "lst": lst, "esi": esi}).dropna(subset=["time"])
+    out = out.dropna(subset=["lst", "esi"], how="all")
+    out = out.groupby(["field", "time"], as_index=False).mean()  # a pass can sit on two UTM tiles: one row per pass
+    hour = (out.time + pd.Timedelta(hours=1)).dt.hour  # UTC -> CET; enough for a day / night split
+    return out[hour.between(9, 17)]
+
+
 def main():
     stations = pd.read_csv(RAW / "dwd_climate" / "stations_selected.csv", dtype={"station_id": str})
     dwd = {sid: read_dwd(sid) for sid in stations.station_id}
     names = dict(zip(stations.station_id, stations.name))
     win = phase_windows()
-    daily_all, ind_all, scen_all, sm_all, ndvi_all = [], [], [], [], []
+    daily_all, ind_all, scen_all, sm_all, ndvi_all, eco_all = [], [], [], [], [], []
     for f in FIELDS:
         fid = f["id"]
         d = read_power(fid).join(read_imerg(fid))
@@ -195,12 +213,14 @@ def main():
         sm_all.append(soil_moisture(fid, f, d))
         if (n := ndvi(fid)) is not None:
             ndvi_all.append(n)
+        if (e := ecostress(fid)) is not None:
+            eco_all.append(e)
 
     for name, frames, date_col in [("daily.parquet", daily_all, "date"), ("indicators.parquet", ind_all, "year"),
                                    ("scenarios.parquet", scen_all, None), ("soilmoisture.parquet", sm_all, "date"),
-                                   ("ndvi.parquet", ndvi_all, "date")]:
+                                   ("ndvi.parquet", ndvi_all, "date"), ("ecostress.parquet", eco_all, "time")]:
         if not frames:
-            print(f"  {name}: skipped (MODIS NDVI not downloaded yet)")
+            print(f"  {name}: skipped (not downloaded yet)")
             continue
         df = pd.concat(frames, ignore_index=True)
         df.to_parquet(out(name), index=False)

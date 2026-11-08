@@ -6,3 +6,8 @@ __pycache__/
 .playwright-mcp/
 .taste-skill/
 .streamlit/secrets.toml
+
+# Hallmark screenshots and records (the log stays)
+.hallmark/before/
+.hallmark/after/
+.hallmark/before.json

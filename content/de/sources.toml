@@ -23,6 +23,13 @@ resolution = "250 m, 16 Tage"
 used_for = "Sommergrün je Acker seit 2001, neben den trockensten Sommern"
 
 [[dataset]]
+id = "ecostress"
+name = "ECOSTRESS Oberflächentemperatur und ESI (ECO_L2T_LSTE, ECO_L4T_ESI)"
+period = "09.07.2018 → aktuell"
+resolution = "70 m, ISS-Überflüge zu wechselnden Uhrzeiten"
+used_for = "Oberflächentemperatur und Verdunstungsstress-Index in der Schlagmitte: die Sommer, in denen den Pflanzen das Wasser fehlte, die heißeste Oberflächenmessung"
+
+[[dataset]]
 id = "smap"
 name = "SMAP L3 Bodenfeuchte, erweitert (SPL3SMP_E)"
 period = "31.03.2015 → aktuell"

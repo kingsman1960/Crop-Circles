@@ -34,7 +34,7 @@ def _flatten(d, prefix=""):
     return out
 
 
-@st.cache_data
+@st.cache_resource  # not cache_data: t() runs thousands of times per page, and cache_data would unpickle a copy each time
 def catalog(tag):
     return _flatten(tomllib.loads((LOCALES / f"{tag}.toml").read_text(encoding="utf-8")))
 
