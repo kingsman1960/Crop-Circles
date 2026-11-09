@@ -4,6 +4,7 @@ import hashlib
 import json
 import math
 import netrc
+import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -28,6 +29,11 @@ def load_config():
     return json.loads(CONFIG.read_text(encoding="utf-8"))
 
 
+def area(cfg):
+    """(bbox, file tag): the study bbox, or all of Baden-Württemberg when the script runs with --bw."""
+    return (cfg["state"]["bbox"], "bw") if "--bw" in sys.argv else (cfg["bbox"], "bbox")
+
+
 def now_utc():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -46,7 +52,7 @@ def http(method, url, pause=1.0, tries=5, **kw):
                 r.raise_for_status()
                 return r
             print(f"  HTTP {r.status_code} for {url[:100]}")
-        except requests.ConnectionError as e:
+        except (requests.ConnectionError, requests.exceptions.ChunkedEncodingError) as e:  # incl. a reset mid-body
             print(f"  {type(e).__name__} for {url[:100]}")
         time.sleep(10 * 2 ** attempt)
     r.raise_for_status()
@@ -64,16 +70,35 @@ def manifest_row(path, dataset_id, **kw):
 
 
 def write_manifest(new_rows):
-    """Add rows to MANIFEST; a re-download replaces the file's old row. One rewrite per call."""
+    """Add rows to MANIFEST; a re-download replaces the file's old row. One rewrite per call, under a lock file so that
+    fetchers for different services can run at the same time (delete MANIFEST.lock if a killed run left it behind)."""
     paths = {r["file_path"] for r in new_rows}
-    rows = []
-    if MANIFEST.exists():
-        with MANIFEST.open(newline="", encoding="utf-8") as f:
-            rows = [r for r in csv.DictReader(f) if r["file_path"] not in paths]
-    with MANIFEST.open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, MANIFEST_HEADER)
-        w.writeheader()
-        w.writerows(rows + list(new_rows))
+    lock = MANIFEST.with_suffix(".lock")
+    while True:
+        try:
+            fd = os.open(lock, os.O_CREAT | os.O_EXCL)
+            break
+        except FileExistsError:
+            time.sleep(0.2)
+    try:
+        rows = []
+        if MANIFEST.exists():
+            with MANIFEST.open(newline="", encoding="utf-8") as f:
+                rows = [r for r in csv.DictReader(f) if r["file_path"] not in paths]
+        for attempt in range(10):  # Windows: a virus scan or file watcher can hold the file for a moment (Errno 22/13)
+            try:
+                with MANIFEST.open("w", newline="", encoding="utf-8") as f:
+                    w = csv.DictWriter(f, MANIFEST_HEADER)
+                    w.writeheader()
+                    w.writerows(rows + list(new_rows))
+                break
+            except OSError:
+                if attempt == 9:
+                    raise
+                time.sleep(1)
+    finally:
+        os.close(fd)
+        lock.unlink()
 
 
 def log(path, dataset_id, **kw):

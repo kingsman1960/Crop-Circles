@@ -75,19 +75,22 @@ def gml_geom(el):
     return g if g.is_valid else g.buffer(0)
 
 
-def bk50():
+def bk50(tag="bbox"):
+    """(soil-unit polygons, attributes per unit) for the study bbox, or all of BW (tag "bw", in bk50/bw/)."""
+    folder = RAW / "bk50" / ("" if tag == "bbox" else tag)
     attrs = {}
     for t, col in [("kfa", "kfa-Wert"), ("nfk", "nfk-Wert"), ("kf", "KF")]:
-        for _, el in ET.iterparse(RAW / "bk50" / f"geola_bod_ke_{t}.gml"):
-            if el.tag == f"{MS}geola_bod_ke_{t}":
-                a = attrs.setdefault(el.findtext(f"{MS}Kartiereinheit"), {})
-                a[t] = (el.findtext(f"{MS}{col}") or "").strip()
-                a["legend"] = el.findtext(f"{MS}Legendentext") or a.get("legend", "")
-                a["link"] = el.findtext(f"{MS}Link") or a.get("link", "")
-                el.clear()
+        for p in sorted(folder.glob(f"geola_bod_ke_{t}*.gml")):  # one file, or pages _p00, _p01, …
+            for _, el in ET.iterparse(p):
+                if el.tag == f"{MS}geola_bod_ke_{t}":
+                    a = attrs.setdefault(el.findtext(f"{MS}Kartiereinheit"), {})
+                    a[t] = (el.findtext(f"{MS}{col}") or "").strip()
+                    a["legend"] = el.findtext(f"{MS}Legendentext") or a.get("legend", "")
+                    a["link"] = el.findtext(f"{MS}Link") or a.get("link", "")
+                    el.clear()
     units = []
-    for i in range(5):
-        for _, el in ET.iterparse(RAW / "bk50" / f"geola_bod_ke_p0{i}.gml"):
+    for p in sorted(folder.glob("geola_bod_ke_[pt][0-9]*.gml")):  # pages (bbox) or tiles (BW)
+        for _, el in ET.iterparse(p):
             if el.tag == f"{MS}geola_bod_ke":
                 units.append((el.findtext(f"{MS}Kartiereinheit"), gml_geom(el.find(f"{MS}msGeometry"))))
                 el.clear()
@@ -114,8 +117,8 @@ def soil_profile(field25832, units, attrs):
 
 
 # ---------- DEM ----------
-def dem_slope():
-    with rasterio.open(RAW / "dem" / "dem_bbox.tif") as src:
+def dem_slope(tag="bbox"):
+    with rasterio.open(RAW / "dem" / f"dem_{tag}.tif") as src:
         dem, T = src.read(1).astype(float), src.transform
     lat = T.f + (np.arange(dem.shape[0]) + 0.5) * T.e
     gy, gx = np.gradient(dem)
@@ -178,8 +181,8 @@ def legend():
     return leg
 
 
-def ctm_path(year):
-    return CTM / (f"CTM_GER_{year}_rst_v202_bbox.tif" if year < 2025 else "CTM_GER_2025_rst_v302_2025_08_bbox.tif")
+def ctm_path(year, tag="bbox"):
+    return CTM / (f"CTM_GER_{year}_rst_v202_{tag}.tif" if year < 2025 else f"CTM_GER_2025_rst_v302_2025_08_{tag}.tif")
 
 
 def crop_history(fields3035, leg):

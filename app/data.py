@@ -207,17 +207,18 @@ MODES = ("balanced", "pests", "random")  # labels: region.mode.<key>
 
 
 @st.cache_data
-def landscape():
-    """(parcels indexed by FIONA id, seasons table, summary)."""
-    par = table("landscape_parcels").set_index("id")
+def landscape(scope="bbox"):
+    """(parcels indexed by FIONA id, seasons table, summary) for the study bbox, or all of BW (scope "bw")."""
+    sfx = "" if scope == "bbox" else f"_{scope}"
+    par = table("landscape_parcels" + sfx).set_index("id")
     par["ks"], par["nfk_mm"] = par.ks.fillna(par.ks.median()), par.nfk_mm.fillna(par.nfk_mm.median())
-    return par, table("landscape_seasons"), json.loads((PROC / "landscape_summary.json").read_text(encoding="utf-8"))
+    return par, table("landscape_seasons" + sfx), json.loads((PROC / f"landscape_summary{sfx}.json").read_text(encoding="utf-8"))
 
 
 @st.cache_data
-def pressure(season, r):
+def pressure(season, r, scope="bbox"):
     """Nurseries with their impact, beet parcels with their pressure, for one season and flight distance r (m)."""
-    par, seasons, _ = landscape()
+    par, seasons, _ = landscape(scope)
     s = seasons[seasons.season == season]
     nur, beet = s[s.nursery_ha > 0].copy(), s[s.beet_ha > 0].copy()
     xy = lambda d: par.loc[d.id, ["x", "y"]].to_numpy("float32")
@@ -245,9 +246,9 @@ def side_effects(nur, weights):
     return cost.idxmin(axis=1), cost.min(axis=1)
 
 
-def plan(season, r, share, mode, weights):
+def plan(season, r, share, mode, weights, scope="bbox"):
     """Nurseries ranked and marked `switch` until `share` of the nursery area changes crop; beet with pressure after."""
-    nur, beet = pressure(season, r)
+    nur, beet = pressure(season, r, scope)
     nur["alt"], nur["cost"] = side_effects(nur, weights)
     per_ha = nur.impact / nur.nursery_ha
     key = {"pests": per_ha, "balanced": per_ha / (1 + nur.cost),

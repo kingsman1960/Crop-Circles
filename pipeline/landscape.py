@@ -1,4 +1,4 @@
-"""Crop sequences of every FIONA parcel in the Kraichgau window, for the landscape planner.
+"""Crop sequences of every FIONA parcel in the Kraichgau window (--bw: all of Baden-Württemberg), for the landscape planner.
 
 Outputs:
   landscape_parcels.parquet  parcels that grew sugar beet or were a planthopper nursery in any season:
@@ -9,8 +9,11 @@ Outputs:
                              the same from the DLR map, and how much of the Thünen nursery area DLR confirms
 Parcels are the FIONA 2022 outlines (the only parcel map for the whole window); crops per year come from the Thünen
 10 m maps (c<year>); the DLR CropTypes 10 m maps (d<year>) are a second, independently made opinion.
+--bw writes the same three files with the suffix _bw. Its window also covers parts of the neighbouring states, where
+FIONA has no parcels, so the regional hectares are counted inside FIONA parcels there, not over all map pixels.
 """
 import json
+import sys
 
 import numpy as np
 import pandas as pd
@@ -27,7 +30,7 @@ YEARS = range(2017, 2026)
 BEET, WHEAT = 1402, 1101
 # DLR: sugar beet; winter wheat + other winter cereals (spelt, triticale), which Thünen has no own class for
 DLR_BEET, DLR_WHEAT = 60, (11, 14)
-dlr_path = lambda y: RAW / "dlr_croptypes" / f"CROPTYPES_DE_P1Y_{y}_V021_bbox.tif"
+dlr_path = lambda y, tag: RAW / "dlr_croptypes" / f"CROPTYPES_DE_P1Y_{y}_V021_{tag}.tif"
 MIN_HA = 0.1  # less than 10 pixels in a parcel = edge noise between map and parcel outline
 NFK_MID = {1: 35, 2: 70, 3: 115, 4: 170, 5: 220}  # mm, middle of the BK50 nFK classes
 
@@ -83,9 +86,10 @@ def legends():
     return out
 
 
-def main():
+def main(tag="bbox"):
+    sfx = "" if tag == "bbox" else f"_{tag}"
     fiona = [(f["properties"]["object_id"], f["properties"]["Bezeichnung"], shape(f["geometry"]))
-             for p in sorted((RAW / "fiona").glob("fiona_bbox_p*.json"))
+             for p in sorted((RAW / "fiona").glob(f"fiona_{tag}_p*.json"))
              for f in json.loads(p.read_text(encoding="utf-8"))["features"]]
     df = pd.DataFrame(fiona, columns=["id", "crop2022", "geom"])
     n = len(df) + 1  # raster value i+1 = row i
@@ -97,8 +101,8 @@ def main():
     df["x"], df["y"], df["lon"], df["lat"] = c3035[:, 0], c3035[:, 1], c4326[:, 0], c4326[:, 1]
 
     # erosion and water per parcel on the NASADEM grid: K (BK50) x S (slope), nFK (BK50)
-    units, attrs = geo.bk50()
-    dem, T, _, s_fac = geo.dem_slope()
+    units, attrs = geo.bk50(tag)
+    dem, T, _, s_fac = geo.dem_slope(tag)
     u4326 = geo.reproj(np.array([g for _, g in units], dtype=object), 25832, 4326)
     burn = lambda key, fn: features.rasterize(((g, fn(attrs.get(u, {}).get(key))) for (u, _), g in zip(units, u4326)),
                                               dem.shape, transform=T, fill=np.nan, dtype="float32")
@@ -111,21 +115,25 @@ def main():
     row, col = np.clip(row.astype(int), 0, dem.shape[0] - 1), np.clip(col.astype(int), 0, dem.shape[1] - 1)
     df["ks"] = df.ks.fillna(pd.Series((k_r * s_fac)[row, col]))
     df["nfk_mm"] = df.nfk_mm.fillna(pd.Series(nfk_r[row, col]))
+    del units, u4326, dem, k_r, nfk_r, s_fac, ids  # BW: several GB, not needed below
 
     # crops per parcel and year: Thünen (EPSG:3035) and DLR (EPSG:32632, FIONA's EPSG:25832 within a metre), both 10 m
-    with rasterio.open(geo.ctm_path(2017)) as src:
+    with rasterio.open(geo.ctm_path(2017, tag)) as src:
         ids = features.rasterize(zip(g3035, range(1, n)), src.shape, transform=src.transform, fill=0, dtype="int32")
-    with rasterio.open(dlr_path(2017)) as src:
+    with rasterio.open(dlr_path(2017, tag)) as src:
         ids_d = features.rasterize(zip(df.geom.values, range(1, n)), src.shape, transform=src.transform, fill=0,
                                    dtype="int32")
         px_d = abs(src.res[0] * src.res[1]) / 1e4
     per_parcel = lambda ids_, mask, px: np.bincount(ids_[mask & (ids_ > 0)], minlength=n)[1:] * px  # ha
+    # regional hectares: all map pixels in the bbox; BW: inside FIONA parcels (the window reaches into other states)
+    ha = (lambda m: m.sum() / 100) if tag == "bbox" else (lambda m: per_parcel(ids, m, 0.01).sum())
+    ha_d = (lambda m: m.sum() * px_d) if tag == "bbox" else (lambda m: per_parcel(ids_d, m, px_d).sum())
     area = ["nursery_ha", "beet_ha", "nursery_ha_dlr", "beet_ha_dlr"]
     seasons, summary, prev, prev_d = [], [], None, None
     for y in YEARS:
-        with rasterio.open(geo.ctm_path(y)) as src:
+        with rasterio.open(geo.ctm_path(y, tag)) as src:
             a = src.read(1)
-        with rasterio.open(dlr_path(y)) as src:
+        with rasterio.open(dlr_path(y, tag)) as src:
             d = src.read(1)
         df[f"c{y}"], df[f"d{y}"] = majority(ids, a, n), majority(ids_d, d, n)
         if prev is not None:
@@ -136,15 +144,15 @@ def main():
                               "beet_ha_dlr": per_parcel(ids_d, d == DLR_BEET, px_d)})
             s[area] = s[area].where(s[area] >= MIN_HA, 0)
             seasons.append(s[(s[area] > 0).any(axis=1)])
-            summary.append({"season": y, "beet_prev_ha": round((prev == BEET).sum() / 100),
-                            "nursery_ha": round(nursery.sum() / 100), "beet_ha": round((a == BEET).sum() / 100),
-                            "beet_to_wheat": round(nursery.sum() / max((prev == BEET).sum(), 1), 3),
-                            "nursery_in_parcels": round(float(s.nursery_ha.sum() / (nursery.sum() / 100)), 3),
+            summary.append({"season": y, "beet_prev_ha": round(ha(prev == BEET)),
+                            "nursery_ha": round(ha(nursery)), "beet_ha": round(ha(a == BEET)),
+                            "beet_to_wheat": round(ha(nursery) / max(ha(prev == BEET), 0.01), 3),
+                            "nursery_in_parcels": round(float(s.nursery_ha.sum() / ha(nursery)), 3),
                             "map": "v302 preliminary" if y == 2025 else "v202",
-                            "dlr": {"beet_prev_ha": round((prev_d == DLR_BEET).sum() * px_d),
-                                    "nursery_ha": round(nursery_d.sum() * px_d),
-                                    "beet_ha": round((d == DLR_BEET).sum() * px_d),
-                                    "beet_to_wheat": round(nursery_d.sum() / max((prev_d == DLR_BEET).sum(), 1), 3)}})
+                            "dlr": {"beet_prev_ha": round(ha_d(prev_d == DLR_BEET)),
+                                    "nursery_ha": round(ha_d(nursery_d)),
+                                    "beet_ha": round(ha_d(d == DLR_BEET)),
+                                    "beet_to_wheat": round(ha_d(nursery_d) / max(ha_d(prev_d == DLR_BEET), 0.01), 3)}})
         prev, prev_d = a, d
 
     seasons = pd.concat(seasons, ignore_index=True)
@@ -154,10 +162,10 @@ def main():
     for fid, g in fields.items():
         df.loc[shapely.contains_xy(g, df.x, df.y), "field"] = fid
     df = df[keep].drop(columns="geom")
-    df.to_parquet(out("landscape_parcels.parquet"), index=False)
-    seasons.to_parquet(out("landscape_seasons.parquet"), index=False)
-    check("landscape_parcels.parquet", df)
-    check("landscape_seasons.parquet", seasons, "season")
+    df.to_parquet(out(f"landscape_parcels{sfx}.parquet"), index=False)
+    seasons.to_parquet(out(f"landscape_seasons{sfx}.parquet"), index=False)
+    check(f"landscape_parcels{sfx}.parquet", df)
+    check(f"landscape_seasons{sfx}.parquet", seasons, "season")
 
     # targeted vs. random switching of 20 % of the nursery area, for three flight distances, on both maps
     xy = df.set_index("id")[["x", "y"]]
@@ -170,9 +178,9 @@ def main():
               f"20 % targeted removes {s['targeted20_r500']:.0%} / {s['targeted20_r1000']:.0%} / {s['targeted20_r2000']:.0%} "
               f"(r = 0.5 / 1 / 2 km; random ~20 %) | DLR: nursery {s['dlr']['nursery_ha']} ha, removes "
               f"{s['dlr']['targeted20_r1000']:.0%} at 1 km; {s['dlr']['confirmed']:.0%} of the Thünen nursery area confirmed")
-    out("landscape_summary.json").write_text(json.dumps(
+    out(f"landscape_summary{sfx}.json").write_text(json.dumps(
         {"seasons": summary, "legends": legends()}, indent=1, ensure_ascii=False), encoding="utf-8")
 
 
 if __name__ == "__main__":
-    main()
+    main("bw" if "--bw" in sys.argv else "bbox")

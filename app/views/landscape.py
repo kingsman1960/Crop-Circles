@@ -10,7 +10,10 @@ from i18n import num, pct, t
 from plain import fraction, level, of_ten
 
 crops = content("crops")
-par, _, summary = landscape()
+scope = st.segmented_control(t("region.scope.label"), ["bbox", "bw"], default="bbox", required=True, key="ls_scope",
+                             persist_state="session", format_func=lambda k: t("region.scope." + k),
+                             label_visibility="collapsed")
+par, _, summary = landscape(scope)
 names = crop_names()
 stats = {s["season"]: s for s in summary["seasons"]}
 SHARES = (0.1, 0.2, 0.3, 0.5)
@@ -37,7 +40,7 @@ with choose_row:
     share = st.segmented_control(t("region.share_question"), SHARES, default=0.2, format_func=share_word, required=True,
                                  key="ls_share_word", persist_state="session")
 
-plans = {m: plan(season, r, share, m, planner_weights()) for m in MODES}
+plans = {m: plan(season, r, share, m, planner_weights(), scope) for m in MODES}
 nur, beet = plans[mode]
 removed = lambda n: n.impact[n.switch].sum() / n.impact.sum()
 sw = nur[nur.switch].copy()
@@ -48,6 +51,8 @@ lvl = lambda v: "high" if v >= q67 else "medium" if v >= q33 else "low"
 with title_row:
     header(t("region.title"), t("region.sub", season=season, share=of_ten(s["beet_to_wheat"]), part=share_word(share),
                                 less=fraction(removed(plans["balanced"][0])), random=fraction(removed(plans["random"][0]))))
+    if scope == "bw":
+        st.caption(t("region.scope.bw_note", n=num(len(par))))
 
 with numbers_row:
     high_before = beet.beet_ha[beet.pressure >= q67].sum() / beet.beet_ha.sum()
@@ -65,8 +70,11 @@ with numbers_row:
          t("region.kpi.high_help")),
     ], lead=3)
 
-why = lambda row: ", ".join([x for x in [t("region.why.steep") if row.ks >= 0.55 else "",
-                                         t("region.why.dry") if row.nfk_mm < 140 else ""] if x] or [t("region.why.flat")])
+# texts looked up once, not per field: all of BW has ~20,000 dots, and every t() call reads the session
+words = ({k: t("region.why." + k) for k in ("steep", "dry", "flat")}
+         | {k: t("plain.level." + k).lower() for k in ("low", "medium", "high")})
+why = lambda row: ", ".join([x for x in [words["steep"] if row.ks >= 0.55 else "",
+                                         words["dry"] if row.nfk_mm < 140 else ""] if x] or [words["flat"]])
 
 
 def parcel_card(pid):
@@ -112,15 +120,18 @@ v = np.clip(beet[view] / beet.pressure.quantile(0.9), 0, 1).to_numpy()[:, None]
 radius = lambda d: np.sqrt(d.area_ha * 1e4 / np.pi).clip(lower=20)
 years = [f"c{y}" for y in range(season - 3, season + 1)]
 history = lambda d: d[years].apply(lambda col: col.map(names).fillna("–")).agg(" → ".join, axis=1)
-level_word = lambda v_: t("plain.level." + lvl(v_)).lower()
+level_word = lambda v_: words[lvl(v_)]
+ha1 = lambda s: s.round(1).map({x: num(x, 1) for x in s.round(1).unique()})  # Babel once per distinct value
+tip_beet, tip_after = t("region.tip.beet", season=season, ha="{ha}", level="{level}"), t("region.tip.beet_after", level="{level}")
 beet = beet.assign(color=[[int(x) for x in c] for c in (pale + (full - pale) * v)], radius=radius(beet),  # plain ints for JSON
-                   tip=[t("region.tip.beet", season=season, ha=num(b_, 1), level=level_word(p_))
-                        + (t("region.tip.beet_after", level=level_word(a_)) if lvl(a_) != lvl(p_) else "")
-                        for b_, a_, p_ in zip(beet.beet_ha, beet.after, beet.pressure)])
+                   tip=[tip_beet.format(ha=h, level=level_word(p_))
+                        + (tip_after.format(level=level_word(a_)) if lvl(a_) != lvl(p_) else "")
+                        for h, a_, p_ in zip(ha1(beet.beet_ha), beet.after, beet.pressure)])
+tip_switch = {a_: t("region.tip.switch", crop=crops[a_]["label"]) for a_ in nur.alt.unique()}
+tip_wheat, tip_both, tip_one = t("region.tip.wheat"), t("region.tip.both"), t("region.tip.one")
 nur = nur.assign(color=[rgb(POS, 245) if x else rgb(GREY, 150) for x in nur.switch], radius=radius(nur),
-                 tip=[f"{t('region.tip.switch', crop=crops[a_]['label']) if x else t('region.tip.wheat')} · "
-                      f"{num(h, 1)} ha\n{hs}\n{t('region.tip.both') if d_ > 0 else t('region.tip.one')}"
-                      for a_, x, h, hs, d_ in zip(nur.alt, nur.switch, nur.nursery_ha, history(nur), nur.nursery_ha_dlr)])
+                 tip=[f"{tip_switch[a_] if x else tip_wheat} · {h} ha\n{hs}\n{tip_both if d_ > 0 else tip_one}"
+                      for a_, x, h, hs, d_ in zip(nur.alt, nur.switch, ha1(nur.nursery_ha), history(nur), nur.nursery_ha_dlr)])
 cols = ["id", "lon", "lat", "radius", "color", "tip"]
 dots = lambda id_, d, **kw: pdk.Layer("ScatterplotLayer", id=id_, data=d[cols], get_position="[lon, lat]",
                                      get_radius="radius", get_fill_color="color", pickable=True, **kw)
@@ -135,8 +146,10 @@ layers = [dots("wheat", nur[~nur.switch], radius_min_pixels=1.5), dots("beet", b
 with map_row:
     with left:
         ev = st.pydeck_chart(pdk.Deck(map_style=None, layers=layers, tooltip={"text": "{tip}"},
-                                      initial_view_state=pdk.ViewState(latitude=49.15, longitude=9.1, zoom=9.6)), height=520,
-                             on_select="rerun", selection_mode="single-object", key="ls_map")
+                                      initial_view_state=pdk.ViewState(latitude=(par.lat.min() + par.lat.max()) / 2,
+                                                                       longitude=(par.lon.min() + par.lon.max()) / 2,
+                                                                       zoom=9.6 if scope == "bbox" else 7.4)),
+                             height=520, on_select="rerun", selection_mode="single-object", key=f"ls_map_{scope}")
         legend([(GREY, t("region.map.wheat"), True), (POS, t("region.map.switch"), True),
                 (PALE, t("region.map.beet_low"), True), (HUE, t("region.map.beet_high"), True)])
         source_line(t("region.map.unit"), t("region.map.source"), t("region.map.period", season=season))
@@ -176,7 +189,7 @@ with list_row:
     a, b = st.columns([3, 1], vertical_alignment="bottom")
     a.subheader(t("region.list.title"))
     b.download_button(t("region.list.download"), table.to_csv(index=False).encode("utf-8"),
-                      f"switch_list_{season}_{round(share * 100)}.csv", "text/csv", type="primary", width="stretch",
+                      f"switch_list_{'bw_' if scope == 'bw' else ''}{season}_{round(share * 100)}.csv", "text/csv", type="primary", width="stretch",
                       disabled=sw.empty)
     st.dataframe(table.drop(columns=["lat", "lon"]).head(200), hide_index=True, height=340, column_config={
         col("share"): st.column_config.NumberColumn(format="percent"),

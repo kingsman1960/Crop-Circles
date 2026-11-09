@@ -1,4 +1,5 @@
-"""Dataset 14 - thuenen_ctm: Thünen national crop type maps for Germany (10 m raster COGs on Zenodo), clipped to the bbox.
+"""Dataset 14 - thuenen_ctm: Thünen national crop type maps for Germany (10 m raster COGs on Zenodo), clipped to the bbox
+(--bw: all of Baden-Württemberg).
 
 The COGs are read over HTTP range requests (only the bbox window is transferred) and written as GeoTIFF unchanged
 (same CRS EPSG:3035, grid, dtype and values). v202 = Blickensdörfer et al. 2022 method (2017-2024, one legend);
@@ -11,7 +12,7 @@ import rasterio
 from rasterio.warp import transform_bounds
 from rasterio.windows import from_bounds
 
-from common import RAW, http, load_config, log, now_utc
+from common import MANIFEST, RAW, ROOT, area, http, load_config, log, now_utc
 
 Z = "https://zenodo.org/records/{}/files/{}"
 COGS = [("10640528", f"CTM_GER_{y}_rst_v202_COG.tif") for y in range(2017, 2022)] + [
@@ -30,7 +31,7 @@ META = dict(source="Thünen Institute crop type maps for Germany (Zenodo)", lice
 
 def main():
     cfg = load_config()
-    b = cfg["bbox"]
+    b, tag = area(cfg)
     OUT.mkdir(parents=True, exist_ok=True)
     for rid, key in DOCS:
         when, url = now_utc(), Z.format(rid, key)
@@ -39,21 +40,34 @@ def main():
         log(path, "thuenen_ctm", query_or_url=url, spatial="Germany", temporal="-", downloaded_at_utc=when,
             product_version=key.split("_")[-1].split(".")[0], **META)
 
-    with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR", GDAL_HTTP_MAX_RETRY="5", GDAL_HTTP_RETRY_DELAY="5"):
+    logged = MANIFEST.read_text(encoding="utf-8")  # a re-run keeps the maps already logged
+    # a stalled connection (e.g. after the laptop slept) fails after 2 min below 1 kB/s instead of hanging
+    with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR", GDAL_HTTP_MAX_RETRY="5", GDAL_HTTP_RETRY_DELAY="5",
+                      GDAL_HTTP_LOW_SPEED_TIME="120", GDAL_HTTP_LOW_SPEED_LIMIT="1000"):
         for rid, key in COGS:
             when, url = now_utc(), Z.format(rid, key)
-            with rasterio.open("/vsicurl/" + url) as src:
-                win = from_bounds(*transform_bounds("EPSG:4326", src.crs, b["min_lon"], b["min_lat"], b["max_lon"],
-                                                    b["max_lat"]), src.transform).round_offsets().round_lengths()
-                data = src.read(1, window=win)
-                prof = src.profile | {"width": win.width, "height": win.height,
-                                      "transform": src.window_transform(win), "compress": "deflate",
-                                      "tiled": True, "blockxsize": 256, "blockysize": 256}
-            path = OUT / key.replace("_COG.tif", "_bbox.tif").replace("_COG_", "_")
+            path = OUT / key.replace("_COG.tif", f"_{tag}.tif").replace("_COG_", "_")
+            if path.relative_to(ROOT).as_posix() + "," in logged:
+                continue
+            for attempt in range(3):  # BW window: a range read sometimes comes back short ("TIFFFillTile: Read error")
+                try:
+                    with rasterio.open("/vsicurl/" + url) as src:
+                        win = from_bounds(*transform_bounds("EPSG:4326", src.crs, b["min_lon"], b["min_lat"],
+                                                            b["max_lon"], b["max_lat"]),
+                                          src.transform).round_offsets().round_lengths()
+                        data = src.read(1, window=win)
+                        prof = src.profile | {"width": win.width, "height": win.height,
+                                              "transform": src.window_transform(win), "compress": "deflate",
+                                              "tiled": True, "blockxsize": 256, "blockysize": 256}
+                    break
+                except rasterio.errors.RasterioIOError as e:
+                    if attempt == 2:
+                        raise
+                    print(f"  {key}: {e}; retrying")
             with rasterio.open(path, "w", **prof) as dst:
                 dst.write(data, 1)
             log(path, "thuenen_ctm", query_or_url=f"{url} (window {win.col_off},{win.row_off},{win.width}x{win.height})",
-                spatial=f"bbox {b['min_lon']},{b['min_lat']},{b['max_lon']},{b['max_lat']} (EPSG:3035 window)",
+                spatial=f"{tag} {b['min_lon']},{b['min_lat']},{b['max_lon']},{b['max_lat']} (EPSG:3035 window)",
                 temporal=key.split("_")[2], downloaded_at_utc=when, product_version=key.split("_")[4], **META)
             vals = Counter(dict(zip(*np.unique(data, return_counts=True))))
             nod = vals.pop(prof["nodata"], 0)

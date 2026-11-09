@@ -15,11 +15,14 @@ From the repo root:
 ```
 streamlit run app/app.py          # the app (reads only data/processed/ and content/)
 python -m pipeline                # rebuild data/processed/ from data/raw/ (~2-3 min, raw data is local only)
+python -m pipeline.landscape --bw # Our region for all of Baden-Württemberg (needs the --bw downloads below)
 python app/smoke_test.py          # every page renders for F1–F3, in English and German
 python app/check_i18n.py          # every key used in code exists; translations keep the placeholders
 ```
 
 All AppEEARS downloads (MODIS NDVI, SMAP, HLS for F1–F3), FIONA 2023–2025 around the demo fields (`prep/fetch_fiona_wms.py`) and the DLR CropTypes maps (`prep/fetch_dlr_croptypes.py`) are in as of 2026-11-05. ECOSTRESS surface temperature and evaporative stress at the field centres (`prep/fetch_ecostress.py`, one AppEEARS point request) feeds the "seen from space" block on *My field*; without the download the block is simply left out. After a new download, run `python -m pipeline` again: the bare-soil, soil-moisture, summer-green and from-space sections pick it up.
+
+*Our region* also covers all of Baden-Württemberg (switch at the top of the page). Its raw data comes from the same fetchers run with `--bw` (`fetch_fiona.py`, `fetch_bk50.py`, `fetch_thuenen_ctm.py`, `fetch_dlr_croptypes.py`, `fetch_dem.py`; about 4 GB, 1–2 hours) and is turned into the `landscape_*_bw` files by `python -m pipeline.landscape --bw`.
 
 ## Languages
 

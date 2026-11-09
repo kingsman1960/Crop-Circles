@@ -6,6 +6,15 @@
     "max_lon": 9.4,
     "max_lat": 49.35
   },
+  "state": {
+    "name": "Baden-Württemberg",
+    "bbox": {
+      "min_lon": 7.5,
+      "min_lat": 47.5,
+      "max_lon": 10.5,
+      "max_lat": 49.8
+    }
+  },
   "period": {
     "start": "1981-01-01",
     "end": "2026-10-31"
