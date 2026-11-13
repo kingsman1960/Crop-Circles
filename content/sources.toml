@@ -162,6 +162,16 @@ used_for = "Recent soil-moisture anomaly"
 licence = "Contains modified Copernicus Climate Change Service information (2026)."
 
 [[dataset]]
+id = "era5_land"
+name = "ERA5-Land hourly time series (Copernicus C3S)"
+nasa = false
+status = "used"
+period = "1981-01-01 → 2026-10-31"
+resolution = "0.1° (9 km)"
+used_for = "Fourth weather source (temperature, rain, water balance); temperature against 1991–2020; topsoil and root-zone soil moisture since 1981"
+licence = "Contains modified Copernicus Climate Change Service information (2026); Muñoz Sabater (2019), ERA5-Land hourly data, doi:10.24381/cds.e2161bac."
+
+[[dataset]]
 id = "fields"
 name = "OpenStreetMap farmland polygons"
 nasa = false

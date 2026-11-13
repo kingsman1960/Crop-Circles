@@ -36,6 +36,7 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 | 15 | esa_cci_sm | ESA CCI soil moisture COMBINED v09.2 | 0.25° | 2020-01-01 → 2024-12-31 | point | ✅ |
 | 16 | c3s_sm | C3S soil moisture COMBINED (CCI algorithm) | 0.25° | 2025-01-01 → 2026-10-10 | point | ✅ |
 | 17 | dlr_croptypes | DLR CropTypes v2.1 crop type maps | 10 m | 2017 → 2025 | EPSG:32632 | ✅ |
+| 18 | era5_land | ERA5-Land hourly time series (t2m, tp, swvl1–4) | 0.1° | 1981-01-01 → 2026-10-31 | point | ✅ |
 
 ---
 
@@ -189,6 +190,13 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 - Class F1 (`ACCURACIES_CropTypes_Germany.txt`, 2017–2025): sugar beet 0.89–0.95, winter wheat 0.72–0.84.
 - Unlike Thünen, spelt and triticale are not winter wheat (class 14): the planner counts 11 + 14 as the wheat after beet.
 - Licence: CC BY 4.0 – DLR CropTypes v2.1 (Gessner et al. 2025; Asam et al. 2022).
+
+## 18 · era5_land
+
+- `data/raw/era5_land/<field>_hourly.zip` – CDS `reanalysis-era5-land-timeseries` at each field centre (`location`), one zip per field with three CSVs (`valid_time, t2m` K; `tp` m per hour, not accumulated; `swvl1..swvl4` m³/m³), 401,760 hourly rows each, 1981-01-01 → 2026-10-31. Fetch: `prep/fetch_era5_land.py` (~1 min per field).
+- Pipeline: daily max/min/mean °C, daily mm, soil water 0–7 cm and the 0–1 m column (layers 1–3 weighted 7/21/72 cm) → `daily.parquet` (`*_era5`), `indicators.parquet` (source `ERA5`), `soilmoisture.parquet` (`ERA5-Land 0–7 cm`, `ERA5-Land 0–1 m`).
+- Check (F1, 2015–2024 means): 848 mm/yr, 11.4 heat days, 0.6 downpour days ≥ 20 mm in May–July (IMERG ≈ 2–3): ERA5 smooths convective rain, so it is a comparison column, not the downpour source.
+- Licence: Copernicus licence (CC-BY) – "Contains modified Copernicus Climate Change Service information (2026)"; Muñoz Sabater (2019), doi:10.24381/cds.e2161bac.
 
 ## Gaps and caveats (summary)
 

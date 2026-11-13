@@ -4,6 +4,7 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
+import copilot
 from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, POS, chart, content, crop_group, crop_names, crop_scale, field_picker, footer,
                   from_space, geojson, header, kpis, layer, legend, neighbourhood, plan, planner_weights, pressure,
                   rank_options, rgb, source_line, strategies, table, takeaway, tip)
@@ -230,7 +231,7 @@ def period_mean(src, key, years):
 
 
 with t_cond:
-    src = st.segmented_control(t("field.measured_by"), SOURCES, default="POWER", required=True, key="cond_src",
+    src = st.segmented_control(t("field.measured_by"), SOURCES + (("ERA5",) if "t_max_era5" in daily else ()), default="POWER", required=True, key="cond_src",
                                format_func=lambda s: t("field.src." + s), persist_state="session",
                                help=tip("satellite_vs_ground"))
     keys = [k for k in ind_meta if ((ind.source == src) & (ind.indicator == k)).any()]
@@ -265,6 +266,24 @@ with t_cond:
                 t("field.complete_years", start=s.year.min(), end=s.year.max()))
     st.markdown(t("field.trend", change=("+" if slope_k > 0 else "") + num(slope_k, 1), unit=m["unit"])
                 + f" {m['definition']} {m['meaning']}")
+    # warmer than it used to be: monthly means against the 1991–2020 mean of the same month (rain sources use POWER)
+    tsrc = src if f"t_mean_{src.lower()}" in daily else "POWER"
+    tm = daily.set_index("date")[f"t_mean_{tsrc.lower()}"].resample("MS").mean()
+    base = tm["1991":"2020"]
+    an = (tm - base.groupby(base.index.month).mean().reindex(tm.index.month).values).dropna()
+    yearly = an.groupby(an.index.year).mean()[an.groupby(an.index.year).size() == 12]
+    sign = lambda v: ("+" if v > 0 else "") + num(v, 1)
+    said = t("field.anom.text", n=int((yearly.iloc[-10:] > 0).sum()), last=sign(an.iloc[-12:].mean()),
+             year=int(yearly.idxmax()), max=sign(yearly.max()))
+    st.markdown(f"**{t('field.anom.title')}**  \n" + said)
+    report.append((t("field.anom.title"), [said]))
+    a = pd.DataFrame({"date": an.index, "anomaly": an.values, "roll": an.rolling(12).mean().values})
+    chart(alt.Chart(a).mark_bar(size=1.5).encode(
+        x=alt.X("date:T", title=None), y=alt.Y("anomaly:Q", title=t("field.anom.axis"), axis=alt.Axis(tickCount=5)),
+        color=alt.condition("datum.anomaly > 0", alt.value(HUE), alt.value(GREY)),
+        tooltip=[alt.Tooltip("date:T", format="%b %Y"), alt.Tooltip("anomaly:Q", format="+.1f", title="°C")])
+          + alt.Chart(a).mark_line(color=INK, strokeWidth=2).encode(x="date:T", y="roll:Q"), width="stretch", height=200)
+    source_line(t("field.anom.unit"), t("field.src." + tsrc), f"{an.index.min().year}–{an.index.max().year}")
     # summer green from space (MODIS 250 m, 2001 ->): the dry summers show up as a less green field
     nd = table("ndvi")
     if nd is not None and (nd.field == fid).any():
@@ -422,7 +441,7 @@ with t_sm:
     sm = sm[sm.field == fid]
     # the soil right now: the last two weeks against the same two weeks in every earlier year
     items = []
-    for k, s_, unit in (("top", "SMAP", "m³/m³"), ("root", "POWER GWETROOT", "")):
+    for k, s_, unit in (("top", "SMAP", "m³/m³"), ("root", "POWER GWETROOT", ""), ("era5", "ERA5-Land 0–1 m", "m³/m³")):
         if (sm.source == s_).any():
             end, v, wetter, n = now_vs_years(sm[sm.source == s_].set_index("date").sm)
             items.append((t(f"field.now.{k}", date=day(end)), num(v, 2), unit, t("field.now.vs", k=wetter, n=n), None,
@@ -433,7 +452,7 @@ with t_sm:
         report.append((t("field.now.title"), [f"<b>{l}:</b> {v} {u} – {d}." for l, v, u, d, _, _ in items]))
     srcs = list(sm.source.unique())
     a, b = st.columns([1.4, 1])
-    pick = a.pills(t("field.measured_by"), srcs, default=[s for s in srcs if s in ("POWER GWETROOT", "SMAP")],
+    pick = a.pills(t("field.measured_by"), srcs, default=[s for s in srcs if s in ("POWER GWETROOT", "SMAP", "ERA5-Land 0–1 m")],
                    selection_mode="multi", key="sm_src", help=tip("soil_moisture"))
     y0, y1 = b.slider(t("field.sat.year"), 2001, int(sm.date.dt.year.max()), (2018, int(sm.date.dt.year.max())),
                       key="sm_years")
@@ -443,7 +462,7 @@ with t_sm:
     chart(zero + alt.Chart(s).mark_line(strokeWidth=2).encode(
         x=alt.X("date:T", title=None), y=alt.Y("anomaly:Q", title=t("field.moisture.drier_wetter"), axis=alt.Axis(tickCount=5)),
         color=alt.Color("source:N", title=None, legend=alt.Legend(orient="top"),
-                        scale=alt.Scale(domain=srcs, range=[GREY, INK, HUE, GREY_LIGHT][:len(srcs)])),
+                        scale=alt.Scale(domain=srcs, range=[GREY, INK, POS, "#9a6a12", HUE, GREY_LIGHT][:len(srcs)])),
         tooltip=["source", alt.Tooltip("date:T", format="%b %Y"), alt.Tooltip("anomaly:Q", format=".2f")]),
         width="stretch", height=240)
     source_line(t("field.moisture.unit"), t("field.moisture.source"), f"{y0}–{y1}")
@@ -467,6 +486,8 @@ with t_sat:
     source_line(t("field.sat.per_month"), f"NASA POWER, GPM IMERG, DWD ({d.dwd_station.mode().iloc[0]})", str(yr))
     r = daily[daily.date.dt.year.between(2001, 2024)]
     rows = [("NASA POWER", r.p_power, r.t_max_power), ("GPM IMERG", r.p_imerg, None), (station, r.p_dwd, r.t_max_dwd)]
+    if "p_era5" in r:
+        rows.append(("ERA5-Land", r.p_era5, r.t_max_era5))
     body = "".join(f'<tr><td>{name}</td><td class="num">{num(p_.sum() / 24)}</td><td class="num">{num((p_ >= 20).sum() / 24, 1)}</td>'
                    f'<td class="num">{num(p_.corr(r.p_dwd), 2)}</td>'
                    f'<td class="num">{"–" if tm is None else num((tm >= 30).sum() / 24, 1)}</td></tr>' for name, p_, tm in rows)
@@ -494,6 +515,9 @@ with t_scen:
                tone(ind_meta[k], now[k] - base_[k]), ind_meta[k]["definition"]) for k in group])
         st.space("small")
     source_line(t("field.scenario.unit"), t("field.scenario.source"), "2005–2024")
+# --- ask about this field: the model explains the card above, it computes nothing ---------------------------------
+st.space("medium")
+copilot.panel(fid, report, "field", ("why", "first", "summary"))
 side.download_button(t("field.report.button"), takeaway(title, sub + " " + t("field.report.made", date=day(pd.Timestamp.today())),
                                                         report),
                      file_name=f"crop-circles-{fid}.html", mime="text/html", icon=":material/print:", on_click="ignore",

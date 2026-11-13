@@ -2,6 +2,7 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
+import copilot
 from data import (HUE, chart, content, fact_text, field_picker, footer, header, model_note, neighbourhood, plan,
                   planner_weights, priority_control, rank_options, source_line, strategies)
 from i18n import pct, t
@@ -125,4 +126,6 @@ for rank, sid in enumerate(order, 1):
                     t("grow.card.bare_source") + (t("grow.card.bare_lit", crops=", ".join(
                         crops[c]["label"] for c in r_["literature_dates"])) if r_["literature_dates"] else ""),
                     t("grow.card.bare_period", ero=pct(r_["erosion_rel"]), wat=pct(r_["water_rel"])))
+st.space("medium")
+copilot.panel(fid, [(t("grow.title", id=fid), [sub])], "grow", ("ranking", "tradeoff", "summary"))
 footer()

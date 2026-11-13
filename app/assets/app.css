@@ -110,3 +110,6 @@ div[class*="st-key-card_risk"] [data-testid="stHtml"], .cc-risk { height: 100%; 
 [data-testid="stTab"] p { font-size: 15px; }
 [data-testid="stExpander"] details { border-radius: var(--radius-card); background: var(--color-paper-3); }
 [data-testid="stExpander"] summary p { font-weight: 500; }
+/* ask about this field: messages on the paper, no bubbles; the question box is Streamlit's own control */
+[data-testid="stChatMessage"] { background: transparent; padding: var(--space-xs) 0; gap: var(--space-sm); }
+[data-testid="stChatMessageAvatarUser"], [data-testid="stChatMessageAvatarCustom"] { background: var(--color-paper-2); }

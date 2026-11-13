@@ -93,6 +93,11 @@ name = "C3S-Bodenfeuchte (CCI-Algorithmus)"
 used_for = "Aktuelle Abweichung der Bodenfeuchte"
 
 [[dataset]]
+id = "era5_land"
+name = "ERA5-Land-Stundenreihen (Copernicus C3S)"
+used_for = "Vierte Wetterquelle (Temperatur, Regen, Wasserbilanz); Temperatur gegenüber 1991–2020; Bodenfeuchte Ober- und Wurzelraum seit 1981"
+
+[[dataset]]
 id = "fields"
 name = "OpenStreetMap-Ackerflächen"
 period = "Stand 04.11.2026"

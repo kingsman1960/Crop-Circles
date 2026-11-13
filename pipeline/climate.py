@@ -4,6 +4,7 @@ Outputs: daily.parquet, indicators.parquet, scenarios.parquet, soilmoisture.parq
 Indicator definitions follow PRD §7; thresholds are screening values (see content/indicators.toml).
 """
 import io
+import zipfile
 
 import numpy as np
 import pandas as pd
@@ -29,6 +30,21 @@ def read_imerg(fid):
     head = lines.index("") + 1  # two Giovanni header styles; both end with a blank line
     df = pd.read_csv(io.StringIO("\n".join(lines[head:])), na_values=[-9999.9])
     return pd.Series(df.iloc[:, 1].values, index=pd.to_datetime(df.iloc[:, 0]), name="p_imerg")
+
+
+def read_era5(fid):
+    """ERA5-Land hourly at the field centre (K, m, m³/m³) -> daily °C and mm, soil water 0–7 cm and the 0–1 m column
+    (layers 1–3 weighted by depth: 7, 21, 72 cm). The time-series product gives tp per hour, not accumulated."""
+    z = RAW / "era5_land" / f"{fid}_hourly.zip"
+    if not z.exists():
+        return None
+    with zipfile.ZipFile(z) as zf:
+        h = pd.concat([pd.read_csv(io.BytesIO(zf.read(n)), parse_dates=["valid_time"], index_col="valid_time")
+                       .drop(columns=["latitude", "longitude"]) for n in zf.namelist()], axis=1)
+    t = (h.t2m - 273.15).resample("D")
+    return pd.DataFrame({"t_max_era5": t.max(), "t_min_era5": t.min(), "t_mean_era5": t.mean(),
+                         "p_era5": h.tp.resample("D").sum() * 1000, "swvl1_era5": h.swvl1.resample("D").mean(),
+                         "swvl_root_era5": (0.07 * h.swvl1 + 0.21 * h.swvl2 + 0.72 * h.swvl3).resample("D").mean()})
 
 
 def read_dwd(sid):
@@ -103,6 +119,7 @@ SOURCES = {  # source -> column mapping onto tmax/tmin/tmean/p/et0
     "POWER": dict(tmax="t_max_power", tmin="t_min_power", tmean="t_mean_power", p="p_power", et0="et0_power"),
     "IMERG": dict(p="p_imerg", et0="et0_power"),
     "DWD": dict(tmax="t_max_dwd", tmin="t_min_dwd", tmean="t_mean_dwd", p="p_dwd", et0="et0_dwd"),
+    "ERA5": dict(tmax="t_max_era5", tmin="t_min_era5", tmean="t_mean_era5", p="p_era5", et0="et0_era5"),
 }
 
 
@@ -122,6 +139,8 @@ def anomaly(s):
 
 def soil_moisture(fid, f, daily):
     series = {("POWER GWETTOP", "0–1"): daily.gwettop, ("POWER GWETROOT", "0–1"): daily.gwetroot}
+    if "swvl1_era5" in daily:  # the 9 km land model, 1981 ->: the only root-zone series in m³/m³
+        series |= {("ERA5-Land 0–7 cm", "m³/m³"): daily.swvl1_era5, ("ERA5-Land 0–1 m", "m³/m³"): daily.swvl_root_era5}
     # C3S (2025 ->) continues CCI v09.2 (-> 2024) with the same algorithm; joined so the anomaly has one climatology.
     # ponytail: version step at 2024/2025 not corrected – compare the two once an overlap year is available.
     sat = [pd.read_csv(p, parse_dates=["date"]) for p in (RAW / "esa_cci_sm" / "cci_sm_combined_v09.2_daily.csv",
@@ -181,6 +200,8 @@ def main():
     for f in FIELDS:
         fid = f["id"]
         d = read_power(fid).join(read_imerg(fid))
+        if (e := read_era5(fid)) is not None:
+            d = d.join(e)
         # DWD: per variable, the nearest station with a valid value that day
         order = stations.sort_values(f"dist_{fid}_km").station_id
         for var, col in [("TXK", "t_max_dwd"), ("TNK", "t_min_dwd"), ("TMK", "t_mean_dwd"), ("RSK", "p_dwd")]:
@@ -190,10 +211,14 @@ def main():
                 d["dwd_station"] = wide.notna().idxmax(axis=1).map(names).where(wide.notna().any(axis=1))
         d["et0_power"] = et0_hargreaves(d.t_max_power, d.t_min_power, d.t_mean_power, f["lat"])
         d["et0_dwd"] = et0_hargreaves(d.t_max_dwd, d.t_min_dwd, d.t_mean_dwd, f["lat"])
+        if "t_max_era5" in d:
+            d["et0_era5"] = et0_hargreaves(d.t_max_era5, d.t_min_era5, d.t_mean_era5, f["lat"])
         d = d.loc[START:END]
         daily_all.append(d.rename_axis("date").reset_index().assign(field=fid))
 
         for src in SOURCES:
+            if not all(c in d for c in SOURCES[src].values()):
+                continue
             ind = indicators(as_source(d, src), win)
             ind_all.append(ind.rename_axis("year").reset_index()
                            .melt(id_vars="year", var_name="indicator").dropna().assign(field=fid, source=src))
