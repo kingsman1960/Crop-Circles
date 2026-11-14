@@ -123,14 +123,16 @@ def fields():
 
 def field_picker(where=st):
     """F1/F2/F3 switch shared by the pages; kept in the session and in the URL (?field=F2), so links can set it."""
-    ids = list(fields())
+    import accounts  # here, not at the top: accounts reads nothing from data, the pages import both
+    ids = accounts.my_fields(list(fields()))
     qp = st.query_params.get("field")
     if qp in ids and qp != st.session_state.get("_field_qp"):  # the URL changed: a link or a reload
         st.session_state.field = qp
     if st.session_state.get("field") not in ids:
         st.session_state.field = ids[0]
-    where.segmented_control("Field", ids, key="field", required=True, persist_state="session",
-                            format_func=field_name, label_visibility="collapsed")
+    if len(ids) > 1:  # one field: nothing to switch
+        where.segmented_control("Field", ids, key="field", required=True, persist_state="session",
+                                format_func=field_name, label_visibility="collapsed")
     st.query_params["field"] = st.session_state._field_qp = st.session_state.field
     return st.session_state.field, fields()[st.session_state.field]
 

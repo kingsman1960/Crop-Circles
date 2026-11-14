@@ -39,7 +39,8 @@ p, li { line-height: 1.55; }
 .st-key-final { border-top: 1px solid var(--color-rule); border-bottom: 1px solid var(--color-rule); padding: var(--space-lg) 0; }
 /* blocks: a rule above each, a tinted well where a block asks for a decision; never a white card on the sage */
 div[class*="st-key-card"] { border-top: 1px solid var(--color-rule); padding: var(--space-lg) 0 var(--space-sm); }
-div[class*="st-key-card_priorities"], div[class*="st-key-card_best"], div[class*="st-key-card_parcel"], div[class*="st-key-card_neighbours"] {
+div[class*="st-key-card_priorities"], div[class*="st-key-card_best"], div[class*="st-key-card_parcel"], div[class*="st-key-card_neighbours"],
+div[class*="st-key-card_login"], div[class*="st-key-card_compose"] {
   background: var(--color-paper-2); border: 0; border-radius: var(--radius-card); padding: var(--space-lg); }
 /* the four risks: blocks in one row end level */
 [data-testid="stLayoutWrapper"]:has(> div[class*="st-key-card_risk"]) { flex-grow: 1; }
@@ -113,3 +114,7 @@ div[class*="st-key-card_risk"] [data-testid="stHtml"], .cc-risk { height: 100%; 
 /* ask about this field: messages on the paper, no bubbles; the question box is Streamlit's own control */
 [data-testid="stChatMessage"] { background: transparent; padding: var(--space-xs) 0; gap: var(--space-sm); }
 [data-testid="stChatMessageAvatarUser"], [data-testid="stChatMessageAvatarCustom"] { background: var(--color-paper-2); }
+
+/* the neighbourhood feed: one rule per post, replies indented; the login card is a tinted well */
+div[class*="st-key-card_post_"] { padding: var(--space-md) 0 var(--space-xs); }
+.cc-reply { margin: 0 0 6px var(--space-md); padding-left: var(--space-sm); border-left: 2px solid var(--color-rule); }

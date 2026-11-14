@@ -4,6 +4,8 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
+import accounts
+
 from data import (CROPS, GREY, HUE, INK, MODES, PALE, POS, chart, content, crop_group, crop_names, fields, footer, geojson,
                   header, kpis, landscape, legend, neighbourhood, plan, planner_weights, priority_control, rgb, source_line, tip)
 from i18n import num, pct, t
@@ -100,10 +102,19 @@ def parcel_card(pid):
                 + "".join(f'<p style="margin:0 0 8px">{x}</p>' for x in lines)
                 + f'<p class="cc-note" style="margin:8px 0 4px">{t("region.parcel.history", start=2017, end=season)}</p>'
                 f'<div class="cc-chips">{chips}</div>')
-        if isinstance(row.field, str) and row.field:
+        # a demo-block parcel opens *My field* for accounts that own that field; any other parcel can be added to a
+        # farmer's farm (stored in accounts.py, listed on *My field*)
+        if isinstance(row.field, str) and row.field and row.field in accounts.my_fields(list(fields())):
             if st.button(t("region.parcel.open", id=row.field), key="ls_open_field"):
                 st.session_state.field = row.field
                 st.switch_page("views/field.py")
+        elif accounts.user()["role"] == "farmer":  # any other parcel can join the farm
+            added = pid in accounts.my_parcels()
+            if st.button(t("region.parcel.remove" if added else "region.parcel.add"), key="ls_toggle_parcel"):
+                accounts.toggle_parcel(pid)
+                st.rerun()
+            if added:
+                st.caption(t("region.parcel.added"))
 
 
 # --- map ------------------------------------------------------------------

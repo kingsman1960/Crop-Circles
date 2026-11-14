@@ -11,3 +11,4 @@ __pycache__/
 .hallmark/before/
 .hallmark/after/
 .hallmark/before.json
+app/platform*.db

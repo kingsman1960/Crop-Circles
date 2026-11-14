@@ -4,6 +4,7 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
+import accounts
 import copilot
 from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, POS, chart, content, crop_group, crop_names, crop_scale, field_picker, footer,
                   from_space, geojson, header, kpis, layer, legend, neighbourhood, plan, planner_weights, pressure,
@@ -52,6 +53,22 @@ daily = table("daily")
 daily = daily[daily.field == fid]
 title, sub = t("field.title", id=fid, place=place), t("field.sub", ha=num(p["area_ha"]), n=len(parcels))
 side = header(title, sub)
+if accounts.my_parcels():  # parcels this farmer added from the region map: their crop history now, the rest later
+    from data import landscape
+    par = landscape()[0]
+    de = crop_names("de")
+    with st.container(key="card_parcels"):
+        st.markdown(t("field.parcels.title", n=len(accounts.my_parcels())))
+        rows = ""
+        for pid in accounts.my_parcels():
+            if pid not in par.index:
+                continue
+            r = par.loc[pid]
+            chips = "".join(f'<span class="cc-chip" style="--c:{CROPS[crop_group(de.get(int(r[f"c{y}"]), ""))]}">'
+                            f'<i>{y}</i>{names.get(int(r[f"c{y}"]), "–")}</span>' for y in range(2020, 2026))
+            rows += f'<tr><td><b>{pid}</b><span class="g">{num(r.area_ha, 1)} ha</span></td><td><div class="cc-chips">{chips}</div></td></tr>'
+        st.html(f'<table class="cc-table"><tbody>{rows}</tbody></table>')
+        st.caption(t("field.parcels.note"))
 report = []  # (heading, paragraphs) for the take-away page
 
 # --- the four risks, in words ------------------------------------------------

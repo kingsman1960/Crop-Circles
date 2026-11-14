@@ -34,6 +34,7 @@ meeting. Uses *Our region* and the switch list, and opens the details and source
 | My field (start of the platform) | farmer | the four risks on my field in plain words, with a level and what helps; the best-matching rotation |
 | What to grow | farmer + advisor | the options against what I grow now, ranked by what matters to me |
 | Our region | advisor (farmer reads the headline) | which wheat-after-beet fields should switch, and to what |
+| Neighbours | farmer, advisor, plant-protection office | the feed of the region: what neighbours see on their fields and in the pictures; alerts to the office, answered in the thread |
 | How we know | advisor, judges | words explained, every dataset and licence, the method |
 
 ### Writing for farmers (applies to every screen)
@@ -59,7 +60,7 @@ Goals
 
 Non-goals
 - No yield or profit prediction. No prescriptive advice ("you must"). No pest forecasting model: the planner applies the published rotation rule (no wheat after beet) in space, it does not predict infestation.
-- No user accounts, no farmer data upload in the MVP.
+- Accounts are demo accounts (one farmer per demo field, advisor, office, administrator; `app/accounts.py`); no self-registration, no farmer data upload beyond adding FIONA parcels from the region map.
 - No coverage beyond the Kraichgau bbox.
 
 ## 5. Challenge requirements → product

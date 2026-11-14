@@ -56,7 +56,7 @@ def init():
 
 
 def lang():
-    return st.session_state.get("lang", DEFAULT)
+    return st.session_state.get("lang") or DEFAULT  # or: a widget whose value a test run lost
 
 
 def picker(where):
