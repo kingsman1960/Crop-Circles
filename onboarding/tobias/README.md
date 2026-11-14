@@ -23,8 +23,6 @@ The app already runs end to end, in English and German:
 | Neighbours | the regional feed: notes, questions, alerts to the plant-protection office | `app/views/community.py` |
 | How we know | method, glossary, every dataset and licence | `app/views/sources.py` |
 
-The hackathon weekend is for validation, the demo and polish, not for starting from scratch.
-
 ## The services and how they connect
 
 Read this once; it is the map of everything that was added on top of the first version. The order is the order the data flows.
