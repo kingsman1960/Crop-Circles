@@ -1,0 +1,674 @@
+# What each crop needs, for crops that grow well in southern Germany (Baden-Württemberg, Bavaria). Feeds the
+# crop-plan visualizer; crops.toml stays the rotation model. Ids that also exist in crops.toml are the same crop.
+#
+# Units are chosen so that every number can be held against a field in data/processed/fields.geojson:
+#   ph, ph_limits   soil pH in water, 0–30 cm – the same as the field's `ph` (SoilGrids phh2o).
+#                   German lab reports give pH in CaCl2, about 0.5–0.6 lower: add that before comparing.
+#                   ph = optimum range, ph_limits = the crop still grows (absolute range).
+#   texture         soil classes the crop does well on; a field's class comes from its sand_pct / clay_pct ([model]).
+#   t_opt_c         optimum mean air temperature during growth, °C.
+#   rain_opt_mm     optimum annual rainfall, mm (Kraichgau ~750 mm, Upper Rhine 650–800, Alpine foothills >1000).
+#   t_germ_c        minimum soil temperature for sowing / germination, °C.
+#   frost_c         plants die below about this air temperature: winter crops = hardened stand without snow,
+#                   spring crops = young plants (late frost), cover crops = where they winter-kill.
+#   drought         tolerance of a summer without rain: low | medium | high.
+#   break_years     years before the same crop should come back (Anbaupause). Members of one `family` share
+#                   pests and diseases (Brassicaceae: clubroot; Fabaceae: foot rots), so count them together.
+#   sow, harvest    day of year [from, to]. Winter crops are sown in autumn of the year before. Transplanted
+#                   crops: planting. Perennial fodder: harvest = first to last cut. Cover crops: no harvest.
+#   thuenen         class in the Thünen crop-type map (landscape_summary.json legends), where it has one.
+#   ecoport         FAO ECOCROP crop id, where the numbers come from.
+#
+# More crops, with the plain ECOCROP numbers only: ecocrop_south_germany.csv (86 crops farmed in the region;
+# its crop_requirements column names the ids below).
+#
+# Sources. t_opt_c, rain_opt_mm, ph, ph_limits, texture: FAO ECOCROP (EcoCrop_DB.csv, as published by
+# OpenCLIM/ecocrop) unless a comment says otherwise. sow/harvest of winter wheat, winter barley, winter rapeseed,
+# sugar beet and maize: DWD phenology around Heilbronn 2001–2026 (phenology.parquet), 10th–90th percentile of the
+# yearly regional median. break_years: German extension guidance (rapeseed ≥3, sunflower up to 5, flax 6–7:
+# BÜL 2017 review; DLG organic rotation poster 2024). All other calendar, frost, germination and drought values
+# are agronomic estimates for the lowlands – screening only, to check against LTZ Augustenberg / LfL Bayern.
+
+[model]
+ref_elev_m = 200       # sow/harvest are for the Kraichgau and Upper Rhine lowlands
+days_per_100m = 3      # Hopkins' bioclimatic law (~4 days per 400 ft): higher up, spring dates come later
+heavy_clay_pct = 35    # field texture class: clay ≥ 35 % = heavy (clays, heavy clay loams) …
+light_sand_pct = 50    # … else sand ≥ 50 % = light (sands, loamy sands), else medium (loams, silt loams, loess)
+
+# ---------- cereals ----------
+
+[winter_wheat]
+label = "Winter wheat"
+latin = "Triticum aestivum"
+family = "Poaceae"
+group = "cereal"
+season = "winter"
+thuenen = 1101
+ecoport = 2114
+sow = [283, 291]
+harvest = [195, 212]
+ph = [6.0, 7.0]
+ph_limits = [5.5, 8.5]
+texture = ["medium", "heavy"]   # ECOCROP: medium; wheat is the classic crop of heavy loams too
+t_opt_c = [15, 23]
+rain_opt_mm = [750, 900]
+t_germ_c = 3
+frost_c = -20
+drought = "medium"
+break_years = 1
+n_fix = false
+note = "The main crop of the loess. Sown after sugar beet it nurses reed-planthopper nymphs over winter."
+
+[winter_barley]
+label = "Winter barley"
+latin = "Hordeum vulgare"
+family = "Poaceae"
+group = "cereal"
+season = "winter"
+thuenen = 1102
+ecoport = 1232
+sow = [264, 271]
+harvest = [181, 196]
+ph = [6.5, 7.5]
+ph_limits = [6.0, 8.0]
+texture = ["medium"]
+t_opt_c = [15, 20]
+rain_opt_mm = [500, 1000]
+t_germ_c = 3
+frost_c = -15
+drought = "medium"
+break_years = 1
+n_fix = false
+note = "Earliest harvest, so it escapes summer drought and leaves time for rapeseed or a cover crop. Dislikes acid soil."
+
+[winter_rye]
+label = "Winter rye"
+latin = "Secale cereale"
+family = "Poaceae"
+group = "cereal"
+season = "winter"
+thuenen = 1103
+ecoport = 1929
+sow = [263, 288]
+harvest = [196, 213]
+ph = [5.5, 7.0]                 # ECOCROP 5.5–6.0: rye tolerates acid soil, it does not need it
+ph_limits = [4.5, 8.2]
+texture = ["light", "medium", "heavy"]
+t_opt_c = [15, 20]
+rain_opt_mm = [600, 1000]
+t_germ_c = 2
+frost_c = -25
+drought = "high"
+break_years = 0
+n_fix = false
+note = "Hardiest and most frugal cereal: sandy soils, the Black Forest edge, dry years. Grows after itself."
+
+[triticale]
+label = "Triticale"
+latin = "× Triticosecale"
+family = "Poaceae"
+group = "cereal"
+season = "winter"
+# not in ECOCROP: pH and texture estimated between wheat and rye
+sow = [268, 293]
+harvest = [196, 218]
+ph = [5.5, 7.0]
+ph_limits = [4.5, 8.0]
+texture = ["light", "medium", "heavy"]
+t_germ_c = 3
+frost_c = -20
+drought = "medium"
+break_years = 1
+n_fix = false
+note = "Feed cereal for poorer or acid sites where wheat struggles."
+
+[spelt]
+label = "Spelt"
+latin = "Triticum spelta"
+family = "Poaceae"
+group = "cereal"
+season = "winter"
+ecoport = 10591
+sow = [278, 305]
+harvest = [205, 225]
+ph = [6.5, 7.5]
+ph_limits = [5.0, 8.3]
+texture = ["light", "medium", "heavy"]   # ECOCROP: light; in Swabia also on heavy Keuper and Alb soils
+t_opt_c = [10, 17]
+rain_opt_mm = [700, 1000]
+t_germ_c = 3
+frost_c = -20
+drought = "medium"
+break_years = 1
+n_fix = false
+note = "Traditional Swabian grain (Dinkel). Hardy and frugal, suits the Alb and higher sites; tall, so it lodges."
+
+[durum_wheat]
+label = "Winter durum"
+latin = "Triticum durum"
+family = "Poaceae"
+group = "cereal"
+season = "winter"
+ecoport = 10582
+sow = [283, 305]
+harvest = [192, 210]
+ph = [6.0, 7.0]
+ph_limits = [5.5, 8.5]
+texture = ["medium", "heavy"]
+t_opt_c = [17, 25]
+rain_opt_mm = [500, 700]
+t_germ_c = 4
+frost_c = -12
+drought = "high"
+break_years = 2
+n_fix = false
+note = "Pasta wheat, new in the warm Upper Rhine and Kraichgau. Weak winter hardiness; rain at harvest spoils quality."
+
+[spring_barley]
+label = "Spring barley"
+latin = "Hordeum vulgare"
+family = "Poaceae"
+group = "cereal"
+season = "spring"
+thuenen = 1201
+ecoport = 1232
+sow = [60, 95]
+harvest = [196, 215]
+ph = [6.5, 7.5]
+ph_limits = [6.0, 8.0]
+texture = ["medium"]
+t_opt_c = [15, 20]
+rain_opt_mm = [500, 1000]
+t_germ_c = 3
+frost_c = -6
+drought = "low"
+break_years = 1
+n_fix = false
+note = "Malting barley; a spring crop that can follow sugar beet instead of winter wheat. Shallow roots, suffers in dry springs."
+
+[oats]
+label = "Oats"
+latin = "Avena sativa"
+family = "Poaceae"
+group = "cereal"
+season = "spring"
+thuenen = 1202
+ecoport = 481
+sow = [60, 100]
+harvest = [205, 225]
+ph = [5.0, 7.0]                 # ECOCROP 5.0–6.0: oats tolerate acid soil, neutral loess suits them as well
+ph_limits = [4.5, 7.5]
+texture = ["light", "medium", "heavy"]
+t_opt_c = [16, 20]
+rain_opt_mm = [600, 1000]
+t_germ_c = 3
+frost_c = -5
+drought = "low"
+break_years = 3
+n_fix = false
+note = "Health crop in cereal rotations (no take-all), but needs a cool, moist spring. Nematodes: 3–4 years apart."
+
+# ---------- maize and millet ----------
+
+[grain_maize]
+label = "Grain maize"
+latin = "Zea mays"
+family = "Poaceae"
+group = "maize"
+season = "spring"
+thuenen = 1300
+ecoport = 238663
+sow = [107, 122]
+harvest = [280, 305]            # DWD "harvest" mixes silage maize; grain is threshed in October
+ph = [5.0, 7.0]
+ph_limits = [4.5, 8.5]
+texture = ["light", "medium"]   # ECOCROP: no entry; warms late on heavy clays
+t_opt_c = [18, 33]
+rain_opt_mm = [600, 1200]
+t_germ_c = 8
+frost_c = -2
+drought = "medium"
+break_years = 0
+n_fix = false
+note = "Grows after itself, but rows stay open until June: erosion risk on slopes. Rotation keeps the western corn rootworm down."
+
+[silage_maize]
+label = "Silage maize"
+latin = "Zea mays"
+family = "Poaceae"
+group = "maize"
+season = "spring"
+thuenen = 1300
+ecoport = 238663
+sow = [107, 122]
+harvest = [250, 276]
+ph = [5.0, 7.0]
+ph_limits = [4.5, 8.5]
+texture = ["light", "medium"]
+t_opt_c = [18, 33]
+rain_opt_mm = [600, 1200]
+t_germ_c = 8
+frost_c = -2
+drought = "medium"
+break_years = 0
+n_fix = false
+note = "Whole plant for cattle and biogas, chopped in September; leaves almost no residue on the soil."
+
+[sorghum]
+label = "Sorghum"
+latin = "Sorghum bicolor"
+family = "Poaceae"
+group = "maize"
+season = "spring"
+ecoport = 48747
+sow = [130, 152]
+harvest = [258, 288]
+ph = [5.5, 7.5]
+ph_limits = [5.0, 8.0]
+texture = ["medium", "heavy"]
+t_opt_c = [22, 35]
+rain_opt_mm = [400, 600]
+t_germ_c = 12
+frost_c = 0
+drought = "high"
+break_years = 0
+n_fix = false
+note = "Drought-hardy alternative to maize for biogas and feed on the warm Upper Rhine; needs warm soil to start."
+
+# ---------- root crops ----------
+
+[sugar_beet]
+label = "Sugar beet"
+latin = "Beta vulgaris var. saccharifera"
+family = "Amaranthaceae"
+group = "beet"
+season = "spring"
+thuenen = 1402
+ecoport = 48742
+sow = [82, 95]
+harvest = [272, 286]
+ph = [6.5, 7.5]                 # ECOCROP 6.0–6.8; beet is very sensitive to acidity; the calcareous loess sits near 7
+ph_limits = [5.5, 8.5]
+texture = ["medium", "heavy"]
+t_opt_c = [15, 25]
+rain_opt_mm = [400, 700]
+t_germ_c = 5
+frost_c = -3
+drought = "medium"
+break_years = 3
+n_fix = false
+note = "Host of the reed planthopper (SBR, stolbur). Winter wheat sown after beet becomes a nursery; beet nematodes need 3+ years."
+
+[potato]
+label = "Potato"
+latin = "Solanum tuberosum"
+family = "Solanaceae"
+group = "veg"
+season = "spring"
+thuenen = 1401
+ecoport = 1971
+sow = [95, 125]
+harvest = [230, 280]
+ph = [5.0, 6.2]                 # above ~6.5 common scab spoils the skin: the calcareous loess is a weak spot
+ph_limits = [4.2, 8.5]
+texture = ["light", "medium"]   # ECOCROP: medium, organic; stony or heavy soils damage tubers at lifting
+t_opt_c = [15, 25]
+rain_opt_mm = [500, 800]
+t_germ_c = 7
+frost_c = -2
+drought = "low"
+break_years = 3
+n_fix = false
+note = "Also hit by stolbur, which the reed planthopper carries. Needs loose soil and, in dry years, irrigation."
+
+# ---------- oilseeds ----------
+
+[winter_rapeseed]
+label = "Winter rapeseed"
+latin = "Brassica napus"
+family = "Brassicaceae"
+group = "other"
+season = "winter"
+thuenen = 1501
+ecoport = 549
+sow = [236, 242]
+harvest = [190, 204]
+ph = [6.5, 7.6]
+ph_limits = [5.5, 8.0]
+texture = ["light", "medium", "heavy"]   # ECOCROP: medium, light; deep loams and clays suit it as well
+t_opt_c = [15, 25]
+rain_opt_mm = [500, 1000]
+t_germ_c = 3
+frost_c = -15
+drought = "medium"
+break_years = 3
+n_fix = false
+note = "Covers the soil from August to July and opens the rotation for wheat. Clubroot: 3+ years, mustard counts too."
+
+[sunflower]
+label = "Sunflower"
+latin = "Helianthus annuus"
+family = "Asteraceae"
+group = "other"
+season = "spring"
+thuenen = 1502
+ecoport = 1191
+sow = [100, 125]
+harvest = [244, 274]
+ph = [6.0, 7.5]
+ph_limits = [5.5, 8.0]
+texture = ["light", "medium"]
+t_opt_c = [17, 34]
+rain_opt_mm = [600, 1000]
+t_germ_c = 7
+frost_c = -5
+drought = "high"
+break_years = 5
+n_fix = false
+note = "Deep roots make it a drought crop for warm sites. Sclerotinia, shared with rapeseed and soy, needs long breaks."
+
+[oil_flax]
+label = "Linseed"
+latin = "Linum usitatissimum"
+family = "Linaceae"
+group = "other"
+season = "spring"
+ecoport = 7336
+sow = [74, 105]
+harvest = [213, 244]
+ph = [6.0, 6.5]
+ph_limits = [5.5, 7.0]
+texture = ["medium", "heavy"]
+t_opt_c = [16, 24]
+rain_opt_mm = [500, 800]
+t_germ_c = 5
+frost_c = -4
+drought = "medium"
+break_years = 6
+n_fix = false
+note = "Niche oil crop with low input needs; very self-intolerant (6–7 years). ph_limits stop at 7: calcareous soils are marginal."
+
+# ---------- legumes ----------
+
+[soybean]
+label = "Soybean"
+latin = "Glycine max"
+family = "Fabaceae"
+group = "legume"
+season = "spring"
+thuenen = 1614
+ecoport = 1150
+sow = [120, 140]
+harvest = [258, 283]
+ph = [6.0, 7.5]                 # ECOCROP 5.5–6.5; rhizobia nodulate poorly below 6, soy does well on the loess (estimate)
+ph_limits = [4.5, 8.4]
+texture = ["medium"]
+t_opt_c = [20, 33]
+rain_opt_mm = [600, 1500]
+t_germ_c = 10
+frost_c = -2
+drought = "medium"
+break_years = 3
+n_fix = true
+note = "Baden-Württemberg and Bavaria grow most of Germany's soy. Needs seed inoculation and water at pod fill in August."
+
+[field_pea]
+label = "Field pea"
+latin = "Pisum sativum"
+family = "Fabaceae"
+group = "legume"
+season = "spring"
+thuenen = 1611
+ecoport = 1721
+sow = [70, 95]
+harvest = [190, 210]
+ph = [5.5, 7.0]
+ph_limits = [4.5, 8.3]
+texture = ["light", "medium", "heavy"]
+t_opt_c = [10, 24]
+rain_opt_mm = [800, 1200]
+t_germ_c = 3
+frost_c = -6
+drought = "medium"
+break_years = 5
+n_fix = true
+note = "Early harvest in July escapes the summer drought and leaves nitrogen for the next crop. Foot rots: 5–6 years apart."
+
+[faba_bean]
+label = "Faba bean"
+latin = "Vicia faba"
+family = "Fabaceae"
+group = "legume"
+season = "spring"
+thuenen = 1612
+ecoport = 2146
+sow = [55, 90]
+harvest = [213, 240]
+ph = [6.0, 7.0]
+ph_limits = [4.5, 8.6]
+texture = ["medium", "heavy"]
+t_opt_c = [18, 28]
+rain_opt_mm = [650, 1000]
+t_germ_c = 3
+frost_c = -6
+drought = "low"
+break_years = 4
+n_fix = true
+note = "Protein crop for heavy, moist soils; sown early. Suffers in dry, hot Junes."
+
+[blue_lupin]
+label = "Blue lupin"
+latin = "Lupinus angustifolius"
+family = "Fabaceae"
+group = "legume"
+season = "spring"
+thuenen = 1613
+ecoport = 2519
+sow = [70, 100]
+harvest = [210, 240]
+ph = [5.5, 7.0]                 # no free lime: a poor fit for the calcareous loess
+ph_limits = [4.9, 8.2]
+texture = ["light", "medium"]
+t_opt_c = [12, 18]
+rain_opt_mm = [400, 1000]
+t_germ_c = 4
+frost_c = -6
+drought = "medium"
+break_years = 4
+n_fix = true
+note = "Protein crop for light, slightly acid soils (sandy sites, Black Forest edge)."
+
+[lentil]
+label = "Lentil"
+latin = "Lens culinaris"
+family = "Fabaceae"
+group = "legume"
+season = "spring"
+ecoport = 7209
+sow = [91, 115]
+harvest = [200, 230]
+ph = [5.5, 7.5]
+ph_limits = [4.5, 8.2]
+texture = ["medium", "heavy"]
+t_opt_c = [15, 29]
+rain_opt_mm = [600, 1000]
+t_germ_c = 4
+frost_c = -6
+drought = "high"
+break_years = 5
+n_fix = true
+note = "Swabian Alb speciality (Alb-Leisa), often grown with a support cereal; likes dry, calcareous, shallow soils."
+
+[chickpea]
+label = "Chickpea"
+latin = "Cicer arietinum"
+family = "Fabaceae"
+group = "legume"
+season = "spring"
+ecoport = 2479
+sow = [100, 125]
+harvest = [213, 244]
+ph = [6.0, 8.5]
+ph_limits = [4.7, 9.5]
+texture = ["medium", "heavy"]
+t_opt_c = [15, 29]
+rain_opt_mm = [600, 1000]
+t_germ_c = 7
+frost_c = -4
+drought = "high"
+break_years = 4
+n_fix = true
+note = "Trial crop for hotter, drier summers; suits calcareous soils. Wet weather at flowering brings Ascochyta."
+
+[alfalfa]
+label = "Alfalfa"
+latin = "Medicago sativa"
+family = "Fabaceae"
+group = "legume"
+season = "perennial"
+thuenen = 1602
+ecoport = 1428
+sow = [91, 135]
+harvest = [140, 280]
+stand_years = [2, 4]
+ph = [6.5, 7.5]
+ph_limits = [4.3, 8.7]
+texture = ["light", "medium"]
+t_opt_c = [21, 27]
+rain_opt_mm = [600, 1200]
+t_germ_c = 5
+frost_c = -20
+drought = "high"
+break_years = 4
+n_fix = true
+note = "Deep-rooted fodder legume for calcareous soils; covers the soil all year and fixes nitrogen."
+
+[red_clover]
+label = "Red clover"
+latin = "Trifolium pratense"
+family = "Fabaceae"
+group = "legume"
+season = "perennial"
+thuenen = 1602
+ecoport = 2104
+sow = [80, 130]
+harvest = [140, 275]
+stand_years = [1, 2]
+ph = [6.0, 7.5]
+ph_limits = [4.5, 8.2]
+texture = ["medium", "heavy"]
+t_opt_c = [18, 25]
+rain_opt_mm = [700, 1200]
+t_germ_c = 4
+frost_c = -20
+drought = "low"
+break_years = 5
+n_fix = true
+note = "Clover grass for fodder and organic rotations, often undersown in cereals. Clover fatigue: 5+ years apart."
+
+# ---------- others ----------
+
+[buckwheat]
+label = "Buckwheat"
+latin = "Fagopyrum esculentum"
+family = "Polygonaceae"
+group = "other"
+season = "spring"
+ecoport = 2285
+sow = [130, 166]
+harvest = [244, 273]
+ph = [5.0, 6.5]
+ph_limits = [4.4, 7.5]
+texture = ["light", "medium"]
+t_opt_c = [17, 27]
+rain_opt_mm = [700, 1000]
+t_germ_c = 10
+frost_c = 0
+drought = "low"
+break_years = 1                 # estimate
+n_fix = false
+note = "Short (about 90 days) and frugal; even fits after an early cereal harvest. Dies at the first frost."
+
+[white_cabbage]
+label = "White cabbage"
+latin = "Brassica oleracea var. capitata"
+family = "Brassicaceae"
+group = "veg"
+season = "spring"
+thuenen = 1603
+ecoport = 554
+sow = [100, 145]
+harvest = [244, 320]
+ph = [6.0, 7.5]
+ph_limits = [5.0, 8.3]
+texture = ["medium"]
+t_opt_c = [15, 24]
+rain_opt_mm = [500, 1000]
+t_germ_c = 5
+frost_c = -6
+drought = "low"
+break_years = 4
+n_fix = false
+note = "Filderkraut from the Filder plain near Stuttgart; planted out. Clubroot: keep away from rapeseed and mustard."
+
+[onion]
+label = "Onion"
+latin = "Allium cepa"
+family = "Amaryllidaceae"
+group = "veg"
+season = "spring"
+thuenen = 1603
+ecoport = 364
+sow = [65, 100]
+harvest = [220, 258]
+ph = [6.0, 7.0]
+ph_limits = [4.3, 8.3]
+texture = ["medium"]
+t_opt_c = [12, 25]
+rain_opt_mm = [350, 600]
+t_germ_c = 4
+frost_c = -5
+drought = "low"
+break_years = 4
+n_fix = false
+note = "Field vegetable of the Upper Rhine plain; usually irrigated."
+
+# ---------- cover crops (no harvest) ----------
+
+[white_mustard]
+label = "White mustard"
+latin = "Sinapis alba"
+family = "Brassicaceae"
+group = "other"
+season = "cover"
+ecoport = 9787
+sow = [213, 253]
+ph = [6.5, 7.5]
+ph_limits = [5.5, 8.5]
+texture = ["medium"]
+t_opt_c = [10, 25]
+rain_opt_mm = [700, 1100]
+t_germ_c = 3
+frost_c = -8
+drought = "medium"
+break_years = 3
+n_fix = false
+note = "Fast cover after cereals that winter-kills. A crucifer: not in rapeseed or cabbage rotations (clubroot)."
+
+[phacelia]
+label = "Phacelia"
+latin = "Phacelia tanacetifolia"
+family = "Boraginaceae"
+group = "other"
+season = "cover"
+# not in ECOCROP: pH and texture are estimates
+sow = [196, 250]
+ph = [6.0, 7.5]
+ph_limits = [5.0, 8.0]
+texture = ["light", "medium", "heavy"]
+t_germ_c = 3
+frost_c = -8
+drought = "medium"
+break_years = 0
+n_fix = false
+note = "Cover crop related to no field crop, so it fits any rotation; flowers for bees and winter-kills."

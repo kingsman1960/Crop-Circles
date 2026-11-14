@@ -1,3 +1,7 @@
 # App (Streamlit Community Cloud reads this file). Pipeline extras: pipeline/requirements.txt
 streamlit==1.66.1
 babel==2.18.0
+shapely>=2
+pyproj
+supabase>=2.34
+pyjwt[crypto]>=2.8

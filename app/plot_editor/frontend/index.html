@@ -1,0 +1,362 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- deck.gl, the engine behind pydeck, so the map looks and moves like the other maps.
+     For an offline demo: download this file next to index.html and point src at it. -->
+<script src="https://unpkg.com/deck.gl@9.1/dist.min.js"></script>
+<style>
+  :root { --accent: #ff4b4b; --text: #16213e; --bg: #ffffff; --font: "Source Sans Pro", sans-serif; }
+  html, body { margin: 0; padding: 0; font-family: var(--font); color: var(--text); background: transparent; }
+  #wrap { position: relative; border-radius: 8px; overflow: hidden; }
+  #map { position: relative; width: 100%; }
+  #bar { position: absolute; top: 10px; left: 10px; z-index: 4; display: flex; gap: 6px; align-items: center;
+         flex-wrap: wrap; max-width: calc(100% - 20px); }
+  button { font: inherit; font-size: 14px; padding: 5px 12px; border-radius: 6px; cursor: pointer;
+           border: 1px solid rgba(22, 33, 62, .25); background: var(--bg); color: var(--text);
+           box-shadow: 0 1px 3px rgba(0, 0, 0, .12); display: inline-flex; align-items: center; gap: 6px; }
+  button.on { background: var(--text); color: #fff; border-color: var(--text); }
+  button:disabled { opacity: .45; cursor: default; }
+  .sep { width: 1px; height: 24px; background: rgba(22, 33, 62, .2); margin: 0 2px; }
+  #crop-wrap { position: relative; }
+  #b-crop.on { background: #fff; color: var(--text); border: 2px solid var(--text); padding: 4px 11px; }
+  #menu { position: absolute; top: 38px; left: 0; z-index: 5; display: none; min-width: 230px; background: #fff;
+          border-radius: 8px; box-shadow: 0 4px 16px rgba(0, 0, 0, .18); padding: 4px; }
+  #menu.open { display: block; }
+  .opt { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+  .opt:hover, .opt.cur { background: #f1f3f6; }
+  .opt small { display: block; opacity: .6; font-size: 12px; }
+  .opt svg { flex: none; }
+  #hint { position: absolute; bottom: 22px; left: 10px; z-index: 2; font-size: 13px; padding: 5px 9px;
+          border-radius: 6px; background: rgba(255, 255, 255, .92); max-width: calc(100% - 20px); }
+  #hint i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin: 0 3px -1px 8px; }
+  #toast { position: absolute; top: 52px; left: 10px; z-index: 3; font-size: 14px; padding: 6px 10px;
+           border-radius: 6px; background: var(--text); color: #fff; display: none; max-width: calc(100% - 20px); }
+  #credit { position: absolute; bottom: 0; right: 0; z-index: 2; font-size: 11px; padding: 1px 5px;
+            background: rgba(255, 255, 255, .8); }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="map"></div>
+  <div id="bar">
+    <button id="b-select" class="on"></button>
+    <button id="b-cut"></button>
+    <button id="b-merge" disabled></button>
+    <button id="b-undo" disabled></button>
+    <span class="sep" id="crop-sep" style="display:none"></span>
+    <span id="crop-wrap" style="display:none">
+      <button id="b-crop"></button>
+      <div id="menu"></div>
+    </span>
+    <button id="b-finish" style="display:none"></button>
+  </div>
+  <div id="toast"></div>
+  <div id="hint"></div>
+  <div id="credit"></div>
+</div>
+<script>
+// --- talking to Streamlit (the protocol streamlit-component-lib uses, without a build step) ---------------------
+const Streamlit = {
+  send(type, data) { window.parent.postMessage({isStreamlitMessage: true, type, ...data}, "*"); },
+  ready() { this.send("streamlit:componentReady", {apiVersion: 1}); },
+  height(h) { this.send("streamlit:setFrameHeight", {height: h}); },
+  value(v) { this.send("streamlit:setComponentValue", {value: v, dataType: "json"}); },
+};
+
+const $ = id => document.getElementById(id);
+let args = null, deckgl = null, mode = "select", busy = false, paintCrop = null;
+let selected = new Set(), cutPts = [], hoverPt = null, revision = -1, toastTimer = null;
+const pending = new Map();  // plots painted here that Python has not confirmed yet: id -> crop key or null
+let accent = [255, 75, 75];
+
+const TONE = {bad: [200, 45, 40, 215], warn: [238, 140, 120, 185], ok: [250, 250, 250, 160],
+              good: [76, 158, 92, 185], unknown: [175, 180, 190, 130]};
+
+let basemap = null;  // built from the first render: Python decides which tiles (see _basemap)
+function makeBasemap(b) {
+  return new deck.TileLayer({
+    id: "basemap", data: b.tiles, minZoom: 0, maxZoom: b.max_zoom || 19, tileSize: 256,
+    renderSubLayers: props => {
+      const [[w, s], [e, n]] = props.tile.boundingBox;
+      return new deck.BitmapLayer(props, {data: null, image: props.data, bounds: [w, s, e, n]});
+    },
+  });
+}
+
+// --- small helpers ------------------------------------------------------------------------------------------------
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const css = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+const fill = (template, props) => template.replace(/\{(\w+)\}/g, (_, k) => (props[k] ?? ""));
+const crop = key => (args.palette || []).find(c => c.key === key);
+const planOf = p => pending.has(p.id) ? pending.get(p.id) : (p.plan || null);
+
+function hexToRgb(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || "");
+  return m ? [0, 2, 4].map(i => parseInt(m[1].slice(i, i + 2), 16)) : null;
+}
+
+function send(payload) {
+  Streamlit.value({...payload, nonce: `${Date.now()}-${Math.random().toString(36).slice(2)}`});
+}
+
+// simple drawn icons, one per crop key (anything else gets a dot)
+function icon(key, size = 22) {
+  const c = crop(key), col = c ? css(c.rgb) : "#999", leaf = "#5c9a3c";
+  const shapes = {
+    potato: `<ellipse cx="12" cy="13" rx="9" ry="6.5" fill="${col}"/><circle cx="8.5" cy="11" r="1" fill="#0005"/>
+             <circle cx="14" cy="15" r="1" fill="#0005"/><circle cx="16" cy="10.5" r="0.9" fill="#0005"/>`,
+    wheat: `<path d="M12 22V6" stroke="${col}" stroke-width="1.6"/>` +
+           [7, 11, 15].map(y => `<ellipse cx="9.6" cy="${y}" rx="2.2" ry="1.3" transform="rotate(-35 9.6 ${y})" fill="${col}"/>
+             <ellipse cx="14.4" cy="${y}" rx="2.2" ry="1.3" transform="rotate(35 14.4 ${y})" fill="${col}"/>`).join("") +
+           `<ellipse cx="12" cy="4" rx="1.3" ry="2" fill="${col}"/>`,
+    barley: `<path d="M12 22V7" stroke="${col}" stroke-width="1.6"/>` +
+            [8, 11.5, 15].map(y => `<ellipse cx="10" cy="${y}" rx="2" ry="1.2" transform="rotate(-35 10 ${y})" fill="${col}"/>
+              <ellipse cx="14" cy="${y}" rx="2" ry="1.2" transform="rotate(35 14 ${y})" fill="${col}"/>
+              <path d="M9 ${y - 1}L5 ${y - 6}M15 ${y - 1}L19 ${y - 6}" stroke="${col}" stroke-width=".8"/>`).join(""),
+    maize: `<path d="M7 21C6 14 8 9 12 7C9 12 9 17 10 21Z" fill="${leaf}"/>
+            <ellipse cx="13.5" cy="12" rx="3.6" ry="8" fill="${col}"/>
+            <path d="M11.5 7v10M13.5 5v14M15.5 7v10" stroke="#fff6" stroke-width=".8"/>`,
+    pea: `<path d="M3 15C6 8 16 6 21 9C18 15 9 18 3 15Z" fill="${col}"/>` +
+         [8, 12, 16].map(x => `<circle cx="${x}" cy="${12.5 - (x - 8) * 0.2}" r="1.9" fill="#ffffff8c"/>`).join(""),
+    beet: `<path d="M10 9C6 3 4 3 4 3C5 6 7 8 10 9ZM14 9C18 3 20 3 20 3C19 6 17 8 14 9Z" fill="${leaf}"/>
+           <path d="M12 23C9 18 6.5 14 7.5 11.5C8.5 9 15.5 9 16.5 11.5C17.5 14 15 18 12 23Z" fill="${col}"/>`,
+  };
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24">${shapes[key] || `<circle cx="12" cy="12" r="6" fill="${col}"/>`}</svg>`;
+}
+
+// --- the crop drop-down ---------------------------------------------------------------------------------------------
+function buildMenu() {
+  const L = args.labels, m = $("menu");
+  m.innerHTML = `<div class="opt" data-key=""><svg width="22" height="22"></svg><div>${esc(L.no_crop)}</div></div>` +
+    (args.palette || []).map(c => `<div class="opt" data-key="${esc(c.key)}">${icon(c.key)}
+      <div>${esc(c.label)}${c.family ? `<small>${esc(c.family)}</small>` : ""}</div></div>`).join("");
+  m.querySelectorAll(".opt").forEach(el => el.onclick = e => {
+    e.stopPropagation();
+    $("menu").classList.remove("open");
+    const key = el.dataset.key || null;
+    paintCrop = key;
+    setMode(key ? "paint" : "select");
+  });
+}
+
+// --- what happens on the map --------------------------------------------------------------------------------------
+function onClick(info, event) {
+  $("menu").classList.remove("open");
+  if (busy) return;
+  if (mode === "cut") {
+    if (info.coordinate) { cutPts.push(info.coordinate); draw(); }
+    return;
+  }
+  const p = info.object ? info.object.properties : null;
+  if (mode === "paint") {
+    if (!p) return;
+    pending.set(p.id, planOf(p) === paintCrop ? null : paintCrop);  // clicking again takes the plan away
+    send({action: "paint", plans: Object.fromEntries(pending)});    // all unconfirmed paints, so fast clicks survive
+    draw();
+    return;
+  }
+  const e = event && event.srcEvent;
+  const add = e && (e.shiftKey || e.metaKey || e.ctrlKey);
+  const id = p ? p.id : null;
+  if (!id) { if (!add) selected.clear(); }
+  else if (add) { selected.has(id) ? selected.delete(id) : selected.add(id); }
+  else { selected = new Set([id]); }
+  draw();
+  if (args.report_selection) send({action: "select", ids: [...selected]});
+}
+
+function finishCut() {
+  // a double-click also fires two clicks on the same spot: drop the repeats
+  const pts = cutPts.filter((p, i) => i === 0 || Math.hypot(p[0] - cutPts[i - 1][0], p[1] - cutPts[i - 1][1]) > 1e-7);
+  cutPts = []; hoverPt = null;
+  if (pts.length >= 2) { busy = true; send({action: "cut", line: pts}); }
+  draw();
+}
+
+function setMode(m) {
+  mode = m; cutPts = []; hoverPt = null;
+  if (m !== "paint") paintCrop = null;
+  if (m !== "select") selected.clear();
+  draw();
+}
+
+// --- drawing ------------------------------------------------------------------------------------------------------
+function plotColor(f) {
+  const p = f.properties;
+  if (mode === "paint" && paintCrop) {
+    const level = (p.fit && p.fit[paintCrop] && p.fit[paintCrop].level) || "unknown";
+    return TONE[level] || TONE.unknown;
+  }
+  const plan = planOf(p);
+  if (plan && crop(plan)) return [...crop(plan).rgb, 240];               // planned: solid
+  const c = p.rgb || [200, 200, 200];
+  return (args.palette || []).length ? [c[0], c[1], c[2], 110] : (c.length === 4 ? c : [...c, 235]);  // last year: faded
+}
+
+function layers() {
+  const feats = args.features || [];
+  const fc = list => ({type: "FeatureCollection", features: list});
+  const key = [revision, mode, paintCrop, [...pending.entries()].join("|")];
+  const out = [
+    ...(basemap ? [basemap] : []),
+    new deck.GeoJsonLayer({
+      id: "plots", data: fc(feats), pickable: true, autoHighlight: mode !== "cut",
+      highlightColor: [255, 255, 255, 70], filled: true, stroked: true, getFillColor: plotColor,
+      getLineColor: [255, 255, 255], lineWidthMinPixels: 1, updateTriggers: {getFillColor: key},
+    }),
+  ];
+  if (mode === "paint") {  // while painting, planned plots keep a border in their crop's colour
+    const planned = feats.filter(f => planOf(f.properties) && crop(planOf(f.properties)));
+    out.push(new deck.GeoJsonLayer({id: "planned", data: fc(planned), filled: false, stroked: true,
+                                    getLineColor: f => [...crop(planOf(f.properties)).rgb, 255], lineWidthMinPixels: 4,
+                                    updateTriggers: {getLineColor: key}}));
+  }
+  if (args.outline) {
+    out.push(new deck.GeoJsonLayer({id: "outline", data: args.outline, filled: false, stroked: true,
+                                    getLineColor: [22, 33, 62], lineWidthMinPixels: 2}));
+  }
+  out.push(new deck.GeoJsonLayer({
+    id: "selected", data: fc(feats.filter(f => selected.has(f.properties.id))), filled: true, stroked: true,
+    getFillColor: [...accent, 45], getLineColor: [...accent, 255], lineWidthMinPixels: 3,
+  }));
+  if (mode === "cut" && cutPts.length) {
+    const path = hoverPt ? [...cutPts, hoverPt] : cutPts;
+    out.push(new deck.PathLayer({id: "cutline", data: [{path}], getPath: d => d.path, getColor: [22, 33, 62],
+                                 widthMinPixels: 2}));
+    out.push(new deck.ScatterplotLayer({id: "cutpoints", data: cutPts, getPosition: d => d, getFillColor: [255, 255, 255],
+                                        getLineColor: [22, 33, 62], stroked: true, radiusMinPixels: 4,
+                                        lineWidthMinPixels: 2}));
+  }
+  return out;
+}
+
+function tooltip({object}) {
+  if (!object || !object.properties || mode === "cut") return null;
+  const p = object.properties, L = args.labels, parts = [];
+  if ((args.palette || []).length) {
+    const plan = planOf(p);
+    parts.push(`<b>${esc(L.plan)}: ${plan && crop(plan) ? esc(crop(plan).label) : esc(L.not_planned)}</b> · ${esc(p.ha)} ha`);
+  }
+  if (mode === "paint" && paintCrop && p.fit && p.fit[paintCrop]) {
+    const f = p.fit[paintCrop], tone = TONE[f.level] || TONE.unknown;
+    parts.push(`<div style="margin-top:6px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;
+      background:${css(tone)};margin-right:5px"></i><b>${esc(crop(paintCrop).label)}: ${esc(L["level_" + f.level] || f.level)}</b>
+      <br>${(f.why || []).map(esc).join("<br>")}</div>`);
+  }
+  if (p.tip) parts.push(`<div style="margin-top:6px;opacity:.85">${p.tip}</div>`);  // HTML written by Python
+  else if (args.tooltip) parts.push(esc(fill(args.tooltip, p)));
+  return parts.length ? {html: parts.join(""), style: {maxWidth: "330px", fontSize: "13px", lineHeight: "1.4"}} : null;
+}
+
+function draw() {
+  if (!args) return;
+  const L = args.labels, hasPalette = (args.palette || []).length > 0;
+  const ids = new Set((args.features || []).map(f => f.properties.id));
+  selected = new Set([...selected].filter(id => ids.has(id)));  // a cut or merge replaces ids
+
+  $("b-select").textContent = L.select;
+  $("b-cut").textContent = L.cut;
+  $("b-merge").textContent = selected.size >= 2 ? `${L.merge} (${selected.size})` : L.merge;
+  $("b-undo").textContent = L.undo;
+  $("b-finish").textContent = L.finish;
+  $("b-select").classList.toggle("on", mode === "select");
+  $("b-cut").classList.toggle("on", mode === "cut");
+  $("b-merge").disabled = busy || mode !== "select" || selected.size < 2;
+  $("b-undo").disabled = busy || !args.can_undo;
+  $("b-finish").style.display = mode === "cut" && cutPts.length >= 2 ? "" : "none";
+  $("crop-wrap").style.display = $("crop-sep").style.display = hasPalette ? "" : "none";
+  if (hasPalette) {
+    $("b-crop").innerHTML = paintCrop && crop(paintCrop) ? `${icon(paintCrop, 18)}${esc(crop(paintCrop).label)} ▾`
+                                                         : `${esc(L.crop)} ▾`;
+    $("b-crop").classList.toggle("on", mode === "paint");
+    $("menu").querySelectorAll(".opt").forEach(el => el.classList.toggle("cur", (el.dataset.key || null) === paintCrop));
+  }
+  if (busy) $("hint").textContent = L.working;
+  else if (mode === "paint") {
+    $("hint").innerHTML = `${esc(L.hint_paint)}<br><i style="background:${css(TONE.bad)}"></i>${esc(L.level_bad)}
+      <i style="background:${css(TONE.warn)}"></i>${esc(L.level_warn)}<i style="background:${css(TONE.good)}"></i>${esc(L.level_good)}`;
+  } else $("hint").textContent = mode === "cut" ? L.hint_cut : L.hint_select;
+  if (deckgl) deckgl.setProps({layers: layers()});
+}
+
+function startView(el) {
+  if (args.view) return {latitude: args.view.lat, longitude: args.view.lon, zoom: args.view.zoom ?? 14.4};
+  const xs = [], ys = [];
+  const walk = c => typeof c[0] === "number" ? (xs.push(c[0]), ys.push(c[1])) : c.forEach(walk);
+  (args.features || []).forEach(f => walk(f.geometry.coordinates));
+  if (!xs.length) return {latitude: 49.14, longitude: 8.91, zoom: 12};
+  const vp = new deck.WebMercatorViewport({width: el.clientWidth || 700, height: args.height});
+  const {latitude, longitude, zoom} = vp.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]],
+                                                   {padding: 40});
+  return {latitude, longitude, zoom};
+}
+
+function showToast(text) {
+  const t = $("toast");
+  t.textContent = text; t.style.display = "block";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.display = "none"; }, 5000);
+}
+
+// --- a new render from Python -------------------------------------------------------------------------------------
+function onRender(data) {
+  const first = !args;
+  args = data.args;
+  const th = data.theme;
+  if (th) {
+    const root = document.documentElement.style;
+    if (th.primaryColor) { root.setProperty("--accent", th.primaryColor); accent = hexToRgb(th.primaryColor) || accent; }
+    if (th.textColor) root.setProperty("--text", th.textColor);
+    if (th.font) root.setProperty("--font", th.font);
+  }
+  const el = $("map");
+  el.style.height = `${args.height}px`;
+  if (!basemap && args.basemap) {
+    basemap = makeBasemap(args.basemap);
+    $("credit").textContent = args.basemap.credit;
+  }
+  if (first) buildMenu();
+  for (const f of args.features || []) {  // paints Python now knows about are no longer pending
+    const id = f.properties.id;
+    if (pending.has(id) && (f.properties.plan || null) === pending.get(id)) pending.delete(id);
+  }
+  if (args.revision !== revision) {  // Python changed the plots: take its selection, show its message
+    revision = args.revision;
+    busy = false;
+    if (mode === "select") selected = new Set(args.selected || []);
+    if (args.message) showToast(args.message);
+  }
+  if (!deckgl) {
+    deckgl = new deck.Deck({
+      parent: el, initialViewState: startView(el), controller: {doubleClickZoom: false}, layers: [], onClick,
+      onHover: info => { if (mode === "cut" && cutPts.length) { hoverPt = info.coordinate || null; draw(); } },
+      getCursor: ({isDragging, isHovering}) => mode === "cut" ? "crosshair" : isDragging ? "grabbing"
+        : isHovering ? (mode === "paint" ? "copy" : "pointer") : "grab",
+      getTooltip: tooltip,
+    });
+  }
+  draw();
+  Streamlit.height(args.height);
+}
+
+window.addEventListener("message", e => { if (e.data && e.data.type === "streamlit:render") onRender(e.data); });
+$("b-select").onclick = () => setMode("select");
+$("b-cut").onclick = () => setMode("cut");
+$("b-merge").onclick = () => { busy = true; send({action: "merge", ids: [...selected]}); draw(); };
+$("b-undo").onclick = () => { busy = true; pending.clear(); send({action: "undo"}); draw(); };
+$("b-finish").onclick = finishCut;
+$("b-crop").onclick = e => { e.stopPropagation(); $("menu").classList.toggle("open"); };
+document.addEventListener("click", () => $("menu").classList.remove("open"));
+$("map").addEventListener("dblclick", () => { if (mode === "cut") finishCut(); });
+window.addEventListener("keydown", e => {
+  if (e.key === "Escape") $("menu").classList.remove("open");
+  if (mode === "paint" && e.key === "Escape") setMode("select");
+  if (mode !== "cut") return;
+  if (e.key === "Enter") finishCut();
+  if (e.key === "Escape") { cutPts.length ? (cutPts = [], hoverPt = null, draw()) : setMode("select"); }
+});
+Streamlit.ready();
+</script>
+</body>
+</html>

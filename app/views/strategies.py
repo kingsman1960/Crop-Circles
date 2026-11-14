@@ -5,8 +5,9 @@ import streamlit as st
 import copilot
 from data import (HUE, chart, content, fact_text, field_picker, footer, header, model_note, neighbourhood, plan,
                   planner_weights, priority_control, rank_options, source_line, strategies)
-from i18n import pct, t
+from i18n import num, pct, t
 from plain import compare, dots, fraction
+from planner import crop_planner
 
 picker = st.container()
 fid, p = field_picker(picker)
@@ -50,12 +51,13 @@ rows = ""
 for rank, sid in enumerate(order, 1):
     seq = " → ".join(crops[c]["label"] for c in cards[sid]["sequence"])
     if sid == "S0":
-        cells = "".join(f'<td>{dots(score(sid, k)["score"])}<span class="g">{t("grow.now")}</span></td>' for k in crit)
+        cells = "".join(f'<td>{dots(score(sid, k)["score"])}<span class="g">{num(score(sid, k)["score"], 1)} · {t("grow.now")}</span></td>'
+                        for k in crit)
     else:
         cells = ""
         for k in crit:
             word, tone = compare(score(sid, k)["score"] - score("S0", k)["score"])
-            cells += f'<td>{dots(score(sid, k)["score"])}<span class="g {tone}">{word}</span></td>'
+            cells += f'<td>{dots(score(sid, k)["score"])}<span class="g {tone}">{num(score(sid, k)["score"], 1)} · {word}</span></td>'
     tag = t("grow.best") if rank == 1 else t("grow.rank", n=rank)
     rows += (f'<tr class="{"top" if rank == 1 else ""}"><td><span class="cc-note">{tag}</span><br><b>{cards[sid]["name"]}</b>'
              f'<span class="g">{seq}</span></td>{cells}</tr>')
@@ -78,11 +80,11 @@ with st.container(key="card_neighbours"):
 for rank, sid in enumerate(order, 1):
     s, r_ = cards[sid], res["strategies"][sid]
     st.space("small")
-    with st.container(key=f"card_{sid}"):
+    title = t("grow.card.best", name=s["name"]) if rank == 1 else t("grow.card.option", n=rank, name=s["name"])
+    with st.expander(f"**{title}**  ·  {num(total[sid], 1)} / 5", key=f"card_{sid}"):
         extra = [t("grow.card.cover", crops=", ".join(crops[c]["label"] for c in s["cover_before"]))] + \
                 ([t("grow.card.mulch")] if s["mulch"] else [])
-        st.html(f'<h3 style="margin:0 0 8px">{t("grow.card.best", name=s["name"]) if rank == 1 else t("grow.card.option", n=rank, name=s["name"])}</h3>'
-                '<div class="cc-seq">'
+        st.html('<div class="cc-seq">'
                 + " → ".join(f'<span style="white-space:nowrap"><i style="background:{crops[c]["color"]}"></i>'
                              f'{crops[c]["label"]}</span>' for c in s["sequence"])
                 + f' <span class="cc-note">+ {", ".join(extra)}</span></div>')
@@ -98,7 +100,7 @@ for rank, sid in enumerate(order, 1):
         with right:
             st.markdown(t("grow.card.scores"))
             st.html("".join(
-                f'<div class="cc-score"><span>{c["label"]}</span><span class="n">{dots(score(sid, k)["score"])}</span>'
+                f'<div class="cc-score"><span>{c["label"]}</span><span class="n">{dots(score(sid, k)["score"])} {num(score(sid, k)["score"], 1)}</span>'
                 f'<span class="g">{note(sid, k)} {t("grow.card.how_sure", x=t("common.uncertainty." + score(sid, k)["uncertainty"]))}'
                 + (" " + t("grow.card.sources", x=", ".join(who(x) for x in s["scores"][k]["ref"]))
                    if k in s.get("scores", {}) and s["scores"][k].get("ref") else "")
@@ -126,6 +128,8 @@ for rank, sid in enumerate(order, 1):
                     t("grow.card.bare_source") + (t("grow.card.bare_lit", crops=", ".join(
                         crops[c]["label"] for c in r_["literature_dates"])) if r_["literature_dates"] else ""),
                     t("grow.card.bare_period", ero=pct(r_["erosion_rel"]), wat=pct(r_["water_rel"])))
+st.space("medium")
+crop_planner(fid, p)
 st.space("medium")
 copilot.panel(fid, [(t("grow.title", id=fid), [sub])], "grow", ("ranking", "tradeoff", "summary"))
 footer()
