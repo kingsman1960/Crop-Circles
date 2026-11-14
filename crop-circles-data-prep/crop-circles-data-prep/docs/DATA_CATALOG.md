@@ -135,6 +135,14 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 - Reflectance scale 0.0001. NDVI: L30 (B05 − B04)/(B05 + B04), S30 (B8A − B04)/(B8A + B04). Mask cloud, cloud shadow, adjacent, snow and water with `Fmask` bits (see HLS v2.0 user guide).
 - 12,399 files (60 MB); per field ~440 L30 and 840–970 S30 scenes, 2019-01-02 → 2026-11-01. Names: `<product>_<band>_doy<YYYYDDD>_aid0001_32N.tif`.
 
+## 10b · hls_region (added 2026-11-14)
+
+- `prep/fetch_hls_region.py` – no AppEEARS: CMR granule search + the HLS S30 v2.0 band COGs read over HTTPS straight from LP DAAC (Earthdata login from `~/.netrc`), only the window that covers the parcels; nothing but parcel statistics is stored.
+- Parcels: every declared sugar-beet parcel (FIONA, NC 603) of 2023–2025 that lies < 50 m from a nursery (wheat after beet) or < 50 m from control wheat and ≥ 200 m from any nursery (about 1,700 per season). `data/raw/hls_region/parcels_<year>.parquet`: id, role, area, distances.
+- `data/raw/hls_region/series_<year>.parquet`: per parcel and clear picture in the June 1–25 and Aug 15–Sep 10 windows: NDVI, GNDVI, NDRE (S30 bands B04, B8A, B03, B05, Fmask), clear pixels, granule. Same rules as `pipeline/hls.py` (pure pixels, ≥ 4 pixels, 60 % clear); granules with > 70 % cloud skipped.
+- Test: `pipeline/planthopper_region.py` → `data/processed/planthopper_effect/region_summary.json`.
+- Licence: NASA open data; Masek et al., HLS v2.0, NASA LP DAAC.
+
 ## 11 · reference
 
 - `reference/sources.md` – Kraichgau rotation / erosion (Brunotte et al.), reed planthopper rotation advice (JKI, LIZ, LLG), soybean N credit, Space Apps rules. Notes fields are for the team.

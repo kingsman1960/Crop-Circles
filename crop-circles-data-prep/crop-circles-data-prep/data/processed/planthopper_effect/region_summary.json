@@ -1,0 +1,166 @@
+{
+ "parcels": {
+  "2023": {
+   "nursery_adjacent": 1014,
+   "control": 728
+  },
+  "2024": {
+   "nursery_adjacent": 902,
+   "control": 880
+  },
+  "2025": {
+   "control": 804,
+   "nursery_adjacent": 786
+  }
+ },
+ "pictures": {
+  "2023": 28,
+  "2024": 21,
+  "2025": 32
+ },
+ "index": {
+  "ndvi": {
+   "n": 3476,
+   "n_parcels": 3475,
+   "adjacent_coef": -0.0353,
+   "adjacent_se": 0.005,
+   "adjacent_p": 0.0,
+   "june_coef": -0.9047,
+   "r2": 0.78,
+   "n_clusters": 383,
+   "placebo_june_level": {
+    "adjacent_coef": 0.0118,
+    "p": 0.0215
+   },
+   "per_season": {
+    "2023": {
+     "n_adjacent": 818,
+     "n_control": 567,
+     "mean_adjacent": 0.2204,
+     "june_adjacent": 0.5034,
+     "june_control": 0.4807,
+     "mean_control": 0.2733,
+     "difference": -0.0529,
+     "welch_p": 0.0
+    },
+    "2024": {
+     "n_adjacent": 419,
+     "n_control": 395,
+     "mean_adjacent": -0.1339,
+     "june_adjacent": 0.6733,
+     "june_control": 0.6659,
+     "mean_control": -0.0532,
+     "difference": -0.0807,
+     "welch_p": 0.0
+    },
+    "2025": {
+     "n_adjacent": 642,
+     "n_control": 635,
+     "mean_adjacent": -0.0161,
+     "june_adjacent": 0.8001,
+     "june_control": 0.797,
+     "mean_control": 0.0005,
+     "difference": -0.0166,
+     "welch_p": 0.0
+    }
+   }
+  },
+  "gndvi": {
+   "n": 3476,
+   "n_parcels": 3475,
+   "adjacent_coef": -0.0226,
+   "adjacent_se": 0.0034,
+   "adjacent_p": 0.0,
+   "june_coef": -0.9557,
+   "r2": 0.754,
+   "n_clusters": 383,
+   "placebo_june_level": {
+    "adjacent_coef": 0.008,
+    "p": 0.0192
+   },
+   "per_season": {
+    "2023": {
+     "n_adjacent": 818,
+     "n_control": 567,
+     "mean_adjacent": 0.1084,
+     "june_adjacent": 0.5399,
+     "june_control": 0.5256,
+     "mean_control": 0.148,
+     "difference": -0.0397,
+     "welch_p": 0.0
+    },
+    "2024": {
+     "n_adjacent": 419,
+     "n_control": 395,
+     "mean_adjacent": -0.0858,
+     "june_adjacent": 0.6315,
+     "june_control": 0.6266,
+     "mean_control": -0.0427,
+     "difference": -0.0431,
+     "welch_p": 0.0
+    },
+    "2025": {
+     "n_adjacent": 642,
+     "n_control": 635,
+     "mean_adjacent": -0.023,
+     "june_adjacent": 0.7283,
+     "june_control": 0.725,
+     "mean_control": -0.011,
+     "difference": -0.012,
+     "welch_p": 0.0
+    }
+   }
+  },
+  "ndre": {
+   "n": 3476,
+   "n_parcels": 3475,
+   "adjacent_coef": -0.0292,
+   "adjacent_se": 0.0043,
+   "adjacent_p": 0.0,
+   "june_coef": -0.9363,
+   "r2": 0.751,
+   "n_clusters": 383,
+   "placebo_june_level": {
+    "adjacent_coef": 0.0095,
+    "p": 0.0176
+   },
+   "per_season": {
+    "2023": {
+     "n_adjacent": 818,
+     "n_control": 567,
+     "mean_adjacent": 0.1407,
+     "june_adjacent": 0.3783,
+     "june_control": 0.3605,
+     "mean_control": 0.1907,
+     "difference": -0.0501,
+     "welch_p": 0.0
+    },
+    "2024": {
+     "n_adjacent": 419,
+     "n_control": 395,
+     "mean_adjacent": -0.1325,
+     "june_adjacent": 0.4958,
+     "june_control": 0.4907,
+     "mean_control": -0.0769,
+     "difference": -0.0557,
+     "welch_p": 0.0
+    },
+    "2025": {
+     "n_adjacent": 642,
+     "n_control": 635,
+     "mean_adjacent": -0.022,
+     "june_adjacent": 0.598,
+     "june_control": 0.5943,
+     "mean_control": -0.0077,
+     "difference": -0.0143,
+     "welch_p": 0.0001
+    }
+   }
+  }
+ },
+ "notes": [
+  "one observation per parcel and season; no soil covariates yet (FIONA ids change between years, landscape_parcels carries ks / nFK for the 2022 outlines only)",
+  "the June value is in the model: a parcel that is greener in June has more to lose by late summer",
+  "windows: June ((6, 1), (6, 25)), late summer ((8, 15), (9, 10)); at least 2 clear pictures in each"
+ ]
+}
