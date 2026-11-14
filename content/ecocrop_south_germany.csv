@@ -1,0 +1,87 @@
+ecoport,latin,name,name_de,category,life,t_opt_min,t_opt_max,t_min,t_max,rain_opt_min,rain_opt_max,rain_min,rain_max,ph_opt_min,ph_opt_max,ph_min,ph_max,kill_temp,cycle_min_days,cycle_max_days,texture,crop_requirements
+1232,Hordeum vulgare,Barley,Gerste,cereal,annual,15.0,20.0,2.0,40.0,500.0,1000.0,200.0,2000.0,6.5,7.5,6.0,8.0,0.0,90.0,240.0,medium,winter_barley spring_barley
+2285,Fagopyrum esculentum,Buckwheat,Buchweizen,cereal,annual,17.0,27.0,7.0,40.0,700.0,1000.0,400.0,1300.0,5.0,6.5,4.4,7.5,,55.0,85.0,"medium, light",buckwheat
+10582,Triticum durum,Durum wheat,Hartweizen,cereal,annual,17.0,25.0,6.0,30.0,500.0,700.0,400.0,800.0,6.0,7.0,5.5,8.5,,120.0,180.0,"heavy, medium",durum_wheat
+10581,Triticum dicoccon,Emmer,Emmer,cereal,annual,15.0,20.0,4.0,25.0,500.0,900.0,300.0,1500.0,5.5,6.8,5.0,8.3,,120.0,180.0,light,
+238663,Zea mays ssp. mays,Maize,Mais,cereal,annual,18.0,33.0,10.0,47.0,600.0,1200.0,400.0,1800.0,5.0,7.0,4.5,8.5,,65.0,365.0,medium,grain_maize silage_maize
+481,Avena sativa,Oats,Hafer,cereal,annual,16.0,20.0,5.0,30.0,600.0,1000.0,250.0,1500.0,5.0,6.0,4.5,7.5,-1.0,110.0,270.0,"heavy, medium, light",oats
+8280,Panicum miliaceum,Proso millet,Rispenhirse,cereal,annual,20.0,32.0,15.0,45.0,500.0,750.0,200.0,1000.0,6.0,6.5,5.2,8.2,,55.0,280.0,medium,
+2509,Chenopodium quinoa,Quinoa,Quinoa,cereal,annual,14.0,18.0,2.0,35.0,500.0,1000.0,250.0,2600.0,5.5,8.0,4.5,9.5,-8.0,90.0,240.0,"heavy, medium, light",
+1929,Secale cereale,Rye,Roggen,cereal,annual,15.0,20.0,3.0,31.0,600.0,1000.0,400.0,2000.0,5.5,6.0,4.5,8.2,-1.0,110.0,270.0,"heavy, medium, light",winter_rye
+48747,Sorghum bicolor,Sorghum,Sorghum,cereal,annual,22.0,35.0,8.0,40.0,400.0,600.0,300.0,700.0,5.5,7.5,5.0,8.0,,90.0,300.0,"heavy, medium",sorghum
+10591,Triticum spelta,Spelt,Dinkel,cereal,annual,10.0,17.0,4.0,24.0,700.0,1000.0,300.0,1600.0,6.5,7.5,5.0,8.3,,120.0,180.0,light,spelt
+2114,Triticum aestivum,Wheat,Weizen,cereal,annual,15.0,23.0,5.0,27.0,750.0,900.0,300.0,1600.0,6.0,7.0,5.5,8.5,0.0,90.0,250.0,medium,winter_wheat
+2519,Lupinus angustifolius,Blue lupin,Blaue Lupine,pulse,annual,12.0,18.0,4.0,26.0,400.0,1000.0,350.0,1700.0,5.5,7.0,4.9,8.2,-6.0,100.0,180.0,"medium, light",blue_lupin
+2479,Cicer arietinum,Chickpea,Kichererbse,pulse,annual,15.0,29.0,7.0,35.0,600.0,1000.0,300.0,1800.0,6.0,8.5,4.7,9.5,0.0,90.0,180.0,"heavy, medium",chickpea
+1668,Phaseolus vulgaris,Common bean,Gartenbohne,pulse,annual,16.0,25.0,7.0,32.0,500.0,2000.0,300.0,4300.0,5.5,7.5,4.0,9.0,,50.0,270.0,medium,
+2146,Vicia faba,Faba bean,Ackerbohne,pulse,annual,18.0,28.0,5.0,32.0,650.0,1000.0,250.0,2600.0,6.0,7.0,4.5,8.6,,100.0,150.0,medium,faba_bean
+7209,Lens culinaris,Lentil,Linse,pulse,annual,15.0,29.0,5.0,32.0,600.0,1000.0,250.0,2500.0,5.5,7.5,4.5,8.2,,70.0,240.0,"heavy, medium",lentil
+1721,Pisum sativum,Pea,Erbse,pulse,annual,10.0,24.0,4.0,30.0,800.0,1200.0,350.0,2500.0,5.5,7.0,4.5,8.3,0.0,60.0,140.0,"heavy, medium, light",field_pea
+1150,Glycine max,Soybean,Sojabohne,pulse,annual,20.0,33.0,10.0,38.0,600.0,1500.0,450.0,1800.0,5.5,6.5,4.5,8.4,,75.0,180.0,medium,soybean
+7431,Lupinus albus,White lupin,Weiße Lupine,pulse,annual,18.0,24.0,6.0,32.0,400.0,1000.0,360.0,1800.0,5.5,6.4,4.8,8.2,-3.0,90.0,180.0,"medium, light",
+1193,Helianthus tuberosus,Jerusalem artichoke,Topinambur,root,perennial,15.0,27.0,7.0,30.0,700.0,1500.0,300.0,2000.0,6.0,6.6,4.5,8.3,,80.0,150.0,medium,
+1971,Solanum tuberosum,Potato,Kartoffel,root,annual,15.0,25.0,7.0,30.0,500.0,800.0,250.0,2000.0,5.0,6.2,4.2,8.5,0.0,90.0,160.0,medium,potato
+48742,Beta vulgaris var. saccharifera,Sugar beet,Zuckerrübe,root,biennial,15.0,25.0,7.0,30.0,400.0,700.0,250.0,1000.0,6.0,6.8,5.5,8.5,-1.0,60.0,140.0,medium,sugar_beet
+3861,Brassica napus var. napobrassica,Swede,Kohlrübe,root,"annual, biennial",14.0,24.0,5.0,35.0,700.0,1000.0,300.0,1700.0,5.5,7.0,4.8,7.8,-1.0,180.0,180.0,"medium, light",
+7336,Linum usitatissimum,Linseed,Lein,oilseed,"annual, biennial, perennial",16.0,24.0,5.0,30.0,500.0,800.0,250.0,1300.0,6.0,6.5,5.5,7.0,-1.0,80.0,180.0,"heavy, medium",oil_flax
+549,Brassica napus,Rapeseed,Raps,oilseed,"annual, biennial",15.0,25.0,5.0,41.0,500.0,1000.0,400.0,2800.0,6.5,7.6,5.5,8.0,-6.0,85.0,340.0,"medium, light",winter_rapeseed
+1191,Helianthus annuus,Sunflower,Sonnenblume,oilseed,annual,17.0,34.0,5.0,45.0,600.0,1000.0,300.0,1600.0,6.0,7.5,5.5,8.0,0.0,70.0,200.0,"medium, light",sunflower
+6779,Humulus lupulus,Hops,Hopfen,special,perennial,15.0,19.0,8.0,35.0,400.0,700.0,300.0,1300.0,5.5,6.5,5.0,8.0,,150.0,210.0,medium,
+1534,Nicotiana tabacum,Tobacco,Tabak,special,"annual, biennial",15.0,30.0,7.0,35.0,500.0,750.0,350.0,3000.0,5.0,6.5,4.5,7.5,-1.0,70.0,150.0,"medium, light",
+1428,Medicago sativa,Alfalfa,Luzerne,forage,perennial,21.0,27.0,5.0,45.0,600.0,1200.0,350.0,2700.0,6.5,7.5,4.3,8.7,0.0,100.0,210.0,"medium, light",alfalfa
+10533,Trifolium hybridum,Alsike clover,Schwedenklee,forage,perennial,12.0,20.0,4.0,27.0,700.0,900.0,300.0,1800.0,5.5,6.5,4.5,8.0,0.0,90.0,150.0,"heavy, medium",
+7410,Lotus corniculatus,Bird's-foot trefoil,Hornklee,forage,perennial,15.0,25.0,3.0,30.0,600.0,1000.0,350.0,1900.0,6.0,7.0,4.5,8.2,-1.0,90.0,270.0,"heavy, medium",
+5184,Dactylis glomerata,Cocksfoot,Knaulgras,forage,perennial,12.0,26.0,5.0,31.0,500.0,1000.0,300.0,1700.0,6.0,6.5,4.5,7.5,0.0,80.0,180.0,"heavy, medium",
+7389,Lolium multiflorum,Italian ryegrass,Welsches Weidelgras,forage,"annual, perennial",14.0,30.0,2.0,38.0,500.0,900.0,200.0,1800.0,5.0,7.5,4.5,8.2,0.0,90.0,270.0,medium,
+1362,Lolium perenne,Perennial ryegrass,Deutsches Weidelgras,forage,"annual, biennial, perennial",14.0,25.0,4.0,35.0,700.0,1750.0,500.0,2300.0,5.0,7.0,4.5,8.4,0.0,90.0,270.0,"heavy, medium",
+2104,Trifolium pratense,Red clover,Rotklee,forage,"annual, biennial, perennial",18.0,25.0,4.0,40.0,700.0,1200.0,300.0,2100.0,6.0,7.5,4.5,8.2,0.0,120.0,300.0,medium,red_clover
+6102,Festuca arundinacea,Tall fescue,Rohrschwingel,forage,perennial,15.0,22.0,5.0,30.0,600.0,1300.0,400.0,1500.0,5.5,8.0,4.0,9.5,0.0,150.0,180.0,"heavy, medium",
+8516,Phleum pratense,Timothy,Wiesenlieschgras,forage,perennial,15.0,22.0,2.0,26.0,800.0,1100.0,300.0,1800.0,6.0,7.0,4.5,8.0,,120.0,180.0,"heavy, medium, light",
+2105,Trifolium repens,White clover,Weißklee,forage,perennial,14.0,22.0,4.0,26.0,700.0,1200.0,300.0,2100.0,5.5,7.0,4.5,8.2,0.0,90.0,240.0,"heavy, medium",
+10522,Trifolium alexandrinum,Berseem clover,Alexandrinerklee,cover,annual,16.0,27.0,3.0,35.0,450.0,900.0,300.0,1700.0,6.5,7.0,4.9,7.5,-2.0,90.0,270.0,"heavy, medium",
+238003,Vicia sativa ssp. sativa,Common vetch,Saatwicke,cover,annual,14.0,23.0,3.0,28.0,700.0,900.0,350.0,1600.0,6.0,7.0,4.5,8.2,-1.0,80.0,170.0,"heavy, medium",
+10534,Trifolium incarnatum,Crimson clover,Inkarnatklee,cover,annual,13.0,22.0,4.0,28.0,700.0,1000.0,300.0,1500.0,6.0,7.0,4.8,8.3,,100.0,170.0,"heavy, medium, light",
+238009,Vicia villosa ssp. villosa,Hairy vetch,Winterwicke,cover,annual,12.0,22.0,2.0,28.0,700.0,900.0,300.0,1700.0,6.0,7.0,4.9,8.2,-1.0,135.0,255.0,"medium, light",
+83541,Raphanus sativus var. oleiferus,Oilseed radish,Ölrettich,cover,annual,12.0,25.0,5.0,30.0,800.0,1000.0,500.0,1500.0,6.0,6.5,5.0,7.5,,70.0,150.0,"medium, light",
+9787,Sinapis alba,White mustard,Gelbsenf,cover,annual,10.0,25.0,5.0,30.0,700.0,1100.0,500.0,1300.0,6.5,7.5,5.5,8.5,,110.0,180.0,medium,white_mustard
+78092,Melilotus albus,White sweet clover,Weißer Steinklee,cover,"annual, biennial",12.0,28.0,8.0,32.0,600.0,800.0,425.0,1000.0,6.5,7.5,6.0,8.0,-1.0,,,"heavy, medium, light, wide",
+468,Asparagus officinalis,Asparagus,Spargel,vegetable,perennial,15.0,30.0,6.0,38.0,800.0,1200.0,500.0,4000.0,6.0,6.7,4.5,8.2,-1.0,210.0,270.0,medium,
+514,Beta vulgaris,Beetroot,Rote Bete,vegetable,biennial,15.0,25.0,4.0,35.0,600.0,800.0,500.0,1000.0,6.0,7.0,5.5,7.5,0.0,160.0,240.0,"heavy, medium",
+556,Brassica oleracea var. italica,Broccoli,Brokkoli,vegetable,biennial,15.0,24.0,3.0,35.0,900.0,1500.0,350.0,2000.0,6.0,6.8,5.5,8.5,-1.0,80.0,120.0,medium,
+555,Brassica oleracea var. gemmifera,Brussels sprouts,Rosenkohl,vegetable,"annual, biennial",12.0,20.0,7.0,25.0,900.0,1600.0,500.0,3000.0,6.0,7.0,4.5,7.8,-5.0,100.0,130.0,medium,
+554,Brassica oleracea var. capitata,Cabbage,Kopfkohl,vegetable,biennial,15.0,24.0,7.0,32.0,500.0,1000.0,300.0,2500.0,6.0,7.5,5.0,8.3,-1.0,60.0,200.0,medium,white_cabbage
+871,Daucus carota,Carrot,Möhre,vegetable,biennial,15.0,24.0,3.0,30.0,600.0,1200.0,400.0,4000.0,5.8,6.8,4.2,8.7,0.0,40.0,150.0,medium,
+553,Brassica oleracea var. botrytis,Cauliflower,Blumenkohl,vegetable,biennial,10.0,25.0,5.0,30.0,600.0,1100.0,450.0,1900.0,6.0,7.0,5.5,8.5,-5.0,60.0,120.0,medium,
+3289,Apium graveolens var. rapaceum,Celeriac,Knollensellerie,vegetable,"annual, biennial",15.0,25.0,7.0,26.0,1000.0,1200.0,700.0,1700.0,6.0,6.8,5.3,8.3,-5.0,80.0,270.0,medium,
+694,Cichorium intybus,Chicory,Chicorée,vegetable,"biennial, perennial",10.0,30.0,6.0,35.0,1500.0,2500.0,300.0,4000.0,6.0,7.5,4.5,8.3,-1.0,90.0,330.0,medium,
+817,Cucumis sativus,Cucumber,Gurke,vegetable,annual,18.0,32.0,6.0,38.0,1000.0,1200.0,400.0,4300.0,6.0,7.5,4.5,8.7,,40.0,180.0,medium,
+367,Allium sativum,Garlic,Knoblauch,vegetable,biennial,18.0,30.0,7.0,35.0,750.0,1600.0,500.0,2700.0,6.0,6.6,5.0,8.5,-5.0,90.0,120.0,"medium, light",
+3384,Armoracia rusticana,Horseradish,Meerrettich,vegetable,"annual, perennial",14.0,20.0,6.0,28.0,600.0,900.0,390.0,1700.0,6.0,7.0,4.5,8.7,-1.0,150.0,210.0,"medium, light",
+3867,Brassica oleracea var. acephala,Kale,Grünkohl,vegetable,"biennial, perennial",15.0,22.0,7.0,30.0,450.0,1000.0,300.0,2800.0,5.4,6.0,4.5,8.3,0.0,60.0,85.0,"heavy, medium, light",
+2220,Brassica oleracea var. gongyloides,Kohlrabi,Kohlrabi,vegetable,"annual, biennial",12.0,18.0,5.0,25.0,900.0,1300.0,700.0,1700.0,6.0,6.5,5.5,8.5,-1.0,50.0,70.0,medium,
+363,Allium ampeloprasum,Leek,Lauch,vegetable,"annual, biennial",18.0,24.0,6.0,27.0,750.0,1000.0,350.0,2800.0,6.0,6.5,4.5,7.5,-5.0,120.0,150.0,medium,
+1313,Lactuca sativa var. capitata,Lettuce,Kopfsalat,vegetable,"annual, biennial",12.0,21.0,5.0,30.0,1100.0,1400.0,900.0,4100.0,6.0,7.0,4.2,7.5,0.0,35.0,85.0,"medium, light",
+364,Allium cepa,Onion,Zwiebel,vegetable,biennial,12.0,25.0,4.0,30.0,350.0,600.0,300.0,2800.0,6.0,7.0,4.3,8.3,,85.0,175.0,medium,onion
+1642,Pastinaca sativa,Parsnip,Pastinake,vegetable,"annual, biennial",15.0,21.0,5.0,25.0,500.0,800.0,300.0,1100.0,6.0,6.8,5.8,8.3,-1.0,80.0,150.0,medium,
+819,Cucurbita maxima,Pumpkin,Speisekürbis,vegetable,annual,20.0,30.0,9.0,38.0,600.0,1000.0,450.0,2700.0,5.5,7.5,5.0,8.5,,80.0,140.0,"heavy, medium, light",
+11291,Raphanus sativus var. radicula,Radish,Radieschen,vegetable,"annual, biennial",12.0,25.0,3.0,30.0,800.0,1000.0,500.0,2800.0,6.0,7.0,5.2,8.3,,21.0,135.0,"medium, light",
+2454,Rheum rhaponticum,Rhubarb,Rhabarber,vegetable,perennial,15.0,24.0,5.0,30.0,800.0,1300.0,400.0,2000.0,6.0,7.0,5.3,7.8,-1.0,60.0,330.0,medium,
+1997,Spinacia oleracea,Spinach,Spinat,vegetable,annual,13.0,20.0,2.0,27.0,800.0,1200.0,300.0,1700.0,6.0,7.5,5.3,8.3,0.0,40.0,120.0,"medium, light",
+10981,Zea mays ssp. saccharata,Sweet corn,Zuckermais,vegetable,annual,16.0,24.0,12.0,38.0,800.0,1500.0,600.0,1800.0,5.5,6.8,4.5,7.5,,65.0,100.0,medium,
+821,Cucurbita pepo,"Zucchini, oil pumpkin","Zucchini, Ölkürbis",vegetable,annual,17.0,30.0,6.0,40.0,600.0,1500.0,300.0,2800.0,5.5,6.8,4.5,8.3,,40.0,100.0,medium,
+1407,Malus domestica,Apple,Apfel,fruit,perennial,14.0,27.0,8.0,33.0,700.0,2500.0,500.0,3200.0,6.0,7.0,4.5,8.0,-2.0,180.0,320.0,"medium, light",
+2398,Prunus armeniaca,Apricot,Aprikose,fruit,perennial,14.0,35.0,7.0,40.0,900.0,1300.0,800.0,1470.0,6.5,7.0,5.0,8.0,-1.0,180.0,240.0,medium,
+9282,Ribes nigrum,Black currant,Schwarze Johannisbeere,fruit,perennial,17.0,25.0,5.0,30.0,700.0,900.0,500.0,1100.0,6.5,7.5,6.0,8.0,-1.0,150.0,180.0,medium,
+10704,Vaccinium corymbosum,Blueberry,Kulturheidelbeere,fruit,perennial,18.0,30.0,7.0,42.0,900.0,1100.0,700.0,1300.0,4.0,5.0,3.0,5.5,-1.0,160.0,200.0,medium,
+9290,Ribes uva-crispa,Gooseberry,Stachelbeere,fruit,perennial,15.0,25.0,3.0,40.0,900.0,1300.0,500.0,1700.0,6.0,7.0,5.0,7.5,0.0,150.0,180.0,heavy,
+2160,Vitis vinifera,Grapevine,Weinrebe,fruit,perennial,18.0,30.0,10.0,38.0,700.0,850.0,400.0,1200.0,5.5,7.5,4.5,8.5,-3.0,160.0,270.0,medium,
+2246,Corylus avellana,Hazelnut,Haselnuss,fruit,perennial,10.0,24.0,5.0,35.0,900.0,1100.0,600.0,1400.0,6.0,6.5,5.5,7.5,-3.0,150.0,210.0,medium,
+1796,Prunus persica,Peach,Pfirsich,fruit,perennial,20.0,33.0,7.0,35.0,900.0,1100.0,750.0,1600.0,5.5,6.3,4.5,7.5,-5.0,240.0,270.0,"medium, light",
+1832,Pyrus communis,Pear,Birne,fruit,perennial,20.0,35.0,10.0,37.0,600.0,900.0,400.0,2100.0,5.5,6.5,4.5,8.3,-9.0,180.0,270.0,"heavy, medium",
+16203,Prunus domestica,Plum,Zwetschge,fruit,perennial,18.0,33.0,6.0,36.0,900.0,1500.0,600.0,1800.0,5.5,6.1,4.5,7.4,-2.0,180.0,210.0,"heavy, medium",
+1877,Rubus idaeus ssp. idaeus,Raspberry,Himbeere,fruit,perennial,17.0,23.0,5.0,28.0,800.0,1200.0,300.0,1700.0,5.5,6.5,4.5,7.8,-1.0,120.0,180.0,medium,
+9285,Ribes rubrum,Red currant,Rote Johannisbeere,fruit,perennial,10.0,22.0,5.0,25.0,800.0,1200.0,500.0,1700.0,6.5,7.5,6.0,8.0,0.0,150.0,180.0,"heavy, medium",
+1112,Fragaria x ananassa,Strawberry,Erdbeere,fruit,perennial,11.0,24.0,6.0,28.0,600.0,900.0,300.0,1700.0,6.0,6.8,4.5,8.2,,180.0,270.0,medium,
+8965,Prunus avium,Sweet cherry,Süßkirsche,fruit,perennial,18.0,28.0,6.0,40.0,500.0,900.0,300.0,1500.0,5.5,6.5,4.5,7.0,0.0,180.0,240.0,"heavy, medium",
+2234,Castanea sativa,Sweet chestnut,Esskastanie,fruit,perennial,15.0,25.0,7.0,30.0,900.0,1300.0,500.0,1600.0,5.0,6.0,4.0,7.0,,150.0,210.0,"medium, light",
+2315,Juglans regia,Walnut,Walnuss,fruit,perennial,15.0,30.0,7.0,40.0,800.0,1700.0,400.0,2200.0,5.5,6.5,4.5,8.3,-2.0,150.0,180.0,medium,
