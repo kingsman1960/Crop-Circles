@@ -1,112 +1,121 @@
 {
  "n_obs": 1242,
  "n_parcels": 34,
- "r2": 0.941,
- "r2_adj": 0.941,
+ "r2": 0.95,
+ "r2_adj": 0.95,
  "coef": {
   "Intercept": {
-   "coef": 0.5119,
-   "se": 0.2242,
-   "p": 0.0224
+   "coef": 0.4541,
+   "se": 0.203,
+   "p": 0.0252
   },
   "log_source": {
-   "coef": 0.0516,
-   "se": 0.0172,
-   "p": 0.0027
+   "coef": 0.0519,
+   "se": 0.012,
+   "p": 0.0
   },
   "log_control": {
-   "coef": -0.0127,
-   "se": 0.0078,
-   "p": 0.1045
+   "coef": -0.0048,
+   "se": 0.0064,
+   "p": 0.4521
   },
   "ndvi_june": {
-   "coef": -0.6206,
-   "se": 0.0743,
+   "coef": -0.7223,
+   "se": 0.0564,
    "p": 0.0
   },
   "nfk_mm": {
-   "coef": -0.0008,
+   "coef": -0.0004,
    "se": 0.0007,
-   "p": 0.302
+   "p": 0.6174
   },
   "ks": {
-   "coef": -0.1272,
-   "se": 0.0491,
-   "p": 0.0095
+   "coef": -0.1157,
+   "se": 0.0422,
+   "p": 0.0062
   }
  },
  "season_fe": {
   "C(season)[T.2021]": {
-   "coef": 0.1176,
-   "se": 0.0235,
+   "coef": 0.1153,
+   "se": 0.0207,
    "p": 0.0
   },
   "C(season)[T.2022]": {
-   "coef": -0.2482,
-   "se": 0.0444,
+   "coef": -0.2349,
+   "se": 0.031,
    "p": 0.0
   },
   "C(season)[T.2023]": {
-   "coef": -0.1159,
-   "se": 0.0242,
+   "coef": -0.0994,
+   "se": 0.0176,
    "p": 0.0
   },
   "C(season)[T.2024]": {
-   "coef": -0.2884,
-   "se": 0.0381,
+   "coef": -0.2558,
+   "se": 0.0228,
    "p": 0.0
   },
   "C(season)[T.2025]": {
-   "coef": -0.0346,
-   "se": 0.0326,
-   "p": 0.2881
+   "coef": -0.0275,
+   "se": 0.0262,
+   "p": 0.2938
   }
  },
  "edge_test": {
-  "source_adjacent_n": 28,
-  "control_adjacent_n": 127,
-  "mean_source_adjacent": -0.0929,
-  "mean_control_adjacent": -0.0061,
-  "mean_source_minus_control": -0.0868,
-  "welch_t": -4.216,
+  "source_adjacent_n": 32,
+  "control_adjacent_n": 130,
+  "mean_source_adjacent": -0.0833,
+  "mean_control_adjacent": -0.01,
+  "mean_source_minus_control": -0.0733,
+  "welch_t": -4.016,
   "p": 0.0002
  },
+ "edge_test_parcels": {
+  "source_adjacent_n": 8,
+  "control_adjacent_n": 22,
+  "mean_source_adjacent": -0.0514,
+  "mean_control_adjacent": -0.0132,
+  "mean_source_minus_control": -0.0382,
+  "welch_t": -1.011,
+  "p": 0.3331
+ },
  "geometry_source": "raw FIONA 2022 outlines (114345 parcels, whole bbox)",
- "wind": "raw ERA5-Land hourly zips are not in data/raw/",
+ "wind": "the ERA5-Land request has no u10/v10 (t2m, tp, swvl only)",
  "wheat_pools": {
   "2023": {
    "declared": true,
-   "n_source": 2135,
-   "n_control": 9245
+   "n_source": 2179,
+   "n_control": 10498
   },
   "2024": {
    "declared": true,
-   "n_source": 1714,
-   "n_control": 8191
+   "n_source": 1750,
+   "n_control": 9108
   },
   "2025": {
    "declared": true,
-   "n_source": 1725,
-   "n_control": 9373
+   "n_source": 1795,
+   "n_control": 10844
   }
  },
  "coef_declared_years": {
   "log_source": {
-   "coef": 0.0024,
-   "se": 0.0099,
-   "p": 0.8059
+   "coef": 0.0012,
+   "se": 0.0074,
+   "p": 0.8746
   },
   "log_control": {
-   "coef": 0.0047,
-   "se": 0.0086,
-   "p": 0.5814
+   "coef": 0.0106,
+   "se": 0.0102,
+   "p": 0.3023
   }
  },
  "notes": [
   "SEs clustered by parcel; season fixed effects absorb the season mean.",
   "slope_pct only with the raw NASADEM; the K*S erosion factor is always included.",
   "is_downwind needs u10/v10 in the ERA5-Land hourly download.",
-  "canopy windows need >= 2 clear pictures (June ((6, 1), (6, 25)), late summer ((8, 15), (9, 15))).",
+  "canopy windows need >= 2 clear pictures (June ((6, 1), (6, 25)), late summer ((8, 15), (9, 10))).",
   "distances use the declared FIONA crops where the season and the one before are both declared (2023-2025, targets must be declared beet); in 2020-2022 the nearest wheat is known inside the demo blocks only, so those distances run against the cap.",
   "coef_declared_years repeats the fit on the declared seasons only."
  ]

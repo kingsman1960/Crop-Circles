@@ -7,10 +7,10 @@ import streamlit as st
 import accounts
 import copilot
 from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, POS, chart, content, crop_group, crop_names, crop_scale, field_picker, footer,
-                  from_space, geojson, header, kpis, layer, legend, neighbourhood, plan, planner_weights, pressure,
+                  PH_LEVEL, from_space, geojson, header, kpis, layer, legend, neighbourhood, ph_levels, plan, planner_weights, pressure,
                   rank_options, rgb, source_line, strategies, table, takeaway, tip)
 from i18n import day, listing, months, num, pct, t, tn
-from plain import fraction, level, of_ten, ten, weeks
+from plain import ci_ten, fraction, level, of_ten, ten, weeks
 
 SOURCES = ("POWER", "IMERG", "DWD")
 RECENT, EARLY = (2015, 2024), (1981, 2010)
@@ -55,8 +55,10 @@ title, sub = t("field.title", id=fid, place=place), t("field.sub", ha=num(p["are
 side = header(title, sub)
 if accounts.my_parcels():  # parcels this farmer added from the region map: their crop history now, the rest later
     from data import landscape
-    par = landscape()[0]
+    par, _, summary = landscape()
     de = crop_names("de")
+    fiona = {int(k): v for k, v in summary["legends"].get("fiona", {}).items()}  # NC code -> declared crop (German)
+    declared = lambda r, y: fiona.get(int(r[f"f{y}"])) if f"f{y}" in r and r[f"f{y}"] > 0 else None
     with st.container(key="card_parcels"):
         st.markdown(t("field.parcels.title", n=len(accounts.my_parcels())))
         rows = ""
@@ -64,8 +66,8 @@ if accounts.my_parcels():  # parcels this farmer added from the region map: thei
             if pid not in par.index:
                 continue
             r = par.loc[pid]
-            chips = "".join(f'<span class="cc-chip" style="--c:{CROPS[crop_group(de.get(int(r[f"c{y}"]), ""))]}">'
-                            f'<i>{y}</i>{names.get(int(r[f"c{y}"]), "–")}</span>' for y in range(2020, 2026))
+            chips = "".join(f'<span class="cc-chip" style="--c:{CROPS[crop_group(declared(r, y) or de.get(int(r[f"c{y}"]), ""))]}">'
+                            f'<i>{y}</i>{declared(r, y) or names.get(int(r[f"c{y}"]), "–")}</span>' for y in range(2020, 2026))
             rows += f'<tr><td><b>{pid}</b><span class="g">{num(r.area_ha, 1)} ha</span></td><td><div class="cc-chips">{chips}</div></td></tr>'
         st.html(f'<table class="cc-table"><tbody>{rows}</tbody></table>')
         st.caption(t("field.parcels.note"))
@@ -75,25 +77,29 @@ report = []  # (heading, paragraphs) for the take-away page
 nur, beet = plan(2025, 1000, 0.2, "balanced", planner_weights())
 nb = neighbourhood(fid, nur, 1000)
 rank = (pressure(2025, 1000)[1].pressure < nb["total"]).mean()
-ph_level = "high" if rank >= 0.67 else "medium" if rank >= 0.33 else "low"
+ph_level = PH_LEVEL(rank)
+levels = set(ph_levels(fid, 2025).values())
+order = ["low", "medium", "high"]
+lo, hi = min(levels, key=order.index), max(levels, key=order.index)
 own = nb["own"] / max(nb["total"], 1e-9)
 ph_text = (t("field.ph.main", rank=of_ten(rank), near=num(nb["near_ha"]))
            + (t("field.ph.own_none") if own < 0.05 else t("field.ph.own_some", own=pct(own)))
+           + (t("field.ph.range", lo=t("plain.level." + lo), hi=t("plain.level." + hi)) if lo != hi else "")
            + t("field.ph.switch", fraction=fraction(1 - nb["after"] / max(nb["total"], 1e-9))))
 slope = p["slope_mean_pct"]
-er_text = t("field.erosion", slope=num(slope), drop=num(slope), n=facts["open_rows_rain"]["n"])
+er_text = t("field.erosion", slope=num(slope), drop=num(slope), n=facts["open_rows_rain"]["n"]) + ci_ten(facts["open_rows_rain"]["n"])
 
 june_use = daily[daily.date.dt.month == 6].et0_power.mean() * 1.1  # a closed crop in June uses about 1.1 x ET0 (FAO-56)
 store = p.get("nfk_mid_mm") or 140
 n_dry = facts["summer_dry"]["n"]
 dry_level = "high" if n_dry >= 5 else "medium" if n_dry >= 3 else "low"
-dry_text = t("field.dry", store=num(store), weeks=weeks(store / june_use), n=n_dry, cwb=num(facts["summer_dry"]["cwb"]))
+dry_text = t("field.dry", store=num(store), weeks=weeks(store / june_use), n=n_dry, cwb=num(facts["summer_dry"]["cwb"])) + ci_ten(n_dry)
 
 hot = ind[(ind.source == "DWD") & (ind.indicator == "heat_days")]
 hot_now, hot_then = hot[hot.year.between(*RECENT)].value.mean(), hot[hot.year.between(*EARLY)].value.mean()
 n_heat = facts["heat_heading"]["n"]
-heat_level = "high" if n_heat >= 6 else "medium" if n_heat >= 3 else "low"
-heat_text = t("field.heat", now=num(hot_now), then=num(hot_then), station=facts["heat_heading"]["station"], n=n_heat)
+heat_level = "high" if n_heat >= 8 else "medium" if n_heat >= 5 else "low"  # >= 6 was "high" for every field-year 2011-2025
+heat_text = t("field.heat", now=num(hot_now), then=num(hot_then), station=facts["heat_heading"]["station"], n=n_heat) + ci_ten(n_heat)
 
 cards = [("planthopper", ph_level, ph_text, rank * 10), ("erosion", p["erosion_class"], er_text, facts["open_rows_rain"]["n"]),
          ("dry", dry_level, dry_text, n_dry), ("heat", heat_level, heat_text, n_heat)]
