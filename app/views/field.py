@@ -7,7 +7,7 @@ import streamlit as st
 import accounts
 import copilot
 from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, POS, chart, content, crop_group, crop_names, crop_scale, field_picker, footer,
-                  PH_LEVEL, from_space, geojson, header, kpis, layer, legend, neighbourhood, ph_levels, plan, planner_weights, pressure,
+                  PH_LEVEL, from_space, geojson, header, kpis, layer, legend, neighbourhood, ph_levels, plan, planner_weights, pressure, region_test,
                   rank_options, rgb, source_line, strategies, table, takeaway, tip)
 from i18n import day, listing, months, num, pct, t, tn
 from plain import ci_ten, fraction, level, of_ten, ten, weeks
@@ -82,8 +82,14 @@ levels = set(ph_levels(fid, 2025).values())
 order = ["low", "medium", "high"]
 lo, hi = min(levels, key=order.index), max(levels, key=order.index)
 own = nb["own"] / max(nb["total"], 1e-9)
+rt = region_test()  # the region-wide test: nurseries touching this block, and what that meant for beet across the region
+edge, eff = rt.get("demo_fields", {}).get(fid), rt.get("index", {}).get("ndre")
+edge_text = ("" if not edge else t("field.ph.edge_none", season=edge["season"]) if edge["n"] == 0
+             else tn("field.ph.edge", edge["n"], ha=num(edge["ha"], 1), season=edge["season"]))
+edge_text += t("field.ph.evidence", x=num(abs(eff["adjacent_coef"]), 2), n=num(eff["n"])) if eff else ""
 ph_text = (t("field.ph.main", rank=of_ten(rank), near=num(nb["near_ha"]))
            + (t("field.ph.own_none") if own < 0.05 else t("field.ph.own_some", own=pct(own)))
+           + edge_text
            + (t("field.ph.range", lo=t("plain.level." + lo), hi=t("plain.level." + hi)) if lo != hi else "")
            + t("field.ph.switch", fraction=fraction(1 - nb["after"] / max(nb["total"], 1e-9))))
 slope = p["slope_mean_pct"]

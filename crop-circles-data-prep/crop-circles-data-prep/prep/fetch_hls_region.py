@@ -1,6 +1,6 @@
-"""Dataset 10b - hls_region: HLS S30 v2.0 canopy indices of every sugar-beet parcel in the Kraichgau bbox that lies next
-to a planthopper nursery (< 50 m from wheat after beet) or next to control wheat (< 50 m, >= 200 m from any nursery),
-seasons 2023-2025, in the June and late-summer windows of pipeline/planthopper_edge_effect.py.
+"""Dataset 10b - hls_region: HLS S30 v2.0 canopy indices of every declared sugar-beet parcel in the Kraichgau bbox,
+seasons 2023-2025, with its role: next to a planthopper nursery (< 50 m from wheat after beet), control (< 50 m from
+other wheat, >= 200 m from any nursery) or other (in between; added 2026-11-15 for the distance-decay fit), in the June and late-summer windows of pipeline/planthopper_edge_effect.py.
 
 No AppEEARS queue: the granules come from the CMR search and the band COGs are read straight from LP DAAC over HTTPS
 (Earthdata login from ~/.netrc, cookies in a temp file), only the window that covers the parcels, so nothing but the
@@ -57,13 +57,12 @@ def parcels(year, pools, data):
         return d
 
     ds, dc = nearest(pools[year]["source_wheat"]), nearest(pools[year]["control_wheat"])
-    role = np.select([ds < ADJ, (dc < ADJ) & (ds >= FAR)], ["nursery_adjacent", "control"], "")
+    role = np.select([ds < ADJ, (dc < ADJ) & (ds >= FAR)], ["nursery_adjacent", "control"], "other")  # other: in between
     c = shapely.centroid(g)
     df = pd.DataFrame({"id": beet.id.values, "year": year, "role": role, "crop": beet.crop.values,
                        "x": shapely.get_x(c), "y": shapely.get_y(c),
                        "area_ha": shapely.area(g) / 1e4, "dist_to_source": ds, "dist_to_control": dc})
-    keep = role != ""
-    return df[keep].reset_index(drop=True), g[keep]
+    return df, g  # every beet parcel: the decay fit needs the whole distance range
 
 
 def granules(year, bbox):

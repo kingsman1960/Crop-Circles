@@ -232,6 +232,13 @@ def pressure(season, r, scope="bbox", src=""):
     return nur.join(par, on="id").reset_index(drop=True), beet.join(par, on="id").reset_index(drop=True)
 
 
+@st.cache_data
+def region_test():
+    """The region-wide planthopper edge test (planthopper_effect/region_summary.json), or {} before it has run."""
+    p = PROC / "planthopper_effect" / "region_summary.json"
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+
+
 PH_LEVEL = lambda rank: "high" if rank >= 0.67 else "medium" if rank >= 0.33 else "low"  # rank among the region's beet
 
 

@@ -361,5 +361,28 @@
   "decay: delta ~ exp(-distance to the nearest nursery boundary / r) with the same controls, r profiled; only parcels < 50 m or >= 200 m from a nursery are in the sample (the 50-200 m band is not)",
   "the June value is in the model: a parcel that is greener in June has more to lose by late summer",
   "windows: June ((6, 1), (6, 25)), late summer ((8, 15), (9, 10)); at least 2 clear pictures in each"
- ]
+ ],
+ "demo_fields": {
+  "F1": {
+   "season": 2025,
+   "within_m": 50,
+   "n": 0,
+   "ha": 0.0,
+   "own_ha": 0.0
+  },
+  "F2": {
+   "season": 2025,
+   "within_m": 50,
+   "n": 1,
+   "ha": 16.2,
+   "own_ha": 0.0
+  },
+  "F3": {
+   "season": 2025,
+   "within_m": 50,
+   "n": 0,
+   "ha": 0.0,
+   "own_ha": 0.0
+  }
+ }
 }

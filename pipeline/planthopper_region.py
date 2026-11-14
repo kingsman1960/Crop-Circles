@@ -22,12 +22,12 @@ from shapely.geometry import shape
 from shapely.strtree import STRtree
 
 from pipeline import geo
-from pipeline.common import PROC, RAW, out
-from pipeline.planthopper_edge_effect import JUNE, LATE, MIN_OBS
+from pipeline.common import FIELDS, PROC, RAW, out
+from pipeline.planthopper_edge_effect import JUNE, LATE, MIN_OBS, fiona_pools
 
 INDICES = ("ndvi", "gndvi", "ndre")
 CELL = 2000  # m: standard errors clustered by 2 km cell
-R_GRID = (250, 500, 750, 1000, 1500, 2000, 3000)  # m: candidate flight distances for the decay fit
+R_GRID = (50, 100, 150, 250, 350, 500, 750, 1000, 1500, 2000, 3000)  # m: candidate flight distances for the decay fit
 
 
 def windows(series, index):
@@ -55,6 +55,20 @@ def soil(parcels):
     qi, ti = tree.query(pts, predicate="within")
     match = pd.Series(ids22[ti], index=qi).groupby(level=0).first().reindex(range(len(parcels)))
     return parcels.assign(id22=match.values).join(lp, on="id22")
+
+
+def demo_edges(season, within=50):
+    """Per demo field: the nurseries of `season` within `within` m of the block outline (count, ha, own share)."""
+    pools, _ = fiona_pools((season,))
+    nur = np.asarray(pools[season]["source_wheat"], dtype=object)
+    out_ = {}
+    for f in FIELDS:
+        block = geo.reproj(shape(f["polygon"]), 4326, 25832)
+        near = nur[shapely.dwithin(nur, block, within)]
+        own = shapely.area(shapely.intersection(near, block)).sum() if len(near) else 0.0
+        out_[f["id"]] = {"season": season, "within_m": within, "n": int(len(near)), "ha": round(float(shapely.area(near).sum() / 1e4), 1),
+                         "own_ha": round(float(own / 1e4), 1)}
+    return out_
 
 
 def decay(d):
@@ -85,6 +99,7 @@ def main():
         d = w.join(parcels.set_index(["id", "year"])[["role", "area_ha", "dist_to_source", "dist_to_control", "x", "y", "ks", "nfk_mm"]], how="inner")
         d = d.reset_index()
         d["adjacent"] = (d.role == "nursery_adjacent").astype(int)
+        d_all, d = d, d[d.role != "other"]  # the adjacent-vs-control test keeps its clean contrast; the decay fit uses every parcel
         d["cell"] = (d.x // CELL).astype(int) * 10_000 + (d.y // CELL).astype(int)  # neighbours share weather and farms
         fit = smf.ols("delta ~ adjacent + june + C(year)", data=d).fit(cov_type="cluster", cov_kwds={"groups": d.cell})
         placebo = smf.ols("june ~ adjacent + C(year)", data=d).fit(cov_type="cluster", cov_kwds={"groups": d.cell})
@@ -107,7 +122,7 @@ def main():
                                "with_soil": {"n": int(len(ds)), "adjacent_coef": round(float(fit_soil.params["adjacent"]), 4),
                                              "adjacent_se": round(float(fit_soil.bse["adjacent"]), 4), "p": round(float(fit_soil.pvalues["adjacent"]), 4),
                                              "ks_coef": round(float(fit_soil.params["ks"]), 4), "nfk_coef": round(float(fit_soil.params["nfk_mm"]), 5)},
-                               "decay": decay(d),
+                               "decay": decay(d_all.assign(cell=(d_all.x // CELL).astype(int) * 10_000 + (d_all.y // CELL).astype(int))),
                                "placebo_june_level": {"adjacent_coef": round(float(placebo.params["adjacent"]), 4),
                                                       "p": round(float(placebo.pvalues["adjacent"]), 4)},
                                "per_season": per_season}
@@ -120,9 +135,11 @@ def main():
                           for y, v in per_season.items()))
     res["notes"] = ["one observation per parcel and season; ks / nFK from the FIONA 2022 parcel under the centroid",
                     "decay: delta ~ exp(-distance to the nearest nursery boundary / r) with the same controls, r profiled; "
-                    "only parcels < 50 m or >= 200 m from a nursery are in the sample (the 50-200 m band is not)",
+                    "the adjacent-vs-control test uses the < 50 m and >= 200 m parcels; the decay fit uses every beet parcel",
                     "the June value is in the model: a parcel that is greener in June has more to lose by late summer",
                     f"windows: June {JUNE}, late summer {LATE}; at least {MIN_OBS} clear pictures in each"]
+    res["demo_fields"] = demo_edges(max(parcels.year))
+    print("  demo fields, nurseries within 50 m: " + ", ".join(f"{k}: {v['n']} ({v['ha']} ha)" for k, v in res["demo_fields"].items()))
     out("planthopper_effect/region_summary.json").write_text(json.dumps(res, indent=1), encoding="utf-8")
 
 
