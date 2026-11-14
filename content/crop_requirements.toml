@@ -19,6 +19,9 @@
 #   thuenen         class in the Thünen crop-type map (landscape_summary.json legends), where it has one.
 #   ecoport         FAO ECOCROP crop id, where the numbers come from.
 #
+# More crops, with the plain ECOCROP numbers only: ecocrop_south_germany.csv (86 crops farmed in the region;
+# its crop_requirements column names the ids below).
+#
 # Sources. t_opt_c, rain_opt_mm, ph, ph_limits, texture: FAO ECOCROP (EcoCrop_DB.csv, as published by
 # OpenCLIM/ecocrop) unless a comment says otherwise. sow/harvest of winter wheat, winter barley, winter rapeseed,
 # sugar beet and maize: DWD phenology around Heilbronn 2001–2026 (phenology.parquet), 10th–90th percentile of the
@@ -214,7 +217,7 @@ family = "Poaceae"
 group = "maize"
 season = "spring"
 thuenen = 1300
-ecoport = 2175
+ecoport = 238663
 sow = [107, 122]
 harvest = [280, 305]            # DWD "harvest" mixes silage maize; grain is threshed in October
 ph = [5.0, 7.0]
@@ -236,7 +239,7 @@ family = "Poaceae"
 group = "maize"
 season = "spring"
 thuenen = 1300
-ecoport = 2175
+ecoport = 238663
 sow = [107, 122]
 harvest = [250, 276]
 ph = [5.0, 7.0]
