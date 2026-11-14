@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import copy
 import json
+from functools import partial
 from pathlib import Path
 
 import streamlit as st
@@ -73,12 +74,25 @@ def plot_editor(features: list[dict], *, key: str, outline: dict | None = None, 
     event = _component(features=s["features"], selected=s["selected"], revision=s["revision"], outline=outline,
                        view=view, height=height, labels=lab, tooltip=tooltip, can_undo=bool(s["history"]),
                        message=s["message"], report_selection=report_selection, basemap=_basemap(),
-                       palette=palette or [], key=key, default=None)
+                       palette=palette or [], key=key, default=None,
+                       on_change=partial(_on_change, key, lab, min_ha))
+    # normally on_change has already applied the event before this run started; this is only a safety net
     if event and event.get("nonce") != s["nonce"]:
         s["nonce"] = event["nonce"]
         if _apply(s, event, lab, min_ha):
-            _rerun()  # the map has to be drawn again with the new plots
+            _rerun()
     return {"features": s["features"], "selected": list(s["selected"])}
+
+
+def _on_change(key, lab, min_ha):
+    """Streamlit calls this before the rerun, so the page (and anything under the map) is drawn with the change."""
+    try:
+        s, event = st.session_state.get(_skey(key)), st.session_state[key]
+    except (KeyError, AttributeError):
+        return  # no value under the key: the safety net after the render handles it
+    if s and isinstance(event, dict) and event.get("nonce") != s["nonce"]:
+        s["nonce"] = event["nonce"]
+        _apply(s, event, lab, min_ha)
 
 
 def metric(feature: dict):

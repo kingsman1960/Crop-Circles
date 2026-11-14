@@ -12,6 +12,7 @@ import streamlit as st
 import rotation
 from data import geojson
 from i18n import num, t
+from plan_metrics import plan_metrics
 from plot_editor import metric, plot_editor
 
 TEXT = {
@@ -69,6 +70,8 @@ def crop_planner(fid: str, p: dict, height: int = 620) -> None:
                       annotate=lambda feats: _annotate(feats, past, years, target, lang))
     _summary(res["features"], target, lang)
     st.caption(tx["faded"] + " " + tx["source"])
+    st.space("small")
+    plan_metrics(fid, p, res["features"], years, lang)
 
 
 def _key(name):
@@ -94,6 +97,7 @@ def _annotate(feats, past, years, target, lang):
                     hist.setdefault(y, {})
                     hist[y][k] = hist[y].get(k, 0.0) + share
         props = f["properties"]
+        props["hist"] = {str(y): v for y, v in hist.items()}  # for the metrics under the map
         props["fit"] = {k: rotation.fit(k, hist, target, lang) for k in rotation.CROPS}
         last = hist.get(years[-1], {})
         top = max(last, key=last.get) if last else "other"
