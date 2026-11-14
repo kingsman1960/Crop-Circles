@@ -1,0 +1,117 @@
+# Deutsche Texte zu content/crop_requirements.toml. Nur Beschriftungen; alle Daten stehen in der englischen Basisdatei.
+
+[winter_wheat]
+label = "Winterweizen"
+note = "Die Hauptfrucht des Lösses. Nach Zuckerrüben gesät, überwintern darin Nymphen der Schilf-Glasflügelzikade."
+
+[winter_barley]
+label = "Wintergerste"
+note = "Früheste Ernte: entgeht der Sommertrockenheit und lässt Zeit für Raps oder Zwischenfrucht. Verträgt keinen sauren Boden."
+
+[winter_rye]
+label = "Winterroggen"
+note = "Das winterhärteste und genügsamste Getreide: Sandböden, Schwarzwaldrand, trockene Jahre. Selbstverträglich."
+
+[triticale]
+label = "Triticale"
+note = "Futtergetreide für ärmere oder saure Standorte, wo Weizen schwächelt."
+
+[spelt]
+label = "Dinkel"
+note = "Traditionelles schwäbisches Getreide. Winterhart und genügsam, passt auf die Alb und in höhere Lagen; lang, daher lageranfällig."
+
+[durum_wheat]
+label = "Winterdurum"
+note = "Nudelweizen, neu am warmen Oberrhein und im Kraichgau. Wenig winterhart; Regen zur Ernte mindert die Qualität."
+
+[spring_barley]
+label = "Sommergerste"
+note = "Braugerste; eine Sommerung, die nach Zuckerrüben statt Winterweizen stehen kann. Flach wurzelnd, leidet unter trockenem Frühjahr."
+
+[oats]
+label = "Hafer"
+note = "Gesundungsfrucht in Getreidefolgen (keine Schwarzbeinigkeit), braucht aber ein kühles, feuchtes Frühjahr. Nematoden: 3–4 Jahre Pause."
+
+[grain_maize]
+label = "Körnermais"
+note = "Selbstverträglich, aber die Reihen bleiben bis Juni offen: Erosionsgefahr am Hang. Fruchtwechsel hält den Maiswurzelbohrer klein."
+
+[silage_maize]
+label = "Silomais"
+note = "Ganzpflanze für Rinder und Biogas, im September gehäckselt; lässt kaum Reste auf dem Boden."
+
+[sorghum]
+label = "Sorghum"
+note = "Trockenheitsfeste Alternative zu Mais für Biogas und Futter am warmen Oberrhein; braucht warmen Boden zum Start."
+
+[sugar_beet]
+label = "Zuckerrübe"
+note = "Wirt der Schilf-Glasflügelzikade (SBR, Stolbur). Winterweizen nach Rüben wird zur Kinderstube; Rübennematoden: 3+ Jahre Pause."
+
+[potato]
+label = "Kartoffel"
+note = "Ebenfalls von Stolbur betroffen, das die Schilf-Glasflügelzikade überträgt. Braucht lockeren Boden und in trockenen Jahren Beregnung."
+
+[winter_rapeseed]
+label = "Winterraps"
+note = "Deckt den Boden von August bis Juli und ist gute Vorfrucht für Weizen. Kohlhernie: 3+ Jahre Pause, Senf zählt mit."
+
+[sunflower]
+label = "Sonnenblume"
+note = "Tiefe Wurzeln machen sie zur Trockenkultur warmer Lagen. Sklerotinia, die sie mit Raps und Soja teilt, verlangt lange Pausen."
+
+[oil_flax]
+label = "Öllein"
+note = "Nischen-Ölfrucht mit geringem Aufwand; sehr unverträglich mit sich selbst (6–7 Jahre). ph_limits enden bei 7: kalkreiche Böden sind grenzwertig."
+
+[soybean]
+label = "Sojabohne"
+note = "Baden-Württemberg und Bayern bauen den Großteil der deutschen Soja an. Braucht Impfung des Saatguts und Wasser zur Hülsenfüllung im August."
+
+[field_pea]
+label = "Körnererbse"
+note = "Die frühe Ernte im Juli entgeht der Sommertrockenheit und hinterlässt Stickstoff für die Folgefrucht. Fußkrankheiten: 5–6 Jahre Pause."
+
+[faba_bean]
+label = "Ackerbohne"
+note = "Eiweißpflanze für schwere, feuchte Böden; früh gesät. Leidet unter trockenem, heißem Juni."
+
+[blue_lupin]
+label = "Blaue Lupine"
+note = "Eiweißpflanze für leichte, schwach saure Böden (Sandstandorte, Schwarzwaldrand)."
+
+[lentil]
+label = "Linse"
+note = "Spezialität der Schwäbischen Alb (Alb-Leisa), oft mit Stützfrucht; mag trockene, kalkreiche, flachgründige Böden."
+
+[chickpea]
+label = "Kichererbse"
+note = "Versuchskultur für heißere, trockenere Sommer; passt auf kalkreiche Böden. Nässe zur Blüte bringt Ascochyta."
+
+[alfalfa]
+label = "Luzerne"
+note = "Tiefwurzelnde Futterleguminose für kalkreiche Böden; deckt den Boden ganzjährig und bindet Stickstoff."
+
+[red_clover]
+label = "Rotklee"
+note = "Kleegras für Futter und Ökofruchtfolgen, oft als Untersaat im Getreide. Kleemüdigkeit: 5+ Jahre Pause."
+
+[buckwheat]
+label = "Buchweizen"
+note = "Kurz (etwa 90 Tage) und genügsam; passt sogar nach früher Getreideernte. Stirbt beim ersten Frost."
+
+[white_cabbage]
+label = "Weißkohl"
+note = "Filderkraut von der Filderebene bei Stuttgart; gepflanzt. Kohlhernie: Abstand zu Raps und Senf halten."
+
+[onion]
+label = "Zwiebel"
+note = "Feldgemüse der Oberrheinebene; meist beregnet."
+
+[white_mustard]
+label = "Gelbsenf"
+note = "Schnelle Zwischenfrucht nach Getreide, friert ab. Ein Kreuzblütler: nicht in Raps- oder Kohlfruchtfolgen (Kohlhernie)."
+
+[phacelia]
+label = "Phacelia"
+note = "Zwischenfrucht ohne verwandte Feldfrucht, passt daher in jede Fruchtfolge; blüht für Bienen und friert ab."
