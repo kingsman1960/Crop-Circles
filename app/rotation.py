@@ -92,10 +92,10 @@ def fit(crop: str, history: dict[int, dict[str, float]], year: int, lang: str = 
     """How well `crop` suits a plot in `year`, given its history. Returns {"level", "why": [sentences]}."""
     tx, c = TEXT[lang], CROPS[crop]
     if not any(history.values()):
-        return {"level": "unknown", "why": [tx["no_data"]]}
+        return {"level": "unknown", "why": [tx["no_data"]], "health": "unknown"}
     share = lambda y, k: history.get(y, {}).get(k, 0.0)
     pct = lambda v: f"{v:.0%}"
-    found = []  # (level, sentence)
+    found = []  # (level, sentence, rule)
     last = year - 1
 
     for y in range(year - c["gap"], year):  # 1. the crop's own break
@@ -103,28 +103,31 @@ def fit(crop: str, history: dict[int, dict[str, float]], year: int, lang: str = 
             why = c["repeat_why"][lang]
             found.append((c["repeat"], tx["repeat"].format(crop=label(crop, lang), share=pct(share(y, crop)), why=why)
                           if c["gap"] == 1 else
-                          tx["gap"].format(crop=label(crop, lang), year=y, share=pct(share(y, crop)), gap=c["gap"], why=why)))
+                          tx["gap"].format(crop=label(crop, lang), year=y, share=pct(share(y, crop)), gap=c["gap"], why=why),
+                          "gap"))
             break
     if share(last, "beet") >= PRESENT:  # 2. the planthopper nursery
         if crop == "wheat":
-            found.append(("bad", tx["planthopper"].format(share=pct(share(last, "beet")), year=last)))
+            found.append(("bad", tx["planthopper"].format(share=pct(share(last, "beet")), year=last), "planthopper"))
         elif crop == "barley":
-            found.append(("warn", tx["planthopper_barley"].format(share=pct(share(last, "beet")), year=last)))
+            found.append(("warn", tx["planthopper_barley"].format(share=pct(share(last, "beet")), year=last), "planthopper"))
     if crop == "wheat" and share(last, "maize") >= PRESENT:  # 3. Fusarium
-        found.append(("warn", tx["fusarium"].format(share=pct(share(last, "maize")), year=last)))
+        found.append(("warn", tx["fusarium"].format(share=pct(share(last, "maize")), year=last), "fusarium"))
     cereal = lambda y: sum(share(y, k) for k in ("wheat", "barley", "maize")) >= MOSTLY
     if crop in ("wheat", "barley") and cereal(last) and cereal(last - 1):  # 4. cereal after cereal after cereal
-        found.append(("warn", tx["cereals"]))
+        found.append(("warn", tx["cereals"], "cereals"))
 
-    if not any(lvl in ("bad", "warn") for lvl, _ in found):  # 5. what speaks for it
+    if not any(lvl in ("bad", "warn") for lvl, _, _ in found):  # 5. what speaks for it
         leaf_last = max((k for k in CROPS if CROPS[k]["leaf"]), key=lambda k: share(last, k))
         if not c["leaf"] and share(last, leaf_last) >= MOSTLY:
-            found.append(("good", tx["after_leaf"].format(prev=label(leaf_last, lang))))
+            found.append(("good", tx["after_leaf"].format(prev=label(leaf_last, lang)), "good"))
             if leaf_last == "pea":
-                found.append(("good", tx["after_pea"]))
+                found.append(("good", tx["after_pea"], "good"))
         elif c["leaf"] and cereal(last):
-            found.append(("good", tx["after_cereal"]))
+            found.append(("good", tx["after_cereal"], "good"))
     if not found:
-        return {"level": "ok", "why": [tx["nothing"]]}
-    level = max((lvl for lvl, _ in found), key=LEVELS.index)
-    return {"level": level, "why": [s for lvl, s in sorted(found, key=lambda x: -LEVELS.index(x[0]))]}
+        return {"level": "ok", "why": [tx["nothing"]], "health": "ok"}
+    worst = lambda items: max((lvl for lvl, _, _ in items), key=LEVELS.index) if items else "ok"
+    # "health": the same verdict without the planthopper rule, which the metrics score in its own row
+    return {"level": worst(found), "why": [s for lvl, s, _ in sorted(found, key=lambda x: -LEVELS.index(x[0]))],
+            "health": worst([f for f in found if f[2] != "planthopper"])}
