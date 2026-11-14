@@ -2,11 +2,7 @@
  "seasons": [
   {
    "season": 2018,
-   "beet_prev_ha": 9623,
-   "nursery_ha": 6140,
-   "beet_ha": 9651,
-   "beet_to_wheat": 0.638,
-   "nursery_in_parcels": 0.923,
+   "source": "thuenen",
    "map": "v202",
    "dlr": {
     "beet_prev_ha": 8554,
@@ -18,17 +14,18 @@
     "targeted20_r2000": 0.314,
     "confirmed": 0.935
    },
+   "beet_prev_ha": 9623,
+   "nursery_ha": 6140,
+   "beet_ha": 9651,
+   "beet_to_wheat": 0.638,
+   "nursery_in_parcels": 0.923,
    "targeted20_r500": 0.358,
    "targeted20_r1000": 0.322,
    "targeted20_r2000": 0.315
   },
   {
    "season": 2019,
-   "beet_prev_ha": 9651,
-   "nursery_ha": 6432,
-   "beet_ha": 9328,
-   "beet_to_wheat": 0.667,
-   "nursery_in_parcels": 0.931,
+   "source": "thuenen",
    "map": "v202",
    "dlr": {
     "beet_prev_ha": 8940,
@@ -40,17 +37,18 @@
     "targeted20_r2000": 0.326,
     "confirmed": 0.953
    },
+   "beet_prev_ha": 9651,
+   "nursery_ha": 6432,
+   "beet_ha": 9328,
+   "beet_to_wheat": 0.667,
+   "nursery_in_parcels": 0.931,
    "targeted20_r500": 0.368,
    "targeted20_r1000": 0.345,
    "targeted20_r2000": 0.327
   },
   {
    "season": 2020,
-   "beet_prev_ha": 9328,
-   "nursery_ha": 5799,
-   "beet_ha": 7942,
-   "beet_to_wheat": 0.622,
-   "nursery_in_parcels": 0.926,
+   "source": "thuenen",
    "map": "v202",
    "dlr": {
     "beet_prev_ha": 8087,
@@ -62,17 +60,18 @@
     "targeted20_r2000": 0.302,
     "confirmed": 0.945
    },
+   "beet_prev_ha": 9328,
+   "nursery_ha": 5799,
+   "beet_ha": 7942,
+   "beet_to_wheat": 0.622,
+   "nursery_in_parcels": 0.926,
    "targeted20_r500": 0.355,
    "targeted20_r1000": 0.317,
    "targeted20_r2000": 0.307
   },
   {
    "season": 2021,
-   "beet_prev_ha": 7942,
-   "nursery_ha": 5473,
-   "beet_ha": 7687,
-   "beet_to_wheat": 0.689,
-   "nursery_in_parcels": 0.938,
+   "source": "thuenen",
    "map": "v202",
    "dlr": {
     "beet_prev_ha": 7192,
@@ -84,17 +83,18 @@
     "targeted20_r2000": 0.296,
     "confirmed": 0.931
    },
+   "beet_prev_ha": 7942,
+   "nursery_ha": 5473,
+   "beet_ha": 7687,
+   "beet_to_wheat": 0.689,
+   "nursery_in_parcels": 0.938,
    "targeted20_r500": 0.369,
    "targeted20_r1000": 0.323,
    "targeted20_r2000": 0.298
   },
   {
    "season": 2022,
-   "beet_prev_ha": 7687,
-   "nursery_ha": 4878,
-   "beet_ha": 7837,
-   "beet_to_wheat": 0.635,
-   "nursery_in_parcels": 0.933,
+   "source": "thuenen",
    "map": "v202",
    "dlr": {
     "beet_prev_ha": 7540,
@@ -106,17 +106,18 @@
     "targeted20_r2000": 0.327,
     "confirmed": 0.947
    },
+   "beet_prev_ha": 7687,
+   "nursery_ha": 4878,
+   "beet_ha": 7837,
+   "beet_to_wheat": 0.635,
+   "nursery_in_parcels": 0.933,
    "targeted20_r500": 0.382,
    "targeted20_r1000": 0.351,
    "targeted20_r2000": 0.322
   },
   {
    "season": 2023,
-   "beet_prev_ha": 7837,
-   "nursery_ha": 4533,
-   "beet_ha": 4024,
-   "beet_to_wheat": 0.578,
-   "nursery_in_parcels": 0.936,
+   "source": "fiona",
    "map": "v202",
    "dlr": {
     "beet_prev_ha": 7032,
@@ -126,29 +127,30 @@
     "targeted20_r500": 0.369,
     "targeted20_r1000": 0.324,
     "targeted20_r2000": 0.308,
-    "confirmed": 0.93
+    "confirmed": 0.961
    },
-   "fiona": {
-    "beet_prev_ha": 6934,
-    "nursery_ha": 4903,
-    "beet_ha": 6628,
-    "beet_to_wheat": 0.707,
-    "targeted20_r500": 0.374,
-    "targeted20_r1000": 0.332,
-    "targeted20_r2000": 0.314,
-    "confirmed": 0.905
+   "beet_prev_ha": 6934,
+   "nursery_ha": 4903,
+   "beet_ha": 6628,
+   "beet_to_wheat": 0.707,
+   "thuenen": {
+    "beet_prev_ha": 7837,
+    "nursery_ha": 4533,
+    "beet_ha": 4024,
+    "beet_to_wheat": 0.578,
+    "targeted20_r500": 0.434,
+    "targeted20_r1000": 0.372,
+    "targeted20_r2000": 0.33,
+    "confirmed": 0.927
    },
-   "targeted20_r500": 0.434,
-   "targeted20_r1000": 0.372,
-   "targeted20_r2000": 0.33
+   "nursery_in_parcels": 1.0,
+   "targeted20_r500": 0.374,
+   "targeted20_r1000": 0.332,
+   "targeted20_r2000": 0.314
   },
   {
    "season": 2024,
-   "beet_prev_ha": 4024,
-   "nursery_ha": 2378,
-   "beet_ha": 7311,
-   "beet_to_wheat": 0.591,
-   "nursery_in_parcels": 0.939,
+   "source": "fiona",
    "map": "v202",
    "dlr": {
     "beet_prev_ha": 6120,
@@ -158,29 +160,30 @@
     "targeted20_r500": 0.373,
     "targeted20_r1000": 0.323,
     "targeted20_r2000": 0.297,
-    "confirmed": 0.948
+    "confirmed": 0.904
    },
-   "fiona": {
-    "beet_prev_ha": 6628,
-    "nursery_ha": 3889,
-    "beet_ha": 6844,
-    "beet_to_wheat": 0.587,
-    "targeted20_r500": 0.365,
-    "targeted20_r1000": 0.325,
-    "targeted20_r2000": 0.303,
-    "confirmed": 0.933
+   "beet_prev_ha": 6628,
+   "nursery_ha": 3889,
+   "beet_ha": 6844,
+   "beet_to_wheat": 0.587,
+   "thuenen": {
+    "beet_prev_ha": 4024,
+    "nursery_ha": 2378,
+    "beet_ha": 7311,
+    "beet_to_wheat": 0.591,
+    "targeted20_r500": 0.361,
+    "targeted20_r1000": 0.322,
+    "targeted20_r2000": 0.307,
+    "confirmed": 0.717
    },
-   "targeted20_r500": 0.361,
-   "targeted20_r1000": 0.322,
-   "targeted20_r2000": 0.307
+   "nursery_in_parcels": 0.998,
+   "targeted20_r500": 0.365,
+   "targeted20_r1000": 0.325,
+   "targeted20_r2000": 0.303
   },
   {
    "season": 2025,
-   "beet_prev_ha": 7311,
-   "nursery_ha": 4231,
-   "beet_ha": 6972,
-   "beet_to_wheat": 0.579,
-   "nursery_in_parcels": 0.931,
+   "source": "fiona",
    "map": "v302 preliminary",
    "dlr": {
     "beet_prev_ha": 5590,
@@ -190,21 +193,26 @@
     "targeted20_r500": 0.364,
     "targeted20_r1000": 0.324,
     "targeted20_r2000": 0.308,
-    "confirmed": 0.843
+    "confirmed": 0.826
    },
-   "fiona": {
-    "beet_prev_ha": 6844,
-    "nursery_ha": 4257,
-    "beet_ha": 6174,
-    "beet_to_wheat": 0.622,
-    "targeted20_r500": 0.366,
-    "targeted20_r1000": 0.324,
-    "targeted20_r2000": 0.308,
-    "confirmed": 0.944
+   "beet_prev_ha": 6844,
+   "nursery_ha": 4257,
+   "beet_ha": 6174,
+   "beet_to_wheat": 0.622,
+   "thuenen": {
+    "beet_prev_ha": 7311,
+    "nursery_ha": 4231,
+    "beet_ha": 6972,
+    "beet_to_wheat": 0.579,
+    "targeted20_r500": 0.358,
+    "targeted20_r1000": 0.317,
+    "targeted20_r2000": 0.301,
+    "confirmed": 0.957
    },
-   "targeted20_r500": 0.358,
-   "targeted20_r1000": 0.317,
-   "targeted20_r2000": 0.301
+   "nursery_in_parcels": 0.998,
+   "targeted20_r500": 0.366,
+   "targeted20_r1000": 0.324,
+   "targeted20_r2000": 0.308
   }
  ],
  "legends": {

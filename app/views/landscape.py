@@ -47,6 +47,7 @@ nur, beet = plans[mode]
 removed = lambda n: n.impact[n.switch].sum() / n.impact.sum()
 sw = nur[nur.switch].copy()
 s = stats[season]
+src = t("region.src." + s.get("source", "thuenen"))  # where the wheat-after-beet fields come from
 q33, q67 = beet.pressure.quantile([1 / 3, 2 / 3])
 lvl = lambda v: "high" if v >= q67 else "medium" if v >= q33 else "low"
 
@@ -89,7 +90,7 @@ def parcel_card(pid):
         lines.append(f"<b>{t('region.tip.switch', crop=crops[n_.alt]['label']) if n_.switch else t('region.tip.wheat')}</b>"
                      + (f" ({why(n_)})" if n_.switch else ""))
         lines.append(t("region.parcel.rank", k=num(in_nur.index[0] + 1), n=num(len(nur)), share=pct(n_.impact / nur.impact.sum()))
-                     + f"<br/>{t('region.tip.both') if n_.nursery_ha_dlr > 0 else t('region.tip.one')}")
+                     + f"<br/>{t('region.tip.both', src=src) if n_.nursery_ha_dlr > 0 else t('region.tip.one', src=src)}")
     if not in_beet.empty:
         b_ = in_beet.iloc[0]
         lines.append(f"<b>{t('region.tip.beet', season=season, ha=num(b_.beet_ha, 1), level=level_word(b_.pressure)).split(chr(10))[0]}</b>")
@@ -139,7 +140,7 @@ beet = beet.assign(color=[[int(x) for x in c] for c in (pale + (full - pale) * v
                         + (tip_after.format(level=level_word(a_)) if lvl(a_) != lvl(p_) else "")
                         for h, a_, p_ in zip(ha1(beet.beet_ha), beet.after, beet.pressure)])
 tip_switch = {a_: t("region.tip.switch", crop=crops[a_]["label"]) for a_ in nur.alt.unique()}
-tip_wheat, tip_both, tip_one = t("region.tip.wheat"), t("region.tip.both"), t("region.tip.one")
+tip_wheat, tip_both, tip_one = t("region.tip.wheat"), t("region.tip.both", src=src), t("region.tip.one", src=src)
 nur = nur.assign(color=[rgb(POS, 245) if x else rgb(GREY, 150) for x in nur.switch], radius=radius(nur),
                  tip=[f"{tip_switch[a_] if x else tip_wheat} · {h} ha\n{hs}\n{tip_both if d_ > 0 else tip_one}"
                       for a_, x, h, hs, d_ in zip(nur.alt, nur.switch, ha1(nur.nursery_ha), history(nur), nur.nursery_ha_dlr)])
@@ -163,7 +164,7 @@ with map_row:
                              height=520, on_select="rerun", selection_mode="single-object", key=f"ls_map_{scope}")
         legend([(GREY, t("region.map.wheat"), True), (POS, t("region.map.switch"), True),
                 (PALE, t("region.map.beet_low"), True), (HUE, t("region.map.beet_high"), True)])
-        source_line(t("region.map.unit"), t("region.map.source"), t("region.map.period", season=season))
+        source_line(t("region.map.unit"), t("region.map.source", src=src), t("region.map.period", season=season))
     with right:
         picked = next((o["id"] for objs in ev.selection.objects.values() for o in objs), None)
         if picked is None:
@@ -193,7 +194,7 @@ table = pd.DataFrame({
     col("id"): sw.id, col("ha"): sw.nursery_ha.round(1), col("crop"): sw.alt.map(lambda a_: crops[a_]["label"]),
     col("why"): [why(row) for row in sw.itertuples()],
     col("history", start=season - 3, end=season): history(sw).to_numpy(),
-    col("maps"): np.where(sw.nursery_ha_dlr > 0, t("region.list.both"), t("region.list.one")),
+    col("maps"): np.where(sw.nursery_ha_dlr > 0, t("region.list.both"), t("region.list.one", src=src)),
     col("share"): sw.impact / nur.impact.sum(), "lat": sw.lat.round(5), "lon": sw.lon.round(5)})
 with list_row:
     st.space("small")
@@ -224,7 +225,7 @@ with expert:
         o = [pct(s[f"targeted20_r{x}"]) for x in (500, 1000, 2000)]
         st.caption(t("region.expert.robust", a=o[0], b=o[1], c=o[2]))
         d = s["dlr"]
-        st.caption(t("region.expert.dlr", season=season, ha=num(d["nursery_ha"]), thuenen=num(s["nursery_ha"]),
+        st.caption(t("region.expert.dlr", src=src, season=season, ha=num(d["nursery_ha"]), thuenen=num(s["nursery_ha"]),
                      conf=pct(d["confirmed"]), a=pct(d["targeted20_r500"]), b=pct(d["targeted20_r1000"]),
                      c=pct(d["targeted20_r2000"])))
     with b:

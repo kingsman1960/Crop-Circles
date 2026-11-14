@@ -3,11 +3,13 @@
 Outputs:
   landscape_parcels.parquet  parcels that grew sugar beet or were a planthopper nursery in any season:
                              position, area, erosion (K·S) and plant-available water, crop code per year 2017–2025
-  landscape_seasons.parquet  per season y (2018–2025): nursery ha (beet in y-1 -> winter wheat in y) and beet ha,
-                             from the Thünen map and, as a check, from the DLR map (`_dlr`) and, where FIONA has both
-                             years, from the farmers' declarations (`_fiona`, NaN in other seasons)
+  landscape_seasons.parquet  per season y (2018–2025): nursery ha (beet in y-1 -> winter wheat in y) and beet ha.
+                             Seasons 2023–2025 (`source` = "fiona"): from the farmers' declarations, with the Thünen
+                             map as `_thuenen`; earlier seasons (`source` = "thuenen"): from the Thünen map
+                             (`_thuenen` = NaN). The DLR map (`_dlr`) is the check in every season.
   landscape_summary.json     regional numbers per season, incl. targeted vs. random switching (see pressure.py),
-                             the same from the DLR map and FIONA, and how much of the Thünen nursery area each confirms
+                             the same from the DLR map (and Thünen where FIONA is the source), and how much of the
+                             nursery area each confirms
 Parcels are the FIONA 2022 outlines (the only parcel map for the whole window); crops per year come from the Thünen
 10 m maps (c<year>); the DLR CropTypes 10 m maps (d<year>) are a second, independently made opinion; the FIONA
 declarations of each year (f<year>, NC code), burnt onto the Thünen grid, are the ground truth both maps are trained on.
@@ -36,7 +38,7 @@ dlr_path = lambda y, tag: RAW / "dlr_croptypes" / f"CROPTYPES_DE_P1Y_{y}_V021_{t
 # FIONA NC codes: sugar beet; winter wheat incl. durum, spelt, emmer/einkorn, triticale (the scope of DLR 11 + 14)
 FIONA_BEET, FIONA_WHEAT = 603, (112, 114, 115, 118, 156)
 fiona_pages = lambda y, tag: sorted((RAW / "fiona").glob(f"fiona_{tag}{'' if y == 2022 else f'_{y}'}_p*.json"))
-AREA = ["nursery_ha", "beet_ha", "nursery_ha_dlr", "beet_ha_dlr", "nursery_ha_fiona", "beet_ha_fiona"]
+AREA = ["nursery_ha", "beet_ha", "nursery_ha_dlr", "beet_ha_dlr", "nursery_ha_thuenen", "beet_ha_thuenen"]
 MIN_HA = 0.1  # less than 10 pixels in a parcel = edge noise between map and parcel outline
 NFK_MID = {1: 35, 2: 70, 3: 115, 4: 170, 5: 220}  # mm, middle of the BK50 nFK classes
 
@@ -161,26 +163,26 @@ def main(tag="bbox"):
                               "beet_ha": per_parcel(ids, a == BEET, 0.01),
                               "nursery_ha_dlr": per_parcel(ids_d, nursery_d, px_d),
                               "beet_ha_dlr": per_parcel(ids_d, d == DLR_BEET, px_d)})
-            if both_f := f is not None and prev_f is not None:
+            regional = lambda prev_, cur_, beet_, nursery_: {
+                "beet_prev_ha": round(ha(prev_ == beet_)), "nursery_ha": round(ha(nursery_)), "beet_ha": round(ha(cur_ == beet_)),
+                "beet_to_wheat": round(ha(nursery_) / max(ha(prev_ == beet_), 0.01), 3)}
+            sm = {"season": y, "source": "thuenen", "map": "v302 preliminary" if y == 2025 else "v202",
+                  "dlr": {"beet_prev_ha": round(ha_d(prev_d == DLR_BEET)), "nursery_ha": round(ha_d(nursery_d)),
+                          "beet_ha": round(ha_d(d == DLR_BEET)),
+                          "beet_to_wheat": round(ha_d(nursery_d) / max(ha_d(prev_d == DLR_BEET), 0.01), 3)}}
+            if f is not None and prev_f is not None:  # the farmers' declarations are the source, Thünen the check
                 nursery_f = (prev_f == FIONA_BEET) & np.isin(f, FIONA_WHEAT)
-                s["nursery_ha_fiona"] = per_parcel(ids, nursery_f, 0.01)
-                s["beet_ha_fiona"] = per_parcel(ids, f == FIONA_BEET, 0.01)
+                s["nursery_ha_thuenen"], s["beet_ha_thuenen"] = s.nursery_ha, s.beet_ha
+                s["nursery_ha"], s["beet_ha"] = per_parcel(ids, nursery_f, 0.01), per_parcel(ids, f == FIONA_BEET, 0.01)
+                sm |= regional(prev_f, f, FIONA_BEET, nursery_f) | {"source": "fiona", "thuenen": regional(prev, a, BEET, nursery)}
+                nursery = nursery_f
+            else:
+                sm |= regional(prev, a, BEET, nursery)
             area = [c for c in AREA if c in s]
             s[area] = s[area].where(s[area] >= MIN_HA, 0)
             seasons.append(s[(s[area] > 0).any(axis=1)])
-            summary.append({"season": y, "beet_prev_ha": round(ha(prev == BEET)),
-                            "nursery_ha": round(ha(nursery)), "beet_ha": round(ha(a == BEET)),
-                            "beet_to_wheat": round(ha(nursery) / max(ha(prev == BEET), 0.01), 3),
-                            "nursery_in_parcels": round(float(s.nursery_ha.sum() / ha(nursery)), 3),
-                            "map": "v302 preliminary" if y == 2025 else "v202",
-                            "dlr": {"beet_prev_ha": round(ha_d(prev_d == DLR_BEET)),
-                                    "nursery_ha": round(ha_d(nursery_d)),
-                                    "beet_ha": round(ha_d(d == DLR_BEET)),
-                                    "beet_to_wheat": round(ha_d(nursery_d) / max(ha_d(prev_d == DLR_BEET), 0.01), 3)}})
-            if both_f:
-                summary[-1]["fiona"] = {"beet_prev_ha": round(ha(prev_f == FIONA_BEET)), "nursery_ha": round(ha(nursery_f)),
-                                        "beet_ha": round(ha(f == FIONA_BEET)),
-                                        "beet_to_wheat": round(ha(nursery_f) / max(ha(prev_f == FIONA_BEET), 0.01), 3)}
+            sm["nursery_in_parcels"] = round(float(s.nursery_ha.sum() / ha(nursery)), 3)
+            summary.append(sm)
         prev, prev_d, prev_f = a, d, f
 
     seasons = pd.concat(seasons, ignore_index=True)
@@ -202,16 +204,16 @@ def main(tag="bbox"):
         s |= targeted(cur, xy, "nursery_ha", "beet_ha")
         s["dlr"] |= targeted(cur, xy, "nursery_ha_dlr", "beet_ha_dlr")
         s["dlr"]["confirmed"] = round(float(cur.nursery_ha[cur.nursery_ha_dlr > 0].sum() / cur.nursery_ha.sum()), 3)
-        fio = ""
-        if "fiona" in s:
-            s["fiona"] |= targeted(cur, xy, "nursery_ha_fiona", "beet_ha_fiona")
-            s["fiona"]["confirmed"] = round(float(cur.nursery_ha[cur.nursery_ha_fiona > 0].sum() / cur.nursery_ha.sum()), 3)
-            fio = (f" | FIONA: nursery {s['fiona']['nursery_ha']} ha, beet->wheat {s['fiona']['beet_to_wheat']:.0%}, "
-                   f"{s['fiona']['confirmed']:.0%} of the Thünen nursery area confirmed")
-        print(f"  season {s['season']}: beet->wheat {s['beet_to_wheat']:.0%}, nursery {s['nursery_ha']} ha, "
+        thu = ""
+        if "thuenen" in s:
+            s["thuenen"] |= targeted(cur, xy, "nursery_ha_thuenen", "beet_ha_thuenen")
+            s["thuenen"]["confirmed"] = round(float(cur.nursery_ha[cur.nursery_ha_thuenen > 0].sum() / cur.nursery_ha.sum()), 3)
+            thu = (f" | Thünen: nursery {s['thuenen']['nursery_ha']} ha, removes {s['thuenen']['targeted20_r1000']:.0%} at 1 km; "
+                   f"{s['thuenen']['confirmed']:.0%} of the declared nursery area confirmed")
+        print(f"  season {s['season']} ({s['source']}): beet->wheat {s['beet_to_wheat']:.0%}, nursery {s['nursery_ha']} ha, "
               f"20 % targeted removes {s['targeted20_r500']:.0%} / {s['targeted20_r1000']:.0%} / {s['targeted20_r2000']:.0%} "
               f"(r = 0.5 / 1 / 2 km; random ~20 %) | DLR: nursery {s['dlr']['nursery_ha']} ha, removes "
-              f"{s['dlr']['targeted20_r1000']:.0%} at 1 km; {s['dlr']['confirmed']:.0%} of the Thünen nursery area confirmed{fio}")
+              f"{s['dlr']['targeted20_r1000']:.0%} at 1 km; {s['dlr']['confirmed']:.0%} of the nursery area confirmed{thu}")
     out(f"landscape_summary{sfx}.json").write_text(json.dumps(
         {"seasons": summary, "legends": legends()}, indent=1, ensure_ascii=False), encoding="utf-8")
 
