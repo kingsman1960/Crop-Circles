@@ -1,0 +1,113 @@
+{
+ "n_obs": 1242,
+ "n_parcels": 34,
+ "r2": 0.941,
+ "r2_adj": 0.941,
+ "coef": {
+  "Intercept": {
+   "coef": 0.5119,
+   "se": 0.2242,
+   "p": 0.0224
+  },
+  "log_source": {
+   "coef": 0.0516,
+   "se": 0.0172,
+   "p": 0.0027
+  },
+  "log_control": {
+   "coef": -0.0127,
+   "se": 0.0078,
+   "p": 0.1045
+  },
+  "ndvi_june": {
+   "coef": -0.6206,
+   "se": 0.0743,
+   "p": 0.0
+  },
+  "nfk_mm": {
+   "coef": -0.0008,
+   "se": 0.0007,
+   "p": 0.302
+  },
+  "ks": {
+   "coef": -0.1272,
+   "se": 0.0491,
+   "p": 0.0095
+  }
+ },
+ "season_fe": {
+  "C(season)[T.2021]": {
+   "coef": 0.1176,
+   "se": 0.0235,
+   "p": 0.0
+  },
+  "C(season)[T.2022]": {
+   "coef": -0.2482,
+   "se": 0.0444,
+   "p": 0.0
+  },
+  "C(season)[T.2023]": {
+   "coef": -0.1159,
+   "se": 0.0242,
+   "p": 0.0
+  },
+  "C(season)[T.2024]": {
+   "coef": -0.2884,
+   "se": 0.0381,
+   "p": 0.0
+  },
+  "C(season)[T.2025]": {
+   "coef": -0.0346,
+   "se": 0.0326,
+   "p": 0.2881
+  }
+ },
+ "edge_test": {
+  "source_adjacent_n": 28,
+  "control_adjacent_n": 127,
+  "mean_source_adjacent": -0.0929,
+  "mean_control_adjacent": -0.0061,
+  "mean_source_minus_control": -0.0868,
+  "welch_t": -4.216,
+  "p": 0.0002
+ },
+ "geometry_source": "raw FIONA 2022 outlines (114345 parcels, whole bbox)",
+ "wind": "raw ERA5-Land hourly zips are not in data/raw/",
+ "wheat_pools": {
+  "2023": {
+   "declared": true,
+   "n_source": 2135,
+   "n_control": 9245
+  },
+  "2024": {
+   "declared": true,
+   "n_source": 1714,
+   "n_control": 8191
+  },
+  "2025": {
+   "declared": true,
+   "n_source": 1725,
+   "n_control": 9373
+  }
+ },
+ "coef_declared_years": {
+  "log_source": {
+   "coef": 0.0024,
+   "se": 0.0099,
+   "p": 0.8059
+  },
+  "log_control": {
+   "coef": 0.0047,
+   "se": 0.0086,
+   "p": 0.5814
+  }
+ },
+ "notes": [
+  "SEs clustered by parcel; season fixed effects absorb the season mean.",
+  "slope_pct only with the raw NASADEM; the K*S erosion factor is always included.",
+  "is_downwind needs u10/v10 in the ERA5-Land hourly download.",
+  "canopy windows need >= 2 clear pictures (June ((6, 1), (6, 25)), late summer ((8, 15), (9, 15))).",
+  "distances use the declared FIONA crops where the season and the one before are both declared (2023-2025, targets must be declared beet); in 2020-2022 the nearest wheat is known inside the demo blocks only, so those distances run against the cap.",
+  "coef_declared_years repeats the fit on the declared seasons only."
+ ]
+}
