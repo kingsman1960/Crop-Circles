@@ -144,8 +144,8 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 - `data/raw/fiona/fiona_bbox_p00.json` … `p05.json` – GeoJSON FeatureCollections, **coordinates in EPSG:25832** (set the CRS explicitly when reading); 114,345 parcels.
 - Properties: `NC` (crop code), `Bezeichnung` (crop name, German), `Kulturartengruppe`, `OeVF-code`, `FAKT-Code`, `FAKT-Massnahme`, `Antragsjahr` (2022), `geo_id`, `object_id`.
 - Top crops in the bbox: vineyards, meadows, winter wheat, spring barley, grain maize, sugar beet, winter barley.
-- 2023–2025 (added 2026-11-14): `fiona_bbox_<year>_p*.json` from the `_ab2023` WFS (404 on 2026-11-05, answers again), `python fetch_fiona.py <year>`; 126,997 / 126,104 / 122,773 parcels. Same properties, but `OER-Code` instead of `OeVF-code`; `object_id` is not stable across years. Not yet used by the pipeline.
-- Team export: `data/export/fiona_kraichgau_2022-2025.zip` (one GeoJSON per year + README with the licence line, 115 MB, not in git).
+- 2023–2025 (added 2026-11-14): `fiona_bbox_<year>_p*.json` from the `_ab2023` WFS (404 on 2026-11-05, answers again), `python fetch_fiona.py <year>`; 126,997 / 126,104 / 122,773 parcels. Same properties, but `OER-Code` instead of `OeVF-code`; `object_id` is not stable across years. `pipeline/landscape.py` burns each year onto the Thünen grid: `f<year>` (NC code) per parcel and nursery/beet ha `_fiona` for seasons 2023–2025 (sugar beet NC 603; winter wheat NC 112, 114, 115, 118, 156).
+- Team export: `data/export/fiona_kraichgau_2022-2025.zip` (the raw pages at their `data/raw/fiona/` paths + README with the licence line, 115 MB, not in git). Unzip into `crop-circles-data-prep/crop-circles-data-prep/`.
 - Licence: dl-de/by-2-0 – "Datengrundlage: MLR (2026), Datenlizenz Deutschland – Namensnennung – Version 2.0, https://mlr.baden-wuerttemberg.de".
 
 ## 13 · bk50
