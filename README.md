@@ -41,7 +41,7 @@ The picker and the smoke test find the new file on their own.
 | folder | what |
 |---|---|
 | `crop-circles-data-prep/crop-circles-data-prep/` | raw data, fetch scripts, docs; `data/processed/` = app-ready files (committed, ~7 MB) |
-| `pipeline/` | `geo.py` soil, slope, crop maps, map layers · `phenology.py` crop calendar · `climate.py` weather, indicators, scenarios, soil moisture, NDVI · `strategies.py` rotation model and scores · `landscape.py` crop sequence of every parcel, nurseries · `pressure.py` the pressure maths (shared with the app) · `hls.py` HLS 30 m: what grows on each parcel this season, checked against the Thünen maps, and bare-soil months |
+| `pipeline/` | `geo.py` soil, slope, crop maps, map layers · `phenology.py` crop calendar · `climate.py` weather, indicators, scenarios, soil moisture, NDVI · `strategies.py` rotation model and scores · `landscape.py` crop sequence of every parcel, nurseries · `pressure.py` the pressure maths (shared with the app) · `hls.py` HLS 30 m: what grows on each parcel this season and bare-soil months · `croptype.py` the probability model behind it (tested year by year against FIONA and Thünen) |
 | `content/` | strategy cards and rule scores, crop calendars and model parameters, indicator texts, risk-card texts (`plain.toml`), glossary, sources (TOML – edit without touching code) |
 | `app/` | Streamlit app for farmers first (PRD §3): `app.py` (theme, navigation), `i18n.py` (language, numbers, dates), `locales/` UI text per language, `data.py` (loaders, planner, ranking), `plain.py` (numbers into words), `views/` landing page, My field, What to grow, Our region, How we know; `assets/screens/` landing-page screenshots |
 | `submission/` | SI-use log, demo material |

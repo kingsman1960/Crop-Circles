@@ -2,8 +2,11 @@
 (--bw: all of Baden-Württemberg, ~1.3 million parcels).
 
 Requested in EPSG:25832 (the GeoJSON output in EPSG:4326 is rounded to 4 decimals, ~10 m). Paged, sorted by object_id.
+A year argument (`fetch_fiona.py 2024`) reads Antragsjahr 2023 on from the `_ab2023` WFS (404 on 2026-11-05, answers
+again on 2026-11-14) into `fiona_<tag>_<year>_p*.json`; 2022 keeps its file names.
 """
 import json
+import sys
 from collections import Counter
 
 from pyproj import Transformer
@@ -11,8 +14,10 @@ from pyproj import Transformer
 from common import MANIFEST, RAW, ROOT, area, http, load_config, log, now_utc
 from fetch_fields import inside
 
-WFS = "https://owsproxy.lgl-bw.de/owsproxy/wfs/WFS_LW-BW_FIONA_Flaecheninformation"
-LAYER = "lw:v_fiona_flaecheninformation"
+YEAR = next((int(a) for a in sys.argv[1:] if a.isdigit()), 2022)
+WFS = "https://owsproxy.lgl-bw.de/owsproxy/wfs/WFS_LW-BW_FIONA_Flaecheninformation" + ("" if YEAR == 2022 else "_ab2023")
+LAYER = "lw:v_fiona_flaecheninformation" + ("" if YEAR == 2022 else f"_{YEAR}")
+NAME = "" if YEAR == 2022 else f"_{YEAR}"  # in the file names
 PAGE = 20000
 OUT = RAW / "fiona"
 TO_UTM = Transformer.from_crs("EPSG:4326", "EPSG:25832", always_xy=True)
@@ -33,7 +38,7 @@ def main():
             "SRSNAME": "EPSG:25832", "BBOX": f"{x0:.0f},{y0:.0f},{x1:.0f},{y1:.0f},EPSG:25832"}
     hits = http("GET", WFS, params={**base, "RESULTTYPE": "hits"}).text
     matched = int(hits.split('numberMatched="')[1].split('"')[0])
-    print(f"FIONA parcels in {tag}: {matched}")
+    print(f"FIONA {YEAR} parcels in {tag}: {matched}")
     OUT.mkdir(parents=True, exist_ok=True)
     # parcels whose first vertex lies inside each demo field (OSM polygon); pages are checked and dropped (BW: ~1 GB)
     demo = {}
@@ -44,7 +49,7 @@ def main():
     ids, years, crops = set(), Counter(), Counter()
     logged = MANIFEST.read_text(encoding="utf-8")  # a re-run keeps the pages already logged (same sort order)
     for i, start in enumerate(range(0, matched, PAGE)):
-        path = OUT / f"fiona_{tag}_p{i:02d}.json"
+        path = OUT / f"fiona_{tag}{NAME}_p{i:02d}.json"
         if path.relative_to(ROOT).as_posix() + "," in logged:
             page = json.loads(path.read_bytes())["features"]
             print(f"  {path.name}: {len(page)} features (kept)")
@@ -55,8 +60,8 @@ def main():
             path.write_bytes(r.content)
             page = r.json()["features"]
             print(f"  {path.name}: {len(page)} features")
-            log(path, "fiona", source="LGL BW WFS FIONA Flaecheninformation (MLR)", product_version="Antragsjahr 2022",
-                query_or_url=r.url, spatial=f"{tag} EPSG:25832 {base['BBOX']}", temporal="2022", downloaded_at_utc=when,
+            log(path, "fiona", source="LGL BW WFS FIONA Flaecheninformation (MLR)", product_version=f"Antragsjahr {YEAR}",
+                query_or_url=r.url, spatial=f"{tag} EPSG:25832 {base['BBOX']}", temporal=str(YEAR), downloaded_at_utc=when,
                 license="dl-de/by-2-0",
                 attribution="Datengrundlage: MLR (2026), Datenlizenz Deutschland - Namensnennung - Version 2.0, "
                             "https://mlr.baden-wuerttemberg.de")

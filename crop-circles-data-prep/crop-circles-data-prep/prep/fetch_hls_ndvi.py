@@ -1,6 +1,8 @@
 """Dataset 10 - hls_ndvi: HLS v2.0 red/NIR + Fmask around each field (AppEEARS area request per field, GeoTIFF, native UTM).
 
 L30: B04 red, B05 NIR; S30: B04 red, B8A NIR narrow (HLS v2.0 user guide). Box = field bbox, at least 1 km per side, + 60 m.
+Added 2026-11-14 for GNDVI and NDRE: B03 green (L30, S30) and B05 red edge 1 (S30 only; L30 has no red edge, and its
+B05 is NIR). They come as separate tasks (`appeears_<chunk>_gre/`), so the red/NIR downloads are not repeated.
 One task per field and date chunk: one task for all three fields would cover the whole 25 km extent, and AppEEARS
 refuses a single 2019 -> now task per field (too many output files). Re-running resumes the tasks;
 `--submit-only` submits and exits.
@@ -17,7 +19,8 @@ import rasterio
 from common import (MANIFEST, RAW, appeears_download, appeears_login, appeears_logout, appeears_status, appeears_task, load_config,
                     manifest_row, now_utc, write_manifest)
 
-LAYERS = {"HLSL30.020": ["B04", "B05", "Fmask"], "HLSS30.020": ["B04", "B8A", "Fmask"]}
+BAND_SETS = {"": {"HLSL30.020": ["B04", "B05", "Fmask"], "HLSS30.020": ["B04", "B8A", "Fmask"]},  # suffix -> layers
+             "_gre": {"HLSL30.020": ["B03"], "HLSS30.020": ["B03", "B05"]}}
 START = "2019-01-01"
 CHUNKS = [("2019-01-01", "2021-12-31"), ("2022-01-01", "2023-12-31"), ("2024-01-01", None)]  # None = today
 MIN_SIDE_M, MARGIN_M = 1000, 60
@@ -40,14 +43,14 @@ def main():
     token = appeears_login()
     try:
         tasks = {}
-        for f, (d0, c1) in ((f, c) for f in cfg["fields"] for c in CHUNKS):
+        for f, (d0, c1), (suffix, layers) in ((f, c, s) for f in cfg["fields"] for c in CHUNKS for s in BAND_SETS.items()):
             ring = box(f["polygon"])
             d1 = c1 or date.today().isoformat()
-            label = f"{d0[:4]}-{c1[:4] if c1 else 'now'}"  # stable across days, so re-runs find the task
+            label = f"{d0[:4]}-{c1[:4] if c1 else 'now'}{suffix}"  # stable across days, so re-runs find the task
             mdy = lambda d: f"{d[5:7]}-{d[8:10]}-{d[:4]}"
-            task = {"task_type": "area", "task_name": f"crop-circles-hls-{f['id']}-{d0[:4]}",
+            task = {"task_type": "area", "task_name": f"crop-circles-hls-{f['id']}-{d0[:4]}{suffix}",
                     "params": {"dates": [{"startDate": mdy(d0), "endDate": mdy(d1)}],
-                               "layers": [{"product": p, "layer": l} for p, ls in LAYERS.items() for l in ls],
+                               "layers": [{"product": p, "layer": l} for p, ls in layers.items() for l in ls],
                                "geo": {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {},
                                        "geometry": {"type": "Polygon", "coordinates": [ring]}}]},
                                "output": {"format": {"type": "geotiff"}, "projection": "native"}}}
@@ -75,7 +78,7 @@ def main():
                     task_id, ring = pending.pop(key)
                     files = job.result()
                     write_manifest([manifest_row(
-                        path, "hls_ndvi", source="NASA AppEEARS area subset (LP DAAC)", product_version=", ".join(LAYERS),
+                        path, "hls_ndvi", source="NASA AppEEARS area subset (LP DAAC)", product_version=", ".join(BAND_SETS[""]),
                         query_or_url=f"{url} (task {task_id})", spatial=f"{fid} box {ring[0]} - {ring[2]}",
                         temporal=f"{d0} -> {d1}", downloaded_at_utc=when, license="NASA open data (no restrictions)",
                         attribution="Masek, J., et al. HLS Operational Land Surface Reflectance and TOA Brightness Daily "
@@ -87,8 +90,8 @@ def main():
             tifs = [p for p in files if p.suffix == ".tif"]
             print(f"\n{fid}: {len(files)} files, {len(tifs)} GeoTIFF, {sum(p.stat().st_size for p in files) / 1e6:.1f} MB")
             # AppEEARS names: <product>.<version>_<layer>_doy<YYYYDDD>..._aid0001.tif (cf. the NASADEM output)
-            for prod, layers in LAYERS.items():
-                for layer in layers:
+            for prod in BAND_SETS[""]:
+                for layer in sorted({l for s in BAND_SETS.values() for l in s[prod]}):
                     ds = sorted(p.name.split("_doy")[1][:7] for p in tifs if p.name.startswith(f"{prod.split('.')[0]}.") and f"_{layer}_doy" in p.name)
                     years = Counter(d[:4] for d in ds)
                     print(f"  {prod} {layer}: {len(ds)} scenes, {ds[0] if ds else '-'} -> {ds[-1] if ds else '-'}, per year {dict(sorted(years.items()))}")

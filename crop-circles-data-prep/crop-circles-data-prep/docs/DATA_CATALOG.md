@@ -30,7 +30,7 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 | 9 | smap | SMAP L3 enhanced soil moisture AM/PM | 9 km | 2015-03-31 → 2026-11-03 | point | ✅ |
 | 10 | hls_ndvi | HLS red / NIR / Fmask around each field | 30 m | 2019-01-02 → 2026-11-01 | UTM 32N | ✅ |
 | 11 | reference | literature and rules links | – | – | – | ✅ |
-| 12 | fiona | BW parcels with declared crop | parcel | 2022 (WFS, whole bbox); 2023–2025 around F1–F3 (WMS) | EPSG:25832 | ✅ |
+| 12 | fiona | BW parcels with declared crop | parcel | 2022–2025 (WFS, whole bbox); 2023–2025 also around F1–F3 (WMS) | EPSG:25832 | ✅ |
 | 13 | bk50 | LGRB soil map 1:50 000 (K factor, nFK, …) | polygon | static | EPSG:25832 | ✅ |
 | 14 | thuenen_ctm | crop type maps | 10 m | 2017 → 2025 (2025 preliminary) | EPSG:3035 | ✅ |
 | 15 | esa_cci_sm | ESA CCI soil moisture COMBINED v09.2 | 0.25° | 2020-01-01 → 2024-12-31 | point | ✅ |
@@ -143,7 +143,9 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 
 - `data/raw/fiona/fiona_bbox_p00.json` … `p05.json` – GeoJSON FeatureCollections, **coordinates in EPSG:25832** (set the CRS explicitly when reading); 114,345 parcels.
 - Properties: `NC` (crop code), `Bezeichnung` (crop name, German), `Kulturartengruppe`, `OeVF-code`, `FAKT-Code`, `FAKT-Massnahme`, `Antragsjahr` (2022), `geo_id`, `object_id`.
-- Only 2022 is served. Top crops in the bbox: vineyards, meadows, winter wheat, spring barley, grain maize, sugar beet, winter barley.
+- Top crops in the bbox: vineyards, meadows, winter wheat, spring barley, grain maize, sugar beet, winter barley.
+- 2023–2025 (added 2026-11-14): `fiona_bbox_<year>_p*.json` from the `_ab2023` WFS (404 on 2026-11-05, answers again), `python fetch_fiona.py <year>`; 126,997 / 126,104 / 122,773 parcels. Same properties, but `OER-Code` instead of `OeVF-code`; `object_id` is not stable across years. Not yet used by the pipeline.
+- Team export: `data/export/fiona_kraichgau_2022-2025.zip` (one GeoJSON per year + README with the licence line, 115 MB, not in git).
 - Licence: dl-de/by-2-0 – "Datengrundlage: MLR (2026), Datenlizenz Deutschland – Namensnennung – Version 2.0, https://mlr.baden-wuerttemberg.de".
 
 ## 13 · bk50

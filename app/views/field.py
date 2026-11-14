@@ -169,7 +169,8 @@ with right:
 # --- this season, seen from space (HLS) --------------------------------------
 st.space("medium")
 st.subheader(t("field.space.title"))
-sp = (from_space() or {"fields": {}})["fields"].get(fid)
+space = from_space() or {"fields": {}}
+sp = space["fields"].get(fid)
 if sp is None:
     st.caption(t("field.space.pending"))
 else:
@@ -180,7 +181,9 @@ else:
     label = {k: t("field.space.status." + k, season=season, before=before) for k in colour}
     feats = [f for f in geojson("hls_parcels")["features"] if f["properties"]["field"] == fid]
     for f in feats:
-        f["properties"] |= {"rgb": rgb(colour[f["properties"]["status"]]), "label": label[f["properties"]["status"]]}
+        q = f["properties"]
+        name = t("field.space.unsure", status=label[q["likely"]]) if q["status"] == "unknown" else label[q["status"]]
+        q |= {"rgb": rgb(colour[q["status"]]), "label": name, "pct": pct(q["p"])}
     shown = [k for k in colour if any(f["properties"]["status"] == k for f in feats)]
     left, right = st.columns([1.6, 1], gap="large")
     with left:
@@ -194,15 +197,20 @@ else:
                                                    line_width_min_pixels=3),
                                          pdk.Layer("GeoJsonLayer", data=outline, filled=False, stroked=True,
                                                    get_line_color=[22, 33, 62], line_width_min_pixels=2)],
-                                 tooltip={"text": t("field.space.tooltip", status="{label}", ha="{ha}")}), height=380)
+                                 tooltip={"text": t("field.space.tooltip", status="{label}", p="{pct}", ha="{ha}")}), height=380)
         legend([(colour[k], label[k], False) + ((HUE,) if k == "nursery" else ()) for k in shown])
     with right:
         st.markdown(t("field.space.intro", n=num(sp["pictures"]), last=day(pd.Timestamp(sp["last"]))))
-        b, n_now, c = sp["beet_before"]["n"], sp["beet_now"]["n"], sp["check"]
-        said = [t("field.space.nursery", nursery=sp["nursery"]["n"], total=b, before=before, season=season) if b
+        b, now, c, m = sp["beet_before"]["n"], sp["beet_now"], sp["check"], space["model"]
+        # counts from the probabilities (expected value, 90 % range), not from the map colours: the most likely status
+        # undercounts a crop the model is often unsure about (beet)
+        nur, rn, rh, n_now = sp["nursery"]["range_n"], now["range_n"], now["range_ha"], round(now["expected_n"])
+        nur_range = t("field.space.range_n", lo=nur[0], hi=nur[1]) if nur[0] != nur[1] else ""
+        now_range = t("field.space.range", lo=rn[0], hi=rn[1], ha_lo=num(rh[0], 1), ha_hi=num(rh[1], 1)) if rn[1] else ""
+        said = [t("field.space.nursery", nursery=sp["nursery"]["n"], total=b, before=before, season=season, range=nur_range) if b
                 else t("field.space.no_beet_before", before=before, season=season),
-                tn("field.space.beet_now", n_now, ha=num(sp["beet_now"]["ha"], 1), season=season) if n_now
-                else t("field.space.no_beet_now", season=season),
+                tn("field.space.beet_now", n_now, ha=num(now["expected_ha"], 1), season=season, range=now_range) if n_now
+                else t("field.space.no_beet_now", season=season, range=now_range),
                 t("field.space.trust", n=c["after_beet"]["n"], agree=c["after_beet"]["agree"],
                   years=c["after_beet"]["years"].replace("-", "–"), found=c["beet"]["found"], n_beet=c["beet"]["n_beet"],
                   wrong=c["beet"]["n_said"] - c["beet"]["right"], n_said=c["beet"]["n_said"])
@@ -211,6 +219,9 @@ else:
                            ab_agree=sp["declared"]["after_beet"]["agree"], ab_n=sp["declared"]["after_beet"]["n"],
                            found=sp["declared"]["beet"]["found"], n_beet=sp["declared"]["beet"]["n_beet"])
                    if sp.get("declared", {}).get("winter", {}).get("n") else "")
+                + " " + t("field.space.model", right=num(m["right"]), n=num(m["n"]), acc=pct(m["accuracy"]),
+                          lo=pct(m["accuracy_95"][0]), hi=pct(m["accuracy_95"][1]), rule=pct(m["rule"]["accuracy"]),
+                          said=pct(m["said"]))
                 + " " + t("field.space.small", parcels=sp["parcels"])]
         st.markdown(said[0])
         st.markdown(said[1])
