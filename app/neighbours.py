@@ -14,7 +14,7 @@ import html
 import numpy as np
 import streamlit as st
 
-from data import CROPS, GREY_LIGHT, crop_group, crop_names, landscape, rgb
+from data import CROPS, GREY_LIGHT, crop_group, crop_names, landscape, parcel_geo, rgb
 from i18n import num, pct
 
 SHOW_FACTOR = 2   # show parcels up to this many flight ranges from the block centre
@@ -43,6 +43,13 @@ def _circle(lon, lat, radius_m, n=14):
     return {"type": "Polygon", "coordinates": [ring + ring[:1]]}
 
 
+@st.cache_resource
+def _outlines():
+    """Parcel id -> FIONA outline (pipeline/landscape_geo.py), parsed once per process; parcels it lacks get a circle."""
+    g = parcel_geo()
+    return dict(zip(g["ids"], g["geoms"]))
+
+
 def _btw(season):
     s = {x["season"]: x for x in landscape()[2]["seasons"]}
     return float(s.get(season, s[max(s)])["beet_to_wheat"])
@@ -50,7 +57,8 @@ def _btw(season):
 
 @st.cache_data(show_spinner=False)
 def neighbour_context(fid: str, season: int, r: int, lang: str = "en", plan_year: int | None = None) -> dict:
-    """{"features": circles for the planner map, "summary": likely nurseries near the block} for one plan year."""
+    """{"features": neighbouring parcels (FIONA outlines) and the flight ring for the planner map, "summary": likely
+    nurseries near the block} for one plan year."""
     tx, plan_year = TEXT[lang], plan_year or season + 1
     par = landscape()[0]
     own = par[par.field == fid]
@@ -82,8 +90,8 @@ def neighbour_context(fid: str, season: int, r: int, lang: str = "en", plan_year
                       tx["pull"].format(share=pct(pl / total_pull))]
         lines.append(f"<span style='opacity:.7'>{tx['away'].format(km=num(row.dist / 1000, 1))}</span>")
         props["tip"] = "<br>".join(lines)
-        feats.append({"type": "Feature", "geometry": _circle(row.lon, row.lat, max(float(np.sqrt(row.area_ha * 1e4 / np.pi)), 20)),
-                      "properties": props})
+        geom = _outlines().get(int(pid)) or _circle(row.lon, row.lat, max(float(np.sqrt(row.area_ha * 1e4 / np.pi)), 20))
+        feats.append({"type": "Feature", "geometry": geom, "properties": props})
     feats.append({"type": "Feature", "geometry": _circle(clon, clat, r, n=96),
                   "properties": {"kind": "ring", "id": "ring", "tip": tx["ring"].format(km=num(r / 1000, 1))}})
     within = likely & (near.dist <= r)
