@@ -156,28 +156,27 @@ with map_row:
         else:
             off_tip = t("region.tip.crop_off", season=yr)
 
-        fe = []
-        for gid, g in zip(gids, shapes["geoms"]):
+        def paint(gid):
+            """Fill colour and tooltip of one parcel, the same whether it is drawn as a polygon or as a dot."""
             if val is not None:
                 v_ = int(duty.get(gid, 0))
-                if v_:
-                    c, tip_ = c_by_v[v_], tip_by_gid.get(gid, "")
-                else:
-                    c, tip_ = faint, off_tip
-            else:
-                code = int(codes.get(gid, 0))
-                if code in c_by_code:
-                    c, tip_ = c_by_code[code], tip_by_code[code]
-                else:
-                    c, tip_ = faint, off_tip
+                return (c_by_v[v_], tip_by_gid.get(gid, "")) if v_ else (faint, off_tip)
+            code = int(codes.get(gid, 0))
+            return (c_by_code[code], tip_by_code[code]) if code in c_by_code else (faint, off_tip)
+
+        fe = []
+        for gid, g in zip(gids, shapes["geoms"]):
+            c, tip_ = paint(gid)
             fe.append({"type": "Feature", "geometry": g, "properties": {"fill": c, "tip": tip_, "id": int(gid)}})
-        # pipeline/landscape_geo.py has not covered every parcel (e.g. for BW): dots take the leftovers
+        # pipeline/landscape_geo.py has not covered every parcel (all of BW: 91,000 outlines would be ~15 MB a render):
+        # dots take the leftovers, with the same colour and tip as a polygon would carry
         missing = par.index[~par.index.isin(gids)]
+        painted = [paint(gid) for gid in missing]
         dots = pdk.Layer("ScatterplotLayer", id="parcels", data=pd.DataFrame({
             "id": missing, "lon": par.loc[missing, "lon"], "lat": par.loc[missing, "lat"],
             "radius": (np.sqrt(par.loc[missing, "area_ha"] * 1e4 / np.pi)).clip(lower=20),
-            "color": [faint] * len(missing)}, index=None), get_position="[lon, lat]", get_radius="radius",
-            get_fill_color="color", pickable=True, radius_min_pixels=1.5)
+            "color": [c for c, _ in painted], "tip": [tp for _, tp in painted]}, index=None),
+            get_position="[lon, lat]", get_radius="radius", get_fill_color="color", pickable=True, radius_min_pixels=1.5)
 
         layers = [pdk.Layer("GeoJsonLayer", id="parcels_poly", data=fe, pickable=True, stroked=True,
                             get_fill_color="properties.fill", get_line_color=[250, 251, 252, 90],
