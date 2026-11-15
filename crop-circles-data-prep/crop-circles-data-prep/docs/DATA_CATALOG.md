@@ -134,6 +134,7 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 - Box: field bbox, at least 1 km per side, + 60 m. Native UTM 32N, 30 m.
 - Reflectance scale 0.0001. NDVI: L30 (B05 − B04)/(B05 + B04), S30 (B8A − B04)/(B8A + B04). Mask cloud, cloud shadow, adjacent, snow and water with `Fmask` bits (see HLS v2.0 user guide).
 - 12,399 files (60 MB); per field ~440 L30 and 840–970 S30 scenes, 2019-01-02 → 2026-11-01. Names: `<product>_<band>_doy<YYYYDDD>_aid0001_32N.tif`.
+- Added 2026-11-15 (`appeears_<chunk>_gre/`, separate AppEEARS tasks): L30 `B03` (green), S30 `B03` (green) and `B05` (red edge 1), for GNDVI = (NIR − green)/(NIR + green) and NDRE = (NIR − red edge)/(NIR + red edge); NDRE exists for S30 pictures only (L30 has no red-edge band; its B05 is NIR). `hls_series` / `ndvi_hls` carry `gndvi` and `ndre` columns; `croptype.py` uses all three indices (leave-one-year-out log loss 0.274 → 0.258, accuracy 89 % either way).
 
 ## 10b · hls_region (added 2026-11-14)
 

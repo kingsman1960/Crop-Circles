@@ -22,16 +22,16 @@
     },
     "beet": {
      "n_beet": 18,
-     "found": 10,
-     "n_said": 18,
-     "right": 10
+     "found": 11,
+     "n_said": 19,
+     "right": 11
     }
    },
    "declared": {
     "years": "2022-2025",
     "winter": {
      "n": 88,
-     "agree": 85
+     "agree": 86
     },
     "after_beet": {
      "n": 12,
@@ -39,9 +39,9 @@
     },
     "beet": {
      "n_beet": 13,
-     "found": 5,
+     "found": 6,
      "n_said": 7,
-     "right": 5
+     "right": 6
     }
    },
    "season": 2026,
@@ -68,21 +68,21 @@
     "ha": 0.0
    },
    "unknown": {
-    "n": 5,
-    "ha": 12.3
+    "n": 2,
+    "ha": 8.2
    },
    "beet_now": {
-    "n": 1,
-    "ha": 1.8,
-    "expected_n": 3.9,
-    "expected_ha": 8.5,
+    "n": 3,
+    "ha": 4.8,
+    "expected_n": 4.1,
+    "expected_ha": 9.0,
     "range_n": [
      1,
-     7
+     8
     ],
     "range_ha": [
-     1.4,
-     15.4
+     1.6,
+     16.8
     ]
    }
   },
@@ -99,9 +99,9 @@
     },
     "beet": {
      "n_beet": 12,
-     "found": 7,
-     "n_said": 13,
-     "right": 7
+     "found": 9,
+     "n_said": 21,
+     "right": 9
     }
    },
    "declared": {
@@ -116,9 +116,9 @@
     },
     "beet": {
      "n_beet": 11,
-     "found": 4,
-     "n_said": 4,
-     "right": 4
+     "found": 6,
+     "n_said": 6,
+     "right": 6
     }
    },
    "season": 2026,
@@ -130,7 +130,7 @@
     "n": 4,
     "ha": 9.7,
     "expected_n": 4.0,
-    "expected_ha": 9.6,
+    "expected_ha": 9.7,
     "range_n": [
      4,
      4
@@ -146,20 +146,20 @@
    },
    "unknown": {
     "n": 2,
-    "ha": 2.6
+    "ha": 5.3
    },
    "beet_now": {
     "n": 0,
     "ha": 0.0,
-    "expected_n": 0.6,
-    "expected_ha": 1.3,
+    "expected_n": 0.7,
+    "expected_ha": 1.5,
     "range_n": [
      0,
-     2
+     3
     ],
     "range_ha": [
      0.0,
-     5.6
+     7.5
     ]
    }
   },
@@ -176,16 +176,16 @@
     },
     "beet": {
      "n_beet": 16,
-     "found": 10,
+     "found": 8,
      "n_said": 11,
-     "right": 10
+     "right": 8
     }
    },
    "declared": {
     "years": "2022-2025",
     "winter": {
      "n": 92,
-     "agree": 88
+     "agree": 89
     },
     "after_beet": {
      "n": 4,
@@ -194,7 +194,7 @@
     "beet": {
      "n_beet": 4,
      "found": 0,
-     "n_said": 1,
+     "n_said": 2,
      "right": 0
     }
    },
@@ -222,21 +222,21 @@
     "ha": 0.0
    },
    "unknown": {
-    "n": 3,
-    "ha": 6.5
+    "n": 2,
+    "ha": 5.2
    },
    "beet_now": {
     "n": 0,
     "ha": 0.0,
-    "expected_n": 1.1,
-    "expected_ha": 3.6,
+    "expected_n": 1.3,
+    "expected_ha": 3.9,
     "range_n": [
      0,
      4
     ],
     "range_ha": [
      0.0,
-     18.2
+     13.9
     ]
    }
   }
@@ -244,7 +244,7 @@
  "model": {
   "method": "multinomial logistic regression, L2, leave-one-year-out test",
   "lambda": 0.01,
-  "indices": "ndvi",
+  "indices": "ndvi+gndvi+ndre",
   "features": [
    "ndvi_02",
    "ndvi_03",
@@ -255,6 +255,24 @@
    "ndvi_08",
    "ndvi_09",
    "ndvi_10",
+   "gndvi_02",
+   "gndvi_03",
+   "gndvi_04",
+   "gndvi_05",
+   "gndvi_06",
+   "gndvi_07",
+   "gndvi_08",
+   "gndvi_09",
+   "gndvi_10",
+   "ndre_02",
+   "ndre_03",
+   "ndre_04",
+   "ndre_05",
+   "ndre_06",
+   "ndre_07",
+   "ndre_08",
+   "ndre_09",
+   "ndre_10",
    "cover",
    "prev_winter",
    "prev_beet",
@@ -262,63 +280,64 @@
   ],
   "years": "2019-2025",
   "n": 518,
-  "right": 465,
-  "accuracy": 0.898,
+  "right": 461,
+  "accuracy": 0.89,
   "accuracy_95": [
-   0.869,
-   0.921
+   0.86,
+   0.914
   ],
-  "said": 0.858,
-  "log_loss": 0.274,
-  "brier": 0.163,
+  "said": 0.884,
+  "log_loss": 0.258,
+  "brier": 0.156,
   "log_loss_by_indices": {
-   "ndvi": 0.274
+   "ndvi": 0.274,
+   "ndvi+gndvi+ndre": 0.258
   },
   "by_year": {
-   "2019": 0.865,
-   "2020": 0.932,
-   "2021": 0.946,
-   "2022": 0.824,
+   "2019": 0.824,
+   "2020": 0.905,
+   "2021": 0.878,
+   "2022": 0.865,
    "2023": 0.932,
-   "2024": 0.865,
+   "2024": 0.905,
    "2025": 0.919
   },
   "reliability": [
    {
     "bin": "(0.5, 0.6]",
-    "n": 39,
-    "said": 0.553,
-    "right": 0.692
+    "n": 31,
+    "said": 0.548,
+    "right": 0.355
    },
    {
     "bin": "(0.6, 0.7]",
     "n": 41,
-    "said": 0.647,
-    "right": 0.659
+    "said": 0.648,
+    "right": 0.829
    },
    {
     "bin": "(0.7, 0.8]",
-    "n": 78,
-    "said": 0.748,
-    "right": 0.795
+    "n": 46,
+    "said": 0.751,
+    "right": 0.717
    },
    {
     "bin": "(0.8, 0.9]",
-    "n": 85,
-    "said": 0.859,
-    "right": 0.929
+    "n": 72,
+    "said": 0.855,
+    "right": 0.903
    },
    {
     "bin": "(0.9, 0.95]",
-    "n": 66,
-    "said": 0.929,
-    "right": 0.955
+    "n": 79,
+    "said": 0.928,
+    "right": 0.924
    },
    {
     "bin": "(0.95, 1.0]",
-    "n": 209,
-    "said": 0.975,
-    "right": 0.99
+    "n": 249,
+    "said": 0.984,
+    "right": 0.984
    }
   ],
   "confusion": [
@@ -329,13 +348,13 @@
    ],
    [
     0,
-    27,
-    22
+    28,
+    21
    ],
    [
-    11,
-    15,
-    276
+    8,
+    23,
+    271
    ]
   ],
   "classes": [
@@ -344,50 +363,50 @@
    "other"
   ],
   "year_sd": {
-   "winter": 0.244,
-   "beet": 1.036
+   "winter": 0.654,
+   "beet": 1.318
   },
   "expected_by_year": {
    "2019": {
-    "beet": 15.5,
+    "beet": 16.4,
     "beet_seen": 8,
-    "winter": 16.7,
+    "winter": 17.9,
     "winter_seen": 14
    },
    "2020": {
-    "beet": 7.8,
+    "beet": 8.1,
     "beet_seen": 9,
-    "winter": 27.9,
+    "winter": 26.4,
     "winter_seen": 28
    },
    "2021": {
-    "beet": 9.1,
+    "beet": 11.1,
     "beet_seen": 4,
-    "winter": 24.5,
+    "winter": 25.5,
     "winter_seen": 27
    },
    "2022": {
-    "beet": 5.5,
+    "beet": 7.2,
     "beet_seen": 12,
-    "winter": 26.9,
+    "winter": 25.6,
     "winter_seen": 27
    },
    "2023": {
-    "beet": 1.5,
+    "beet": 1.1,
     "beet_seen": 6,
-    "winter": 17.8,
+    "winter": 18.0,
     "winter_seen": 17
    },
    "2024": {
-    "beet": 5.6,
+    "beet": 5.7,
     "beet_seen": 5,
-    "winter": 32.4,
+    "winter": 33.4,
     "winter_seen": 29
    },
    "2025": {
-    "beet": 8.6,
+    "beet": 9.3,
     "beet_seen": 5,
-    "winter": 22.6,
+    "winter": 23.2,
     "winter_seen": 25
    }
   },
