@@ -215,7 +215,20 @@ def main():
         a2.set_title("Figure 3b. The sampled beet parcels, 2023–2025"); a2.grid(alpha=0.3)
         fig.tight_layout(); pdf.savefig(fig); plt.close(fig)
 
-        # --- 7. limitations ----------------------------------------------------------------------------------------
+        # --- 7. the two-panel edge figure on the region data (same layout as the demo-block analysis) ------------------
+        png = Path(__file__).with_name("edge_decay_curves_region.png")
+        if png.exists():
+            fig = plt.figure(figsize=(11.69, 6.6))
+            ax = fig.add_axes([0.02, 0.1, 0.96, 0.82]); ax.axis("off"); ax.imshow(plt.imread(png))
+            fig.text(0.5, 0.05, textwrap.fill(
+                "Figure 4. The demo-block edge figure redrawn on the region data: one point per parcel-season, partial residuals of the "
+                "region model, nearest wheat of either kind on the x axis. Both panels show the same generic gradient (+0.008 per log1p(d): "
+                "beet right at any field edge does slightly worse), which is why the nursery effect must be read as the level difference "
+                "in the first band, not as the slope. With log distance to the nearest wheat and parcel size added to the model, the adjacent "
+                "effect stays (NDRE −0.026, p < 0.001) and the decay peak moves to 250 m (band 250–350 m).", 150), ha="center", va="top", fontsize=8.5, color=INK)
+            pdf.savefig(fig); plt.close(fig)
+
+        # --- 8. limitations ----------------------------------------------------------------------------------------
         text_page(pdf, "Limitations and next steps",
                   [("Not a diagnosis", "NDVI / NDRE decline is a symptom. SBR, Stolbur, Cercospora leaf spot, drought stress and early senescence all "
                                        "lower it. The association with nurseries is specific to the vector's biology, but no parcel in this sample "
@@ -230,6 +243,10 @@ def main():
                                            "50 m to 3 km, so both ends of the profile are resolved: 50–100 m and 1 km or more are clearly worse than "
                                            "250–500 m. The nearest nursery boundary is the only exposure measure; several nurseries around a parcel "
                                            "are not added up here (the planner does that)."),
+                   ("Generic edge effect", "Beet at any field edge does slightly worse than beet further in (Figure 4, both panels). The "
+                                           "adjacent-vs-control comparison holds this constant by construction (both groups are < 50 m from "
+                                           "some wheat); the decay fit was repeated with log distance to the nearest wheat and parcel size as "
+                                           "covariates: adjacent effect −0.026 NDRE, best r 250 m (band 250–350 m)."),
                    ("Mean reversion", "Parcels that are greener in June have more to lose by late summer. The nursery-adjacent parcels start "
                                       "June slightly greener (+0.01), so the June value is in every model; a non-linear June term did not "
                                       "change the sign in a check."),

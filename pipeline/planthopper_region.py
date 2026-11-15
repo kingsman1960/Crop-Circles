@@ -27,6 +27,7 @@ from pipeline.planthopper_edge_effect import JUNE, LATE, MIN_OBS, fiona_pools
 
 INDICES = ("ndvi", "gndvi", "ndre")
 CELL = 2000  # m: standard errors clustered by 2 km cell
+BINS = (0, 25, 50, 100, 200, 400, 800, 1600, 3001)  # m: distance to the nearest nursery, for the bar chart
 R_GRID = (50, 100, 150, 250, 350, 500, 750, 1000, 1500, 2000, 3000)  # m: candidate flight distances for the decay fit
 
 
@@ -69,6 +70,14 @@ def demo_edges(season, within=50):
         out_[f["id"]] = {"season": season, "within_m": within, "n": int(len(near)), "ha": round(float(shapely.area(near).sum() / 1e4), 1),
                          "own_ha": round(float(own / 1e4), 1)}
     return out_
+
+
+def distance_bins(d):
+    """Mean delta (season mean removed) per distance band to the nearest nursery, with its standard error."""
+    x = d.assign(adj=d.delta - d.groupby("year").delta.transform("mean"), band=pd.cut(d.dist_to_source, BINS, right=False))
+    g = x.groupby("band", observed=True).adj.agg(["mean", "sem", "size"])
+    return [{"lo": int(b.left), "hi": int(b.right), "mean": round(float(r["mean"]), 4), "sem": round(float(r["sem"]), 4), "n": int(r["size"])}
+            for b, r in g.iterrows()]
 
 
 def decay(d):
@@ -123,6 +132,7 @@ def main():
                                              "adjacent_se": round(float(fit_soil.bse["adjacent"]), 4), "p": round(float(fit_soil.pvalues["adjacent"]), 4),
                                              "ks_coef": round(float(fit_soil.params["ks"]), 4), "nfk_coef": round(float(fit_soil.params["nfk_mm"]), 5)},
                                "decay": decay(d_all.assign(cell=(d_all.x // CELL).astype(int) * 10_000 + (d_all.y // CELL).astype(int))),
+                               "bins": distance_bins(d_all),
                                "placebo_june_level": {"adjacent_coef": round(float(placebo.params["adjacent"]), 4),
                                                       "p": round(float(placebo.pvalues["adjacent"]), 4)},
                                "per_season": per_season}

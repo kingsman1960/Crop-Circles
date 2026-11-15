@@ -1,8 +1,10 @@
 import pandas as pd
 import streamlit as st
 
-from data import content, footer, header, strategies
-from i18n import t
+import altair as alt
+
+from data import GREY, INK, POS, chart, content, footer, header, region_test, source_line, strategies
+from i18n import num, t
 
 src = content("sources")
 ds = pd.DataFrame(src["dataset"])
@@ -30,6 +32,44 @@ with data_tab:
 with method_tab:
     st.caption(t("know.method_note"))
     st.markdown(t("know.method", last=strategies()["recent_years"][1]))
+    if rt := region_test():  # the region-wide planthopper edge test, in three charts
+        ix, PINK = rt["index"], "#b03a72"
+        st.subheader(t("know.evidence.title"))
+        st.markdown(t("know.evidence.intro", n=num(ix["ndre"]["n"]), x=num(abs(ix["ndre"]["adjacent_coef"]), 3),
+                      r=ix["ndre"]["decay"]["best_r_m"], lo=ix["ndre"]["decay"]["r_band_m"][0], hi=ix["ndre"]["decay"]["r_band_m"][1]))
+        names = {"ndvi": "NDVI", "gndvi": "GNDVI", "ndre": "NDRE"}
+        roles = {"adjacent": t("know.evidence.adjacent"), "control": t("know.evidence.control")}
+        seasons = pd.DataFrame([{"season": str(y), "index": names[k], "role": roles[r], "delta": v[f"mean_{r}"]}
+                                for k in names for y, v in ix[k]["per_season"].items() for r in roles])
+        a, b = st.columns(2, gap="large")
+        with a:
+            st.markdown(f"**{t('know.evidence.fig1')}**")
+            chart(alt.Chart(seasons).mark_bar().encode(
+                x=alt.X("role:N", title=None, axis=None), y=alt.Y("delta:Q", title=t("know.evidence.delta")),
+                color=alt.Color("role:N", scale=alt.Scale(domain=list(roles.values()), range=[PINK, GREY]), legend=alt.Legend(orient="bottom", title=None)),
+                column=alt.Column("season:N", title=None), row=alt.Row("index:N", title=None),
+                tooltip=["season:N", "index:N", "role:N", alt.Tooltip("delta:Q", format="+.3f")]).properties(width=70, height=80), width="content")
+        with b:
+            st.markdown(f"**{t('know.evidence.fig2')}**")
+            bins = pd.DataFrame(ix["ndre"]["bins"]).assign(band=lambda d: d.lo.astype(str) + "–" + d.hi.astype(str) + " m",
+                                                          lo_ci=lambda d: d["mean"] - 1.96 * d["sem"], hi_ci=lambda d: d["mean"] + 1.96 * d["sem"],
+                                                          near=lambda d: d.hi <= 50)
+            base = alt.Chart(bins).encode(x=alt.X("band:N", title=t("know.evidence.distance"), sort=None, axis=alt.Axis(labelAngle=0, labelFontSize=9)))
+            chart(base.mark_bar().encode(y=alt.Y("mean:Q", title=t("know.evidence.delta_adj")),
+                                         color=alt.Color("near:N", scale=alt.Scale(domain=[True, False], range=[PINK, GREY]), legend=None),
+                                         tooltip=["band:N", alt.Tooltip("mean:Q", format="+.3f"), alt.Tooltip("n:Q", title="n")])
+                  + base.mark_rule(color=INK).encode(y="lo_ci:Q", y2="hi_ci:Q"), width="stretch", height=260)
+        st.markdown(f"**{t('know.evidence.fig3')}**")
+        prof = pd.DataFrame([{"r": p["r_m"], "index": names[k], "rel": p["llf"] - max(q["llf"] for q in ix[k]["decay"]["profile"])}
+                             for k in names for p in ix[k]["decay"]["profile"]])
+        chart(alt.Chart(prof).mark_line(point=True).encode(
+            x=alt.X("r:Q", title=t("know.evidence.r"), scale=alt.Scale(type="log"), axis=alt.Axis(values=[50, 100, 250, 500, 1000, 2000, 3000])),
+            y=alt.Y("rel:Q", title=t("know.evidence.llf")),
+            color=alt.Color("index:N", scale=alt.Scale(domain=list(names.values()), range=[GREY, POS, PINK]), legend=alt.Legend(orient="bottom", title=None)),
+            tooltip=["index:N", alt.Tooltip("r:Q", title="r (m)"), alt.Tooltip("rel:Q", format=".1f")])
+              + alt.Chart(pd.DataFrame({"y": [-2]})).mark_rule(strokeDash=[4, 4], color=GREY).encode(y="y:Q"), width="stretch", height=240)
+        source_line(t("know.evidence.unit"), t("know.evidence.source"), "2023–2025")
+        st.caption(t("know.evidence.caveat"))
 with lit:
     for r in src["refs"].values():
         st.markdown(f"- [{r['title']}]({r['url']}) – {r['who']}")
