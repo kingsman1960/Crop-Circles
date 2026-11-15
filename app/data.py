@@ -260,6 +260,80 @@ def ph_levels(fid, season):
     return out
 
 
+def parcel_geo(scope="bbox"):
+    """Compact parcel outlines {"ids": [...], "geoms": [...]} (EPSG:4326, pipeline/landscape_geo.py), or empty while
+    the pipeline has not written them yet: the region map falls back to dots for the parcels it does not cover."""
+    sfx = "" if scope == "bbox" else f"_{scope}"
+    p = PROC / f"landscape_parcels{sfx}.geojson"
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {"ids": [], "geoms": []}
+
+
+@st.cache_data
+def region_series(scope="bbox", r=1000):
+    """Per season the pressure the nurseries put on the region's beet, plus per parcel the pressure sent and
+    received, summed over all seasons. The kernels here are truncated past 4 x the flight distance (the tail is
+    under 2%), so a whole-season scan stays quick; pressure() stays exact for the single-season map."""
+    par, seasons, summary = landscape(scope)
+    xy = lambda d: par.loc[d, ["x", "y"]].to_numpy("float32")
+    sent, got, reach, years_n, years_b = (pd.Series(dtype="f8") for _ in range(5))
+    rows = []
+    cut = 4 * r
+    for y in seasons.season.unique():
+        s = seasons[seasons.season == y]
+        nur, beet = s[s.nursery_ha > 0], s[s.beet_ha > 0]
+        nh, bh = nur.nursery_ha.to_numpy("float32"), beet.beet_ha.to_numpy("float32")
+        nxy, bxy = xy(nur.id), xy(beet.id)
+        imp, pres = np.zeros(len(nur), "f4"), np.zeros(len(beet), "f4")
+        for i in range(0, len(nur), 500):
+            x0, x1 = nxy[i:i + 500, 0].min() - cut, nxy[i:i + 500, 0].max() + cut
+            y0, y1 = nxy[i:i + 500, 1].min() - cut, nxy[i:i + 500, 1].max() + cut
+            m = np.flatnonzero((bxy[:, 0] >= x0) & (bxy[:, 0] <= x1) & (bxy[:, 1] >= y0) & (bxy[:, 1] <= y1))
+            k = np.exp(-np.hypot(nxy[i:i + 500, None, 0] - bxy[m][None, :, 0],
+                                 nxy[i:i + 500, None, 1] - bxy[m][None, :, 1]) / r, dtype="f4")
+            imp[i:i + 500] = nh[i:i + 500] * (k @ bh[m])
+            np.add.at(pres, m, nh[i:i + 500] @ k)
+        sent = sent.add(pd.Series(imp, index=nur.id), fill_value=0)
+        got = got.add(pd.Series(pres, index=beet.id), fill_value=0)
+        # reach: the ha of beet a nursery can shift its planthoppers to, and the ha of nurseries a beet sits among,
+        # each with nearer ones counting more (kernel-weighted); the pressure itself is these times the own hectares
+        reach = reach.add(pd.Series(imp / np.where(nh > 0, nh, 1), index=nur.id), fill_value=0)
+        years_n = years_n.add(pd.Series(1, index=nur.id), fill_value=0)
+        years_b = years_b.add(pd.Series(1, index=beet.id), fill_value=0)
+        rows.append({"season": int(y), "nursery_ha": float(nh.sum()), "beet_ha": float(bh.sum()),
+                     "pressure": float(pres @ bh)})
+    trend = pd.DataFrame(rows).set_index("season")
+    trend["per_100_ha"] = trend.pressure / trend.beet_ha * 100
+    trend["rel_total"] = trend.pressure / trend.pressure.iloc[0] * 100
+    trend["rel_normed"] = trend.per_100_ha / trend.per_100_ha.iloc[0] * 100
+    return trend, pd.DataFrame({"sent": sent, "got": got, "reach": reach, "years": years_n.fillna(0),
+                                "recv_years": years_b.fillna(0)})
+
+
+@st.cache_data
+def partners(scope, pid, mode, season, r):
+    """Where one parcel's pressure goes (mode "spread": the beet fields it reaches this season), or from where it comes
+    ("received"): [(other parcel id, pressure contribution share, distance in km)] five times. season=None: all seasons."""
+    par, seasons, _ = landscape(scope)
+    acc = {}
+    for y in ([season] if season else seasons.season.unique()):
+        nur, beet = pressure(y, r, scope)
+        src, dst = (nur, beet) if mode == "spread" else (beet, nur)
+        d = src[src.id == pid]
+        if d.empty:
+            continue
+        k = float(d.nursery_ha.iloc[0] if mode == "spread" else 1) * np.exp(
+            -np.hypot(dst.x - d.x.iloc[0], dst.y - d.y.iloc[0]) / r) * (  # the parcel's reach to every other parcel
+            dst.beet_ha.to_numpy("f4") if mode == "spread" else dst.nursery_ha.to_numpy("f4"))
+        for oid, v, dist in zip(dst.id, k, np.hypot(dst.x - d.x.iloc[0], dst.y - d.y.iloc[0])):
+            if v > 0:
+                p = acc.get(oid, [0.0, 0.0])
+                acc[oid] = [p[0] + float(v), p[1] + (float(dist) if not season else float(v * dist))]
+    if not season:
+        acc = {o: [v[0], v[1] / v[0]] for o, v in acc.items()}
+    tot = sum(v[0] for v in acc.values())
+    return sorted(((int(o), v[0] / tot, v[1] / 1000) for o, v in acc.items()), key=lambda z: -z[1])[:5]
+
+
 def side_effects(nur, weights):
     """Best crop instead of wheat per nursery, and its side-effect cost (0 = none) under the user's priorities.
 

@@ -124,5 +124,5 @@ if u["role"] == "admin":
                        f'<td>{a["fields"] or "–"}</td><td>{a["posts"]}</td></tr>' for a in accounts.accounts())
         st.html(f'<table class="cc-table"><thead><tr><th>{t("community.col.account")}</th><th>{t("community.col.role")}</th>'
                 f'<th>{t("community.col.fields")}</th><th>{t("community.col.posts")}</th></tr></thead><tbody>{rows}</tbody></table>')
-        st.caption(t("community.accounts_note", path=str(accounts.DB)))
+        st.caption(t("community.accounts_note", path=st.secrets["SUPABASE_URL"]))
 footer()

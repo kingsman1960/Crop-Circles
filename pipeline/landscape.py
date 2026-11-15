@@ -28,6 +28,7 @@ from shapely.geometry import shape
 
 from pipeline import geo
 from pipeline.common import FIELDS, RAW, check, out
+from pipeline.landscape_geo import write_parcels_geo
 from pipeline.pressure import impacts
 
 YEARS = range(2017, 2026)
@@ -193,7 +194,9 @@ def main(tag="bbox"):
     df["field"] = ""
     for fid, g in fields.items():
         df.loc[shapely.contains_xy(g, df.x, df.y), "field"] = fid
-    df = df[keep].drop(columns="geom")
+    df = df[keep]
+    write_parcels_geo(df.id, list(df.geom), sfx)  # same geometries the parcels above were rasterised with
+    df = df.drop(columns="geom")
     df.to_parquet(out(f"landscape_parcels{sfx}.parquet"), index=False)
     seasons.to_parquet(out(f"landscape_seasons{sfx}.parquet"), index=False)
     check(f"landscape_parcels{sfx}.parquet", df)

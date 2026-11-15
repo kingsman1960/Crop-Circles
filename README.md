@@ -29,6 +29,7 @@ streamlit run app/app.py          # the app (reads only data/processed/ and cont
 python -m pipeline                # rebuild data/processed/ from data/raw/ (~5 min, raw data is local only)
 python submission/planthopper_region_report.py   # the evidence report (PDF) from data/processed/
 python -m pipeline.landscape --bw # Our region for all of Baden-Württemberg (needs the --bw downloads below)
+python -m pipeline.landscape_geo  # just the parcel outlines for Our region (when only the FIONA export changed)
 python app/smoke_test.py          # every page renders for F1–F3, in English and German
 python app/check_i18n.py          # every key used in code exists; translations keep the placeholders
 ```
