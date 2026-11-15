@@ -309,6 +309,7 @@ with t_cond:
     trend = alt.Chart(s).transform_regression("year", "value").mark_line(color=HUE, strokeWidth=2).encode(
         x="year:O", y="value:Q")
     chart((bands + bars + trend).properties(padding={"top": 18, "left": 5, "right": 5, "bottom": 5}), width="stretch", height=240)
+    st.caption(t("field.bands_note", early_start=early[0], early_end=early[1], start=RECENT[0], end=RECENT[1]))
     source_line(m["unit"], t("field.src." + src) + (t("field.src.imerg_cwb") if src == "IMERG" and "cwb" in k else ""),
                 t("field.complete_years", start=s.year.min(), end=s.year.max()))
     st.markdown(t("field.trend", change=("+" if slope_k > 0 else "") + num(slope_k, 1), unit=m["unit"])

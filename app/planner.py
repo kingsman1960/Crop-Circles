@@ -127,7 +127,12 @@ def crop_planner(fid: str, p: dict, height: int = 620) -> None:
     others = plans_store.others(fid, range(year - 1, year + 3)) if shared_ok else []
     ctx = neighbour_context(fid, season, r, lang, year)
     shared = collab_features(others, year, season, lang) if others else []
-    outline = {"type": "FeatureCollection", "features": [f for f in geojson("fields")["features"] if f["id"] == fid]}
+    # the block outline follows the parcels themselves (FIONA borders), dissolved; the hand-drawn study-area polygon in
+    # fields.geojson only roughly matches them and the fills showed past its edge
+    from shapely import union_all
+    from shapely.geometry import mapping, shape
+    block = union_all([shape(f["geometry"]) for f in start]).buffer(1e-4).buffer(-1e-4)  # ~10 m: closes the paths between parcels
+    outline = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": mapping(block), "properties": {}}]}
     res = plot_editor(start, key=f"planner_{fid}_{year}", outline=outline,
                       view={"lat": p["lat"], "lon": p["lon"], "zoom": 14.0}, height=height,
                       palette=_palette(fid, lang), tooltip=None, context=ctx["features"] + shared,
