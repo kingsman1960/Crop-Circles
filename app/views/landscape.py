@@ -106,9 +106,18 @@ with map_row:
         # over all seasons to find the systematic sources and victims), or what grew on it in one year
         val = None
         if var == "spread":
-            val = acc.sent if yr is None else pressure(yr, r, scope)[0].set_index("id").impact
+            if yr is None:
+                val, reach, years_of = acc.sent, acc.reach, acc.years
+            else:
+                nur0 = pressure(yr, r, scope)[0]
+                val = nur0.set_index("id").impact
+                reach = pd.Series(nur0.impact.to_numpy() / nur0.nursery_ha.to_numpy(), index=nur0.id)  # per nursery ha
         elif var == "received":
-            val = acc.got if yr is None else pressure(yr, r, scope)[1].set_index("id").pressure
+            if yr is None:
+                val, years_of = acc.got, acc.recv_years
+            else:
+                val = pressure(yr, r, scope)[1].set_index("id").pressure  # kernel-weighted nursery ha around it
+                reach = val  # the figure the tooltip shows is the value the parcel is coloured by
         else:
             codes = par[f"c{yr}"]
             c_by_code = {int(c): rgb(CROPS[crop_group(names_de.get(int(c), ""))], 235) for c in codes.unique()
@@ -117,20 +126,32 @@ with map_row:
                            if int(c) in names_de}
         pale, full = np.array(rgb(PALE)), np.array(rgb(HUE, 245))
         faint = rgb(GREY_LIGHT, 60)
-        tip_this = t("region.tip." + ("sent" if var == "spread" else "recv") + ("" if yr else "_all"),
-                     share="{share}", start=first, end=last)
+        tip_by_gid = {}
         if val is not None:
             act = val[val > 0]
-            share = (act / act.sum()).clip(0, 1).round(3)
             duty = ((act / max(float(act.quantile(0.9)) if len(act) else 1.0, 1e-9)).clip(0, 1) * 255).astype(int)
             c_by_v = {p_: [int(x) for x in (pale + (full - pale) * (p_ / 255))] for p_ in duty.unique()}
-            t_by_v = {v_: f"{tip_this}\n{pct(v_)}" for v_ in share.unique()}
+            if yr is None:  # accumulated: per-season averages over the parcels' own active years
+                reach = (reach if var == "spread" else val) / years_of.reindex(act.index).replace(0, np.nan)
+                years_of = years_of.reindex(act.index)
+            if yr is None:
+                n_ = num(len(years))
+                tip_f = lambda s_, h_: t("region.tip.sent_all" if var == "spread" else "region.tip.recv_all",
+                                         seasons=num(s_), n=n_, ha=num(h_))
+            else:
+                tip_f = lambda s_, h_: t("region.tip.sent" if var == "spread" else "region.tip.recv", ha=num(h_))
+            memo = {}
+            for gid in act.index:  # the same tip text per distinct (seasons, ha) pair, looked up once, not per parcel
+                key = (int(years_of[gid]) if yr is None else 0, round(float(reach[gid])))
+                if key not in memo:
+                    memo[key] = tip_f(key[0], key[1])
+                tip_by_gid[gid] = memo[key]
 
         fe = []
         for gid, g in zip(gids, shapes["geoms"]):
             if val is not None:
                 v_ = int(duty.get(gid, 0))
-                c, tip_ = (c_by_v[v_], t_by_v[float(share.get(gid, 0.0))]) if v_ else (faint, "")
+                c, tip_ = (c_by_v[v_], tip_by_gid.get(gid, "")) if v_ else (faint, "")
             else:
                 code = int(codes.get(gid, 0))
                 c, tip_ = (c_by_code[code], tip_by_code[code]) if code in c_by_code else (faint, "")
@@ -176,23 +197,23 @@ with map_row:
         if var == "spread":
             if yr is None:
                 lines.append(t("region.parcel.spread_acc", seasons=num(int(acc.years.get(pid, 0))),
-                               share=pct(acc.sent.get(pid, 0.0) / max(acc.sent.sum(), 1e-9))))
+                               ha=num(float(acc.reach.get(pid, 0.0)) / max(int(acc.years.get(pid, 0)), 1))))
             else:
                 nur = pressure(yr, r, scope)[0].set_index("id")
                 pos = nur.impact.rank(ascending=False, method="min").get(pid)
                 if pos:
                     lines.append(t("region.parcel.rank", k=num(int(pos)), n=num(len(nur)),
-                                   share=pct(nur.impact.get(pid, 0.0) / max(nur.impact.sum(), 1e-9))))
+                                   ha=num(float(nur.impact.get(pid, 0.0)) / max(float(nur.nursery_ha.get(pid, 0.0)), 1e-9))))
         elif var == "received":
             if yr is None:
                 lines.append(t("region.parcel.recv_acc", seasons=num(int(acc.recv_years.get(pid, 0))),
-                               share=pct(acc.got.get(pid, 0.0) / max(acc.got.sum(), 1e-9))))
+                               ha=num(float(acc.got.get(pid, 0.0)) / max(int(acc.recv_years.get(pid, 0)), 1))))
             else:
                 beet = pressure(yr, r, scope)[1].set_index("id")
                 pos = beet.pressure.rank(ascending=False, method="min").get(pid)
                 if pos:
                     lines.append(t("region.parcel.recv_rank", k=num(int(pos)), n=num(len(beet)),
-                                   share=pct(beet.pressure.get(pid, 0.0) / max(beet.pressure.sum(), 1e-9))))
+                                   ha=num(float(beet.pressure.get(pid, 0.0)))))
         chips = "".join(f'<span class="cc-chip" style="--c:{CROPS[crop_group(names_de.get(int(row[f"c{y_}"]), ""))]}">'
                         f'<i>{y_}</i>{names.get(int(row[f"c{y_}"]), "–")}</span>' for y_ in range(2017, last + 1))
         with st.container(key="card_parcel"):

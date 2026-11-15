@@ -245,7 +245,7 @@ def region_series(scope="bbox", r=1000):
     under 2%), so a whole-season scan stays quick; pressure() stays exact for the single-season map."""
     par, seasons, summary = landscape(scope)
     xy = lambda d: par.loc[d, ["x", "y"]].to_numpy("float32")
-    sent, got, years_n, years_b = pd.Series(dtype="f8"), pd.Series(dtype="f8"), pd.Series(dtype="int64"), pd.Series(dtype="int64")
+    sent, got, reach, years_n, years_b = (pd.Series(dtype="f8") for _ in range(5))
     rows = []
     cut = 4 * r
     for y in seasons.season.unique():
@@ -264,6 +264,9 @@ def region_series(scope="bbox", r=1000):
             np.add.at(pres, m, nh[i:i + 500] @ k)
         sent = sent.add(pd.Series(imp, index=nur.id), fill_value=0)
         got = got.add(pd.Series(pres, index=beet.id), fill_value=0)
+        # reach: the ha of beet a nursery can shift its planthoppers to, and the ha of nurseries a beet sits among,
+        # each with nearer ones counting more (kernel-weighted); the pressure itself is these times the own hectares
+        reach = reach.add(pd.Series(imp / np.where(nh > 0, nh, 1), index=nur.id), fill_value=0)
         years_n = years_n.add(pd.Series(1, index=nur.id), fill_value=0)
         years_b = years_b.add(pd.Series(1, index=beet.id), fill_value=0)
         rows.append({"season": int(y), "nursery_ha": float(nh.sum()), "beet_ha": float(bh.sum()),
@@ -272,7 +275,8 @@ def region_series(scope="bbox", r=1000):
     trend["per_100_ha"] = trend.pressure / trend.beet_ha * 100
     trend["rel_total"] = trend.pressure / trend.pressure.iloc[0] * 100
     trend["rel_normed"] = trend.per_100_ha / trend.per_100_ha.iloc[0] * 100
-    return trend, pd.DataFrame({"sent": sent, "got": got, "years": years_n.fillna(0), "recv_years": years_b.fillna(0)})
+    return trend, pd.DataFrame({"sent": sent, "got": got, "reach": reach, "years": years_n.fillna(0),
+                                "recv_years": years_b.fillna(0)})
 
 
 @st.cache_data
