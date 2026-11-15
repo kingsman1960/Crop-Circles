@@ -13,8 +13,9 @@ import rotation
 import ecocrop
 import engine
 import plans_store
-from data import CROPS, FLIGHT_M, HUE, INK, geojson, landscape, legend
+from data import CROPS, FLIGHT_M, HUE, INK, geojson, landscape
 from i18n import num, t
+from ui import legend
 from neighbours import collab_features, neighbour_context
 from plan_metrics import plan_metrics
 from plot_editor import edited, metric, plot_editor

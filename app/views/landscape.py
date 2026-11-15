@@ -6,10 +6,10 @@ import streamlit as st
 
 import accounts
 
-from data import (CROPS, FLIGHT_M, FLIGHTS, GREY, GREY_LIGHT, HUE, INK, PALE, chart, crop_group, crop_names, fields, footer, geojson,
-                  header, kpis, landscape, legend, parcel_geo, partners, pressure, region_series, rgb, source_line,
-                  tip)
+from data import (CROPS, FLIGHT_M, FLIGHTS, GREY, GREY_LIGHT, HUE, INK, PALE, chart, crop_group, crop_names, fields, geojson,
+                  landscape, parcel_geo, partners, pressure, region_series, rgb, tip)
 from i18n import num, pct, t
+from ui import footer, header, kpis, legend, source_line
 
 scope = st.segmented_control(t("region.scope.label"), ["bbox", "bw"], default="bbox", required=True, key="ls_scope",
                              persist_state="session", format_func=lambda k: t("region.scope." + k),
@@ -69,7 +69,7 @@ with trend_row:
                                                                                          var_name="what", value_name="v")
     pick = alt.selection_point(fields=["what", "season"], on="click", name="region_pick")
     lines = alt.Chart(long).mark_line(point=True).encode(
-        x=alt.X("season:O", title=t("region.trend.x")),
+        x=alt.X("season:O", title=t("region.trend.x"), axis=alt.Axis(labelAngle=0)),
         y=alt.Y("v:Q", title=t("region.trend.y"), axis=alt.Axis(format=".0f"), scale=alt.Scale(zero=False)),
         color=alt.Color("what:N", scale=alt.Scale(domain=list(what), range=[INK, HUE, GREY]), legend=None),
         strokeDash=alt.StrokeDash("what:N", scale=alt.Scale(domain=list(what), range=[[0], [6, 4], [0]])),

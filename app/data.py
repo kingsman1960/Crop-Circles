@@ -142,40 +142,10 @@ def field_name(fid):
     return t("common.field_name", id=fid, place=fields()[fid]["label"].removeprefix("Near "))
 
 
-def header(title, sub=None, right=(3, 1)):
-    """Title row: h1 (24px), the finding in one sentence under it; returns the right-hand column for the action."""
-    left, side = st.columns(right, vertical_alignment="bottom")
-    left.title(title)
-    if sub:
-        left.html(f'<p class="cc-sub">{sub}</p>')
-    return side
-
-
-def kpis(items, lead=None):
-    """One container split by 1px dividers: (label, value, unit, delta, tone, help); tone 'good' / 'bad' / None."""
-    cells = []
-    for i, (label, value, unit, delta, tone, help_) in enumerate(items):
-        unit = f"<small>{unit}</small>" if unit else ""
-        delta = f'<div class="d {tone or ""}">{delta}</div>' if delta else ""
-        cells.append(f'<div class="cc-kpi{" lead" if i == lead else ""}" title="{html.escape(help_ or "")}">'
-                     f'<div class="l">{label}</div><div class="v">{value}{unit}</div>{delta}</div>')
-    st.html(f'<div class="cc-kpis" style="--n:{len(items)}">{"".join(cells)}</div>')
-
-
-def legend(keys):
-    """Swatches that are the marks they explain: (colour, label, round?[, outline colour])."""
-    st.html("".join(f'<span class="cc-key"><i class="{"round" if r else ""}" style="background:{c}'
-                    f'{f";box-shadow:inset 0 0 0 2px {o[0]}" if o else ""}"></i>{l}</span>' for c, l, r, *o in keys))
-
-
 def tip(key):
     """Glossary text for a help= tooltip."""
     g = content("glossary")[key]
     return f"**{g['term']}** – {g['text']}"
-
-
-def source_line(unit, source, period):
-    st.caption(t("common.source_line", unit=unit, source=source, period=period))
 
 
 def uncertainty(level):
@@ -194,13 +164,6 @@ def takeaway(title, sub, sections):
             ".sub,footer{color:#5b6475}footer{margin-top:2rem;font-size:.8rem}@media print{body{margin:0}h2{break-after:avoid}}"
             f'</style></head><body><img src="data:image/png;base64,{logo}" width="44" alt="Crop Circles"><h1>{title}</h1>'
             f'<p class="sub">{md(sub)}</p>{body}<footer>{md(t("common.footer"))}</footer></body></html>')
-
-
-def footer():
-    with st.container(key="footer"):
-        a, b = st.columns([1, 2.2], vertical_alignment="center")
-        a.image(str(ASSETS / "logo_bar.png"), width=220)
-        b.markdown(t("common.footer"))
 
 
 # --- landscape planner -------------------------------------------------------
