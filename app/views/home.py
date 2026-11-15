@@ -8,8 +8,9 @@ from i18n import lang, num, t
 from plain import fraction, of_ten
 from ui import cycle, footer, hero_map, kpis, ring, s
 
-_, lang_col = st.columns([5, 1], vertical_alignment="center")
-i18n.picker(lang_col)
+# the language switch, right-aligned at its own width (a narrow column clipped it)
+with st.container(horizontal=True, horizontal_alignment="right"):
+    i18n.picker(st)
 
 
 def open_platform(where, key):
