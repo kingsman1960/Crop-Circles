@@ -208,7 +208,7 @@ else:
                                              f for f in feats if f["properties"]["status"] == "nursery"]},
                                                    filled=False, stroked=True, get_line_color=rgb(HUE, 255),
                                                    line_width_min_pixels=3),
-                                         pdk.Layer("GeoJsonLayer", data=outline, filled=False, stroked=True,
+                                         pdk.Layer("GeoJsonLayer", data=block_outline(fid, layer="hls_parcels"), filled=False, stroked=True,
                                                    get_line_color=[34, 48, 42], line_width_min_pixels=2)],
                                  tooltip={"text": t("field.space.tooltip", status="{label}", p="{pct}", ha="{ha}")}), height=380)
         legend([(colour[k], label[k], False) + ((HUE,) if k == "nursery" else ()) for k in shown])

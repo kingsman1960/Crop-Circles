@@ -224,14 +224,24 @@ def ph_levels(fid, season):
 
 
 @st.cache_data
-def block_outline(fid, year=None):
-    """The block's border for the maps: its FIONA parcels of one year (newest if none given) dissolved, paths up to
-    ~10 m closed. The hand-drawn polygon in fields.geojson only roughly follows the parcels; fills showed past it."""
+def block_outline(fid, year=None, layer="parcels"):
+    """The block's border for a map, drawn from the same parcels the map fills, dissolved (paths up to ~10 m closed).
+    The hand-drawn polygon in fields.geojson only roughly follows the parcels, so fills showed past it.
+    layer "parcels": the block's FIONA parcels of one year (newest if none given).
+    layer "hls_parcels": the satellite map's FIONA 2022 outlines, which include the direct neighbours; the block's own
+    are those with half their area, or 0.2 ha, inside the block polygon (the rule pipeline/geo.py picks parcels by)."""
     from shapely import union_all
     from shapely.geometry import mapping, shape
-    ps = [f for f in geojson("parcels")["features"] if f["properties"]["field"] == fid]
-    year = year or max(f["properties"]["year"] for f in ps)
-    block = union_all([shape(f["geometry"]) for f in ps if f["properties"]["year"] == year]).buffer(1e-4).buffer(-1e-4)
+    ps = [f for f in geojson(layer)["features"] if f["properties"]["field"] == fid]
+    if layer == "parcels":
+        year = year or max(f["properties"]["year"] for f in ps)
+        geoms = [shape(f["geometry"]) for f in ps if f["properties"]["year"] == year]
+    else:
+        poly = shape(next(f for f in geojson("fields")["features"] if f["id"] == fid)["geometry"])
+        m2 = 73_000 * 111_320  # square degrees -> m² at the Kraichgau's latitude, near enough for a 0.2 ha threshold
+        geoms = [g for g in (shape(f["geometry"]) for f in ps)
+                 if (a := g.intersection(poly).area) >= 0.5 * g.area or a * m2 >= 2000]
+    block = union_all(geoms).buffer(1e-4).buffer(-1e-4)
     return {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": mapping(block), "properties": {}}]}
 
 
