@@ -3,7 +3,7 @@
 The visual language, in three rules:
   colour  magenta is the planthopper (pressure), green is what helps, gold is wheat sown after beet;
   line    solid is yours, dashed is shared with neighbours or the flight range;
-  number  the four platform pages are steps 1-4, each marked with a ring.
+  number  the landing page's chapters are numbered with a ring; the platform pages are not steps and carry no number.
 
 Page header, numbers, legends, source lines, footer, the score marks (dots, ten, level) and the story pieces
 of the landing page live here. Story texts that are new in this design are kept in STORY below (en + de);
@@ -97,17 +97,16 @@ def s(key, **kw):
 
 
 def ring(n, size="md"):
-    """The step marker: a ring with the step number (1-4)."""
+    """A numbered ring, for the landing page's chapters."""
     return f'<span class="cc-ring cc-ring-{size}" aria-label="{html.escape(s("step", n=n))}">{n}</span>'
 
 
 # --- page furniture --------------------------------------------------------------------------------------------------
-def header(title, sub="", step=None):
-    """Page title (with its step ring on the four platform pages) and one plain sentence under it.
+def header(title, sub=""):
+    """Page title and one plain sentence under it.
     Returns the narrow right-hand column for a page action, such as the field report download."""
     left, right = st.columns([5, 1.4], vertical_alignment="bottom", gap="large")
-    left.html(f'<header class="cc-head">{ring(step, "lg") if step else ""}'
-              f'<div><h1 class="cc-title">{title}</h1>{f"<p class=cc-sub>{sub}</p>" if sub else ""}</div></header>')
+    left.html(f'<header class="cc-head"><div><h1 class="cc-title">{title}</h1>{f"<p class=cc-sub>{sub}</p>" if sub else ""}</div></header>')
     return right
 
 

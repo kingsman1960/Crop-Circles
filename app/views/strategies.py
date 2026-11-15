@@ -45,7 +45,7 @@ with title_row:
         losses = [lower(k) for k in crit if score(best, k)["score"] - score("S0", k)["score"] <= -0.3]
         sub = (t("grow.sub.best", name=cards[best]["name"], gains=t("common.and").join(gains[:2]) or "–")
                + (t("grow.sub.worse", losses=t("common.and").join(losses[:2])) if losses else "") + ".")
-    header(t("grow.title", id=fid), sub, step=2)
+    header(t("grow.title", id=fid), sub)
 
 # --- the comparison, in words ---------------------------------------------------
 head = "".join(f'<th title="{c["help"]}">{c["label"]}</th>' for c in crit.values())

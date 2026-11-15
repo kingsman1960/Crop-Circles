@@ -27,7 +27,7 @@ alerts = [p for p in posts if p["kind"] == "alert"]
 # an alert is open until someone from the plant-protection office has replied in its thread
 open_alerts = [p for p in alerts if not any(accounts.display(r["author"])[1] == "authority" for r in p["replies"])]
 header(t("community.title", region=region),
-       t("community.sub", n=len(posts), alerts=len(alerts), open=len(open_alerts)), step=4)
+       t("community.sub", n=len(posts), alerts=len(alerts), open=len(open_alerts)))
 
 
 def when(iso):

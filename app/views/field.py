@@ -53,7 +53,7 @@ ind = ind[ind.field == fid]
 daily = table("daily")
 daily = daily[daily.field == fid]
 title, sub = t("field.title", id=fid, place=place), t("field.sub", ha=num(p["area_ha"]), n=len(parcels))
-side = header(title, sub, step=1)
+side = header(title, sub)
 if accounts.my_parcels():  # parcels this farmer added from the region map: their crop history now, the rest later
     from data import landscape
     par, _, summary = landscape()
