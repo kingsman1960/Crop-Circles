@@ -3,12 +3,13 @@ import pandas as pd
 import streamlit as st
 
 import copilot
-from data import (HUE, chart, content, fact_text, field_picker, footer, header, model_note, neighbourhood, plan,
-                  planner_weights, rank_options, source_line, strategies)
+from data import (HUE, chart, content, fact_text, field_picker, model_note, neighbourhood, plan, planner_weights,
+                  rank_options, strategies)
 from engine import criteria, field_scores, priority_sliders
 from i18n import num, pct, t
-from plain import compare, dots, fraction
+from plain import compare, fraction
 from planner import crop_planner
+from ui import dots, footer, header, source_line
 
 picker = st.container()
 fid, p = field_picker(picker)
@@ -44,7 +45,7 @@ with title_row:
         losses = [lower(k) for k in crit if score(best, k)["score"] - score("S0", k)["score"] <= -0.3]
         sub = (t("grow.sub.best", name=cards[best]["name"], gains=t("common.and").join(gains[:2]) or "–")
                + (t("grow.sub.worse", losses=t("common.and").join(losses[:2])) if losses else "") + ".")
-    header(t("grow.title", id=fid), sub)
+    header(t("grow.title", id=fid), sub, step=2)
 
 # --- the comparison, in words ---------------------------------------------------
 head = "".join(f'<th title="{c["help"]}">{c["label"]}</th>' for c in crit.values())
@@ -82,7 +83,7 @@ for rank, sid in enumerate(order, 1):
     s, r_ = cards[sid], res["strategies"][sid]
     st.space("small")
     title = t("grow.card.best", name=s["name"]) if rank == 1 else t("grow.card.option", n=rank, name=s["name"])
-    with st.expander(f"**{title}**  ·  {num(total[sid], 1)} / 5", key=f"card_{sid}"):
+    with st.expander(f"**{title}**  ({num(total[sid], 1)} / 5)", key=f"card_{sid}"):
         extra = [t("grow.card.cover", crops=", ".join(crops[c]["label"] for c in s["cover_before"]))] + \
                 ([t("grow.card.mulch")] if s["mulch"] else [])
         st.html('<div class="cc-seq">'

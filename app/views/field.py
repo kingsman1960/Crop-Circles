@@ -6,11 +6,12 @@ import streamlit as st
 
 import accounts
 import copilot
-from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, POS, chart, content, crop_group, crop_names, crop_scale, field_picker, footer,
-                  from_space, geojson, header, kpis, layer, legend, neighbourhood, plan, planner_weights, pressure,
-                  rank_options, rgb, source_line, strategies, table, takeaway, tip)
+from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, POS, chart, content, crop_group, crop_names, crop_scale, field_picker,
+                  from_space, geojson, layer, neighbourhood, plan, planner_weights, pressure, rank_options, rgb,
+                  strategies, table, takeaway, tip)
 from i18n import day, listing, months, num, pct, t, tn
-from plain import fraction, level, of_ten, ten, weeks
+from plain import fraction, of_ten, weeks
+from ui import footer, header, kpis, legend, level, source_line, ten
 
 SOURCES = ("POWER", "IMERG", "DWD")
 RECENT, EARLY = (2015, 2024), (1981, 2010)
@@ -52,7 +53,7 @@ ind = ind[ind.field == fid]
 daily = table("daily")
 daily = daily[daily.field == fid]
 title, sub = t("field.title", id=fid, place=place), t("field.sub", ha=num(p["area_ha"]), n=len(parcels))
-side = header(title, sub)
+side = header(title, sub, step=1)
 if accounts.my_parcels():  # parcels this farmer added from the region map: their crop history now, the rest later
     from data import landscape
     par = landscape()[0]
@@ -143,7 +144,7 @@ with left:
     layers += [pdk.Layer("GeoJsonLayer", data={"type": "FeatureCollection", "features": parcels_y}, pickable=True,
                          filled=not show_erosion, get_fill_color="properties.rgb", stroked=True,
                          get_line_color=[255, 255, 255], line_width_min_pixels=1),
-               pdk.Layer("GeoJsonLayer", data=outline, filled=False, stroked=True, get_line_color=[22, 33, 62],
+               pdk.Layer("GeoJsonLayer", data=outline, filled=False, stroked=True, get_line_color=[34, 48, 42],
                          line_width_min_pixels=2)]
     st.pydeck_chart(pdk.Deck(map_style=None, layers=layers, tooltip={"text": t("field.map.tooltip", group="{group}", crop="{crop}", ha="{ha}", year=yr)},
                              initial_view_state=pdk.ViewState(latitude=p["lat"], longitude=p["lon"], zoom=14.4)),
@@ -196,7 +197,7 @@ else:
                                                    filled=False, stroked=True, get_line_color=rgb(HUE, 255),
                                                    line_width_min_pixels=3),
                                          pdk.Layer("GeoJsonLayer", data=outline, filled=False, stroked=True,
-                                                   get_line_color=[22, 33, 62], line_width_min_pixels=2)],
+                                                   get_line_color=[34, 48, 42], line_width_min_pixels=2)],
                                  tooltip={"text": t("field.space.tooltip", status="{label}", p="{pct}", ha="{ha}")}), height=380)
         legend([(colour[k], label[k], False) + ((HUE,) if k == "nursery" else ()) for k in shown])
     with right:

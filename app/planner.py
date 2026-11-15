@@ -17,7 +17,7 @@ from data import CROPS, HUE, INK, geojson, landscape, legend
 from i18n import num, t
 from neighbours import collab_features, neighbour_context
 from plan_metrics import plan_metrics
-from plot_editor import metric, plot_editor
+from plot_editor import edited, metric, plot_editor
 
 TEXT = {
     "en": {"title": "Plan {year} on your fields", "intro": "Split or merge the plots for next year, then pick a crop to "
@@ -39,7 +39,8 @@ TEXT = {
            "privacy": "Saved plans are shared with other planners without your name: outlines and crops only, for the "
                       "planthopper maths.", "no_store": "Saving is off: SUPABASE_URL and SUPABASE_SECRET_KEY were not found. Streamlit reads "
                        ".streamlit/secrets.toml in the folder where you run `streamlit run`.",
-           "save_first": "Save your {prev} plan first: {prev} is what grew before, for the rotation rules and the pressure.",
+           "save_first": "Plan {prev} first (pick {prev} above): it is what grows before {year}, for the rotation rules "
+                         "and the pressure.",
            "hist_src": "FIONA, then your saved plans", "fit": "climate fit {pct}"},
     "de": {"title": "{year} auf Ihren Flächen planen", "intro": "Teilen oder verbinden Sie die Schläge fürs nächste Jahr "
            "und wählen Sie eine Kultur, um zu sehen, wo sie in die Fruchtfolge passt. Rote Schläge verletzen eine Regel; "
@@ -61,7 +62,8 @@ TEXT = {
            "privacy": "Gespeicherte Pläne werden ohne Ihren Namen mit anderen Planenden geteilt: nur Umrisse und Kulturen, "
                       "für die Zikadenberechnung.", "no_store": "Speichern ist aus: SUPABASE_URL und SUPABASE_SECRET_KEY nicht gefunden. Streamlit liest "
                        ".streamlit/secrets.toml im Ordner, in dem Sie `streamlit run` starten.",
-           "save_first": "Speichern Sie zuerst Ihren Plan für {prev}: {prev} ist die Vorfrucht, für Fruchtfolgeregeln und Druck.",
+           "save_first": "Planen Sie zuerst {prev} (oben {prev} wählen): das ist die Vorfrucht für {year}, für "
+                         "Fruchtfolgeregeln und Druck.",
            "hist_src": "FIONA, danach Ihre gespeicherten Pläne", "fit": "Klimaeignung {pct}"},
 }
 EDITOR_DE = {
@@ -100,19 +102,24 @@ def crop_planner(fid: str, p: dict, height: int = 620) -> None:
                                 format_func=lambda y: f"{y} ✓" if y in saved else str(y))
     st.subheader(tx["title"].format(year=year))
     st.markdown(tx["intro"])
-    if year - 1 > season and year - 1 not in saved:
-        st.info(tx["save_first"].format(prev=year - 1))
+    # every plan year: what you painted in this session (also unsaved), else what you saved
+    layers = {y: edited(f"planner_{fid}_{y}") or saved.get(y) for y in plan_years}
+    layers = {y: v for y, v in layers.items() if v}
+    painted = lambda y: any(f["properties"].get("plan") for f in layers.get(y, []))
+    if year - 1 > season and not painted(year - 1):
+        st.info(tx["save_first"].format(prev=year - 1, year=year))
 
-    # history: the FIONA declarations, then your saved plans for the years before this one
+    # history: the FIONA declarations, then your plans for the years before this one
     past = [(f["properties"]["year"], _key(f["properties"].get("crop")), metric(f)) for f in parcels]
-    past += [(y, f["properties"]["plan"], metric(f)) for y, plots in saved.items() if y < year
+    past += [(y, f["properties"]["plan"], metric(f)) for y, plots in layers.items() if y < year
              for f in plots if f["properties"].get("plan")]
     # the starting layout: your saved plan for this year, else your latest earlier layout, else this year's FIONA plots
-    earlier = [y for y in saved if y < year]
+    earlier = [y for y in layers if y < year]
     if year in saved:
         start = saved[year]
     elif earlier:
-        start = [{**f, "properties": {**f["properties"], "plan": None}} for f in saved[max(earlier)]]
+        start = [{**f, "properties": {"id": f["properties"]["id"], "ha": f["properties"].get("ha"), "plan": None}}
+                 for f in layers[max(earlier)]]
     else:
         start = [f for f in parcels if f["properties"]["year"] == years[-1]]
 
@@ -158,7 +165,8 @@ def crop_planner(fid: str, p: dict, height: int = 620) -> None:
             st.rerun(scope="fragment")
     st.caption(tx["faded"] + " " + tx["source"])
     st.space("small")
-    plan_metrics(fid, p, res["features"], year, lang, others)
+    future = {y: layers[y] for y in range(year + 1, year + engine.HORIZON) if painted(y)}
+    plan_metrics(fid, p, res["features"], year, lang, others, future)
 
 
 def _palette(fid, lang):

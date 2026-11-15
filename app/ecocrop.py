@@ -5,8 +5,8 @@ between. Here, per field, from its daily weather (data/processed/daily.parquet):
 - temperature: mean daily temperature over the crop's own active season (sowing to harvest, from the crop calendar;
   winter crops from 1 March, as they rest hardened over winter);
 - rainfall: mean yearly rain;
-- frost: share of years in which the season's coldest day falls below the crop's killing temperature (winter
-  cereals from heading on: hardened plants survive the frosts before);
+- frost: share of years in which the coldest day falls below the crop's killing temperature while it can be killed:
+  spring crops from emergence to a month before harvest, winter cereals from heading (hardened plants survive earlier);
 - texture: the field's soil (silt-rich loess = medium) against the textures the crop takes.
 Fit = min(temperature, rainfall) x (1 - frost share) x texture factor, 0..1. pH is in the table but not yet used:
 the app has no pH per field.
@@ -22,6 +22,7 @@ from data import CONTENT, fields, strategies, table
 
 CSV = CONTENT / "ecocrop_south_germany.csv"
 TEXTURE_MISS = 0.8  # a texture the crop does not list: fit x 0.8
+RIPE_DAYS = 30      # the last weeks before harvest: a frost no longer kills the crop
 
 
 @st.cache_data(show_spinner=False)
@@ -76,7 +77,9 @@ def fit(fid: str, crop_key: str, winter: bool) -> dict:
     cold_col = next((c for c in ("t_min_power", "t_min_dwd") if c in d), tcol)  # daily minimum where we have it
     # frost harms winter cereals from heading on (the calendar's canopy date), hardened plants survive earlier frosts
     doy = d.date.dt.day_of_year.clip(upper=365)
-    in_frost = (doy >= dates["canopy"]) & (doy <= dates["harvest"]) if winter else pd.Series(mask, index=d.index)
+    # spring crops: from emergence to a month before harvest (frost before emergence or on the ripe crop kills nothing)
+    in_frost = ((doy >= dates["canopy"]) & (doy <= dates["harvest"]) if winter
+                else (doy >= dates["emerge"]) & (doy <= dates["harvest"] - RIPE_DAYS))
     frost_days = d[in_frost]
     coldest = frost_days.groupby(frost_days.date.dt.year)[cold_col].min() if cold_col else pd.Series(dtype=float)
     frost = float((coldest < row.kill_temp).mean()) if len(coldest) and not pd.isna(row.kill_temp) else 0.0
