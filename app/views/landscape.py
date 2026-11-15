@@ -6,10 +6,11 @@ import streamlit as st
 
 import accounts
 
-from data import (CROPS, FLIGHT_M, FLIGHTS, GREY, HUE, INK, MODES, PALE, POS, chart, content, crop_group, crop_names, fields, footer, geojson,
-                  header, kpis, landscape, legend, neighbourhood, plan, planner_weights, priority_control, rgb, source_line, tip)
+from data import (CROPS, FLIGHT_M, FLIGHTS, GREY, HUE, INK, MODES, PALE, POS, chart, content, crop_group, crop_names, fields,
+                  geojson, landscape, neighbourhood, plan, planner_weights, priority_control, rgb, tip)
 from i18n import num, pct, t
-from plain import fraction, level, of_ten
+from plain import fraction, of_ten
+from ui import footer, header, kpis, legend, level, source_line
 
 crops = content("crops")
 scope = st.segmented_control(t("region.scope.label"), ["bbox", "bw"], default="bbox", required=True, key="ls_scope",
@@ -53,7 +54,7 @@ lvl = lambda v: "high" if v >= q67 else "medium" if v >= q33 else "low"
 
 with title_row:
     header(t("region.title"), t("region.sub", season=season, share=of_ten(s["beet_to_wheat"]), part=share_word(share),
-                                less=fraction(removed(plans["balanced"][0])), random=fraction(removed(plans["random"][0]))))
+                                less=fraction(removed(plans["balanced"][0])), random=fraction(removed(plans["random"][0]))), step=3)
     if scope == "bw":
         st.caption(t("region.scope.bw_note", n=num(len(par))))
 
@@ -150,10 +151,10 @@ dots = lambda id_, d, **kw: pdk.Layer("ScatterplotLayer", id=id_, data=d[cols], 
 layers = [dots("wheat", nur[~nur.switch], radius_min_pixels=1.5), dots("beet", beet, radius_min_pixels=1.5),
           dots("switch", nur[nur.switch], radius_min_pixels=2.5, stroked=True, get_line_color=[255, 255, 255],
                line_width_min_pixels=1),
-          pdk.Layer("GeoJsonLayer", data=geojson("fields"), stroked=True, filled=False, get_line_color=[22, 33, 62],
+          pdk.Layer("GeoJsonLayer", data=geojson("fields"), stroked=True, filled=False, get_line_color=[34, 48, 42],
                     line_width_min_pixels=2),
           pdk.Layer("TextLayer", data=[{"id": i, "pos": [p["lon"], p["lat"]]} for i, p in fields().items()],
-                    get_position="pos", get_text="id", get_size=15, get_color=[22, 33, 62], get_pixel_offset=[0, -22],
+                    get_position="pos", get_text="id", get_size=15, get_color=[34, 48, 42], get_pixel_offset=[0, -22],
                     outline_width=4, outline_color=[255, 255, 255], font_settings={"sdf": True})]
 with map_row:
     with left:

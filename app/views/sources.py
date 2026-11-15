@@ -3,8 +3,9 @@ import streamlit as st
 
 import altair as alt
 
-from data import GREY, INK, POS, chart, content, footer, header, region_test, source_line, strategies
+from data import GREY, INK, POS, chart, content, region_test, strategies
 from i18n import num, t
+from ui import footer, header, source_line
 
 src = content("sources")
 ds = pd.DataFrame(src["dataset"])

@@ -1,30 +1,6 @@
-# Field journal: for farmers, not analysts. Calm sage page (Wise DESIGN.md), editorial serif titles (Claude DESIGN.md),
-# colours from the Crop Circles logo – green for actions, magenta only for the planthopper, navy ink.
-[theme]
-base = "light"
-primaryColor = "#2f6a3f"
-backgroundColor = "#f1f4ee"
-secondaryBackgroundColor = "#e6ebe2"
-textColor = "#16213e"
-linkColor = "#2f6a3f"
-linkUnderline = true
-borderColor = "#d9e0d4"
-showWidgetBorder = true
-baseRadius = "8px"
-buttonRadius = "full"
-baseFontSize = 16
-font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-headingFont = "Newsreader:https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap"
-headingFontSizes = ["40px", "28px", "24px", "18px", "16px", "16px"]
-headingFontWeights = [500, 500, 500, 500, 500, 500]
-metricValueFontSize = "28px"
-metricValueFontWeight = 500
-chartCategoricalColors = ["#16213e", "#b03a72", "#8a94a6", "#c3cad4", "#2f6a3f"]
-greenColor = "#2f6a3f"
-redColor = "#b03a72"
-orangeColor = "#9a6a12"
-
+# Crop Circles theme. The font ships with the app (app/static/Archivo.ttf), so the demo also works offline.
 [server]
+enableStaticServing = true
 runOnSave = true
 
 [client]
@@ -32,3 +8,33 @@ toolbarMode = "minimal"
 
 [browser]
 gatherUsageStats = false
+
+[theme]
+base = "light"
+primaryColor = "#2E6A4E"              # hedge green: actions, and what helps
+backgroundColor = "#FBFAF6"           # chalk: the page
+secondaryBackgroundColor = "#F1EEE4"  # inputs, wells
+textColor = "#22302A"                 # furrow ink
+linkColor = "#2E6A4E"
+linkUnderline = false
+borderColor = "#DEDACD"
+showWidgetBorder = true
+baseRadius = "0.75rem"
+buttonRadius = "full"
+font = "Archivo, sans-serif"
+headingFont = "Archivo, sans-serif"
+baseFontSize = 17
+headingFontWeights = [800, 700, 650, 650, 600, 600]
+headingFontSizes = ["2.75rem", "2rem", "1.4rem", "1.15rem"]
+metricValueFontWeight = 700
+redColor = "#A8336A"
+greenColor = "#2E6A4E"
+yellowColor = "#B88A1E"
+orangeColor = "#8A6514"
+chartCategoricalColors = ["#2E6A4E", "#A8336A", "#D6A93C", "#22302A", "#8E9688", "#6B8FA3"]
+
+[[theme.fontFaces]]
+family = "Archivo"
+url = "app/static/Archivo.ttf"
+weight = "100 900"
+style = "normal"
