@@ -243,16 +243,22 @@ else:
     ser = ser[(ser.field == fid) & (ser.date >= pd.Timestamp(before, 8, 1))]
     ser = ser.assign(status=ser.id.map({f["properties"]["id"]: f["properties"]["status"] for f in feats}))
     keys = [k for k in ("nursery", "switched", "beet_now") if k in shown]
-    curve = ser[ser.status.isin(keys)].groupby(["status", "date"]).ndvi.median().reset_index()
-    curve["what"] = curve.status.map(label)
     st.markdown(f"**{t('field.space.curves')}**  \n{t('field.space.curves_note')}")
+    index = "ndvi"
+    if "ndre" in ser and ser.ndre.notna().any():  # the red-edge index exists once the Sentinel-2 red-edge band is in
+        index = st.segmented_control(t("field.space.index"), ["ndvi", "ndre"], default="ndvi", required=True, key="space_index",
+                                     format_func=lambda k: t("field.space." + k), persist_state="session", width="content",
+                                     help=t("field.space.index_help"))
+    green = t("field.space.green") if index == "ndvi" else t("field.space.green_ndre")
+    curve = ser[ser.status.isin(keys)].dropna(subset=[index]).groupby(["status", "date"])[index].median().reset_index()
+    curve["what"] = curve.status.map(label)
     newest = alt.Chart(pd.DataFrame({"date": [pd.Timestamp(sp["last"])], "label": [t("field.space.newest")]}))
     chart(alt.Chart(curve).mark_line(point=alt.OverlayMarkDef(size=18), strokeWidth=2).encode(
-        x=alt.X("date:T", title=None), y=alt.Y("ndvi:Q", title=t("field.space.green"), scale=alt.Scale(domain=[0, 1])),
+        x=alt.X("date:T", title=None), y=alt.Y(f"{index}:Q", title=green, scale=alt.Scale(domain=[0, 1])),
         color=alt.Color("what:N", scale=alt.Scale(domain=[label[k] for k in keys], range=[(colour | {"nursery": "#c98500"})[k] for k in keys]),
                         legend=alt.Legend(orient="top", title=None, labelLimit=400)),
         tooltip=[alt.Tooltip("date:T", format="%d %b %Y", title=t("field.space.date")), "what:N",
-                 alt.Tooltip("ndvi:Q", format=".2f", title=t("field.space.green"))])
+                 alt.Tooltip(f"{index}:Q", format=".2f", title=green)])
           + newest.mark_rule(color=GREY, strokeDash=[3, 3]).encode(x="date:T")
           + newest.mark_text(align="right", baseline="top", dx=-4, dy=2, color=GREY, fontSize=12).encode(x="date:T", y=alt.value(0), text="label:N"),
           width="stretch", height=220)
