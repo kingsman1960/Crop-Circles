@@ -223,6 +223,18 @@ def ph_levels(fid, season):
     return out
 
 
+@st.cache_data
+def block_outline(fid, year=None):
+    """The block's border for the maps: its FIONA parcels of one year (newest if none given) dissolved, paths up to
+    ~10 m closed. The hand-drawn polygon in fields.geojson only roughly follows the parcels; fills showed past it."""
+    from shapely import union_all
+    from shapely.geometry import mapping, shape
+    ps = [f for f in geojson("parcels")["features"] if f["properties"]["field"] == fid]
+    year = year or max(f["properties"]["year"] for f in ps)
+    block = union_all([shape(f["geometry"]) for f in ps if f["properties"]["year"] == year]).buffer(1e-4).buffer(-1e-4)
+    return {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": mapping(block), "properties": {}}]}
+
+
 def parcel_geo(scope="bbox"):
     """Compact parcel outlines {"ids": [...], "geoms": [...]} (EPSG:4326, pipeline/landscape_geo.py), or empty while
     the pipeline has not written them yet: the region map falls back to dots for the parcels it does not cover."""

@@ -6,7 +6,7 @@ import streamlit as st
 
 import accounts
 import copilot
-from data import (CROPS, FLIGHT_M, GREY, GREY_LIGHT, HUE, INK, PH_LEVEL, POS, chart, content, crop_group, crop_names, crop_scale,
+from data import (CROPS, FLIGHT_M, GREY, GREY_LIGHT, HUE, INK, PH_LEVEL, POS, block_outline, chart, content, crop_group, crop_names, crop_scale,
                   field_picker, from_space, geojson, layer, neighbourhood, ph_levels, plan, planner_weights, pressure, rank_options,
                   region_test, rgb, strategies, table, takeaway, tip)
 from i18n import day, listing, months, num, pct, t, tn
@@ -152,7 +152,7 @@ with left:
     groups = [g for g in CROPS if any(crop_group(f["properties"]["crop"]) == g for f in parcels_y)]
     layers = [pdk.Layer("BitmapLayer", image=layer("erosion_ks")[0], bounds=layer("erosion_ks")[1]["bounds"],
                         opacity=0.8)] if show_erosion else []
-    outline = {"type": "FeatureCollection", "features": [f for f in geojson("fields")["features"] if f["id"] == fid]}
+    outline = block_outline(fid, yr)  # the shown parcels dissolved, so the fills and the border match
     layers += [pdk.Layer("GeoJsonLayer", data={"type": "FeatureCollection", "features": parcels_y}, pickable=True,
                          filled=not show_erosion, get_fill_color="properties.rgb", stroked=True,
                          get_line_color=[255, 255, 255], line_width_min_pixels=1),
