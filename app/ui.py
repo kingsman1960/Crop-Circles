@@ -25,14 +25,14 @@ STORY = {
         "help": "What this means",
         "hero.title": "Your beet field depends on your neighbour's wheat.",
         "hero.sub": "The planthopper that carries SBR and stolbur into sugar beet spends the winter in wheat sown "
-                    "after beet. In early summer it flies about a kilometre to the nearest beet field. No farm can "
+                    "after beet. In early summer it flies a few hundred metres to the nearest beet field. No farm can "
                     "stop it alone. Crop Circles shows every farm in the Kraichgau which of its fields matter most "
                     "to everyone around it.",
         "hero.how": "How it works",
         "legend.beet": "Sugar beet this year",
         "legend.nursery": "Wheat after last year's beet, where planthoppers spend the winter",
         "legend.switch": "Switched to another crop",
-        "legend.ring": "How far they fly: about 1 km around each farm",
+        "legend.ring": "How far they fly: about 500 m around each farm",
         "cycle.title": "How the planthopper reaches your beet",
         "cycle.1.when": "Summer",
         "cycle.1.text": "Adults lay their eggs at the beet. The young feed on its roots.",
@@ -59,14 +59,14 @@ STORY = {
         "help": "Was das heißt",
         "hero.title": "Ihr Rübenfeld hängt am Weizen Ihres Nachbarn.",
         "hero.sub": "Die Schilf-Glasflügelzikade, die SBR und Stolbur in die Zuckerrübe trägt, überwintert im "
-                    "Weizen nach Rüben. Im Frühsommer fliegt sie rund einen Kilometer weit zum nächsten Rübenfeld. "
+                    "Weizen nach Rüben. Im Frühsommer fliegt sie einige hundert Meter weit zum nächsten Rübenfeld. "
                     "Kein Betrieb kann sie allein aufhalten. Crop Circles zeigt jedem Betrieb im Kraichgau, welche "
                     "seiner Flächen für alle ringsum am meisten zählen.",
         "hero.how": "So funktioniert es",
         "legend.beet": "Zuckerrüben in diesem Jahr",
         "legend.nursery": "Weizen nach Rüben vom Vorjahr: hier überwintern die Zikaden",
         "legend.switch": "Auf eine andere Kultur umgestellt",
-        "legend.ring": "So weit fliegen sie: rund 1 km um jeden Betrieb",
+        "legend.ring": "So weit fliegen sie: rund 500 m um jeden Betrieb",
         "cycle.title": "Wie die Zikade an Ihre Rüben kommt",
         "cycle.1.when": "Sommer",
         "cycle.1.text": "Die Zikaden legen ihre Eier an die Rübe. Die Larven saugen an den Wurzeln.",

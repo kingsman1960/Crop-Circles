@@ -1,6 +1,6 @@
 <svg class="cc-hero-map" viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cc-hero-t cc-hero-d">
 <title id="cc-hero-t">Strip fields with flight rings</title>
-<desc id="cc-hero-d">Three farms, each with a dashed ring of about one kilometre. Beet strips in magenta, wheat after beet in gold, switched strips in green. The rings overlap, so the farms share planthoppers.</desc>
+<desc id="cc-hero-d">Three farms, each with a dashed ring of about 500 metres. Beet strips in magenta, wheat after beet in gold, switched strips in green. The rings overlap, so the farms share planthoppers.</desc>
 <defs><clipPath id="cc-hero-clip"><rect width="720" height="560" rx="22"/></clipPath></defs>
 <g clip-path="url(#cc-hero-clip)">
 <rect width="720" height="560" fill="#FFFFFF"/>
@@ -243,7 +243,7 @@
 <circle class="farm" cx="250" cy="250" r="9" fill="#FFFFFF" stroke="#22302A" stroke-width="3"/>
 <circle class="farm" cx="455" cy="205" r="9" fill="#FFFFFF" stroke="#22302A" stroke-width="3"/>
 <circle class="farm" cx="395" cy="385" r="9" fill="#FFFFFF" stroke="#22302A" stroke-width="3"/>
-<g class="scale"><path d="M262,250 H396" stroke="#22302A" stroke-width="1.5"/><path d="M390,245 L397,250 L390,255" fill="none" stroke="#22302A" stroke-width="1.5"/><rect x="294" y="224" width="68" height="22" rx="11" fill="#FFFFFF"/><text x="328" y="240" text-anchor="middle" font-size="14" font-weight="650" fill="#22302A" style="font-variation-settings:'wdth' 110">≈ 1 km</text></g>
+<g class="scale"><path d="M262,250 H396" stroke="#22302A" stroke-width="1.5"/><path d="M390,245 L397,250 L390,255" fill="none" stroke="#22302A" stroke-width="1.5"/><rect x="288" y="224" width="80" height="22" rx="11" fill="#FFFFFF"/><text x="328" y="240" text-anchor="middle" font-size="14" font-weight="650" fill="#22302A" style="font-variation-settings:'wdth' 110">≈ 500 m</text></g>
 </g></g>
 <rect x=".75" y=".75" width="718.5" height="558.5" rx="21.5" fill="none" stroke="#22302A" stroke-opacity=".18" stroke-width="1.5"/>
 </svg>
