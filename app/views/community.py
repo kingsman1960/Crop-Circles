@@ -13,7 +13,8 @@ import streamlit as st
 
 import accounts
 import copilot
-from data import fields, footer, header
+from data import fields
+from ui import footer, header
 from i18n import day, lang, t
 
 KINDS = ("note", "question", "alert")  # labels: community.kind.<key> in the locales
@@ -26,7 +27,7 @@ alerts = [p for p in posts if p["kind"] == "alert"]
 # an alert is open until someone from the plant-protection office has replied in its thread
 open_alerts = [p for p in alerts if not any(accounts.display(r["author"])[1] == "authority" for r in p["replies"])]
 header(t("community.title", region=region),
-       t("community.sub", n=len(posts), alerts=len(alerts), open=len(open_alerts)))
+       t("community.sub", n=len(posts), alerts=len(alerts), open=len(open_alerts)), step=4)
 
 
 def when(iso):
@@ -38,7 +39,8 @@ def when(iso):
 def show(p, pane):
     """One post with its replies and a reply box; `pane` keeps widget keys unique when a post is in several tabs."""
     name, role = accounts.display(p["author"])
-    with st.container(key=f"card_post_{pane}_{p['id']}"):
+    # the kind is in the key, so the stylesheet can mark alerts (a magenta edge)
+    with st.container(key=f"card_post_{p['kind']}_{pane}_{p['id']}"):
         tag = f'<span class="cc-note">{t("community.role." + role)}</span>'
         kind = f' · <b class="cc-level {"high" if p["kind"] == "alert" else "low"}">{t("community.kind." + p["kind"])}</b>' if p["kind"] != "note" else ""
         where = f' · {t("community.about", id=p["field"])}' if p["field"] else ""

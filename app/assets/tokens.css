@@ -1,15 +1,58 @@
-/* Crop Circles tokens: the brand's own values (logo, .streamlit/config.toml), the Hallmark scale around them. */
+/* Crop Circles tokens.
+   The page is a survey map of the Kraichgau: white strips of paper, ink lines, and three story colours.
+   magenta (beet)  = the planthopper, pressure, things that get worse
+   green (hedge)   = what helps, actions, things that get better
+   gold (loess)    = wheat sown after beet, the nurseries; also focus
+   Solid lines are yours; dashed lines are shared with neighbours or mark the flight range. */
 :root {
-  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
-  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.2rem; --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
-  --color-paper: #f1f4ee; --color-paper-2: #e6ebe2; --color-paper-3: #fbfcf9;
-  --color-ink: #16213e; --color-ink-2: #3e4a60; --color-muted: #5b6475;
-  --color-rule: #d9e0d4;
-  --color-accent: #2f6a3f; --color-accent-ink: #f1f4ee; --color-focus: #2f6a3f;
-  --color-hue: #b03a72; --color-warn: #9a6a12;
-  --font-display: "Newsreader", Georgia, ui-serif, serif; --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --radius-card: 8px; --radius-pill: 999px; --rule-hair: 1px; --shadow-card: none;
-  --tracking-display: -0.01em;
+  /* paper and ink */
+  --chalk: #FBFAF6;        /* the page */
+  --sheet: #FFFFFF;        /* cards */
+  --well: #F1EEE4;         /* quiet wells, inputs */
+  --ink: #22302A;          /* text and lines */
+  --ink-2: #5A6258;        /* secondary text (6.1:1 on chalk) */
+  --line: #DEDACD;
+  --line-strong: #A9A493;
+
+  /* the story colours */
+  --beet: #A8336A;
+  --beet-wash: #F7E8EF;
+  --hedge: #2E6A4E;
+  --hedge-wash: #E6EFE8;
+  --loess: #D6A93C;
+  --loess-deep: #8A6514;   /* gold that is safe for text */
+  --loess-wash: #F7F0DC;
+
+  /* type: one family, Archivo; its width axis carries the voice */
+  --font: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --wide: "wdth" 125;      /* titles: wide and heavy, like lettering on field machinery */
+  --broad: "wdth" 112;     /* numbers and small headings */
+  --semi: "wdth" 90;       /* labels in tight places */
+
+  /* scale: 17 px base, major third */
+  --t-xs: 0.8125rem;       /* 13 */
+  --t-s: 0.9375rem;        /* 15 */
+  --t-m: 1.0625rem;        /* 17 */
+  --t-l: 1.3125rem;        /* 21 */
+  --t-xl: 1.625rem;        /* 26 */
+  --t-2xl: 2.125rem;       /* 34 */
+  --t-3xl: 2.875rem;       /* 46 */
+  --t-hero: clamp(2.3rem, 2.9vw + 0.9rem, 3.75rem);
+
+  /* shape: rounder the closer to the hand (buttons), squarer the closer to data (tables) */
+  --r-s: 8px;
+  --r-m: 14px;
+  --r-l: 22px;
+  --dash: 1.5px dashed var(--ink-2);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2.25rem;
+  --space-7: 3.5rem;
+
+  /* what sits under cards and number rows; cards reset it to white */
+  --cc-surface: var(--chalk);
 }

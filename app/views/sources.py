@@ -1,8 +1,9 @@
 import pandas as pd
 import streamlit as st
 
-from data import content, footer, header, strategies
+from data import content, strategies
 from i18n import t
+from ui import footer, header
 
 src = content("sources")
 ds = pd.DataFrame(src["dataset"])

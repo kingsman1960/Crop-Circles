@@ -4,7 +4,8 @@ Every option is scored as the next HORIZON years (2026-2028) on the plots of the
 weighted 50 / 30 / 20 % (next year is decided now, the later years can still change):
 - a strategy card: each plot continues the strategy's rotation from where its history left it (if that would break a
   rotation rule there, the plot starts the rotation at another point);
-- your plan: the crop you painted for the first year, then the best match's rotation from that crop.
+- your plan: what you painted on each year's map (first year: green fallow where nothing is painted); a later year
+  you have not painted is filled in with the best match's next crop, or another of its crops where that breaks a rule.
 So a one-year plan is never compared with a three-year average: both are three years on the same plots.
 
 Criteria (1 worst .. 5 best):
@@ -14,9 +15,11 @@ Criteria (1 worst .. 5 best):
   beet they reach within flight range compared with a typical nursery in the region. Pressure uses the pipeline's own
   formula, pipeline.pressure.impacts (nursery ha x beet ha x e^(-distance / flight range)), unchanged.
 - income: per-crop values from the strategy cards' notes; sugar beet loses yield to SBR/Stolbur in proportion to the
-  planthopper pressure it receives (your nurseries and the neighbours' expected ones).
+  planthopper pressure it receives (your nurseries and the neighbours' expected ones). Fallow scores 0 (below the 1..5
+  scale), weighted by its share, so leaving land unplanted always costs income.
 - nitrogen: legumes leave nitrogen for the next crop, cover crops hold it over winter.
-- rotation: the rotation rules of the planner map (rotation.py), without the planthopper rule.
+- rotation: the rotation rules of the planner map (rotation.py), without the planthopper rule: per plot and year
+  a rule broken 1, a risk 2.5, fine 4, a good fit 5.
 Neighbours' future crops are unknown: they enter as expected values from their own history (how often they grew beet
 since 2017) and the region's share of beet followed by wheat.
 """
@@ -49,16 +52,21 @@ BEET_CODE = 1402               # Thünen code of sugar beet in landscape_parcels
 POTATO = {"label": "Potatoes", "winter": False, "kc_mid": 1.15, "kc_end": 0.75,
           "doy": {"sow": 105, "emerge": 130, "canopy": 165, "harvest": 255}}
 model.CROPS.setdefault("potato", POTATO)
+# An unpainted plot in your plan: green fallow (self-greening or a sown cover, mulched in autumn), not bare soil.
+# Covered most of the year, so little erosion; it transpires like a cover crop; earns nothing; hosts no nursery.
+FALLOW = {"label": "Green fallow", "winter": False, "kc_mid": 0.70, "kc_end": 0.60, "stubble": 0.15,
+          "doy": {"sow": 75, "emerge": 90, "canopy": 130, "harvest": 300}}
+model.CROPS.setdefault("fallow", FALLOW)
 
 # income per crop-year, read from the cards: beet has the best margin when healthy (S0 note), maize and cereals are
 # established (S0, S1), soybean and pea have thinner regional markets (S2: 2.5, S4: 2 for the whole rotation)
-INCOME = {"sugar_beet": 3.5, "winter_wheat": 3.0, "winter_barley": 3.0, "grain_maize": 3.0, "potato": 3.0,
+INCOME = {"fallow": 0.0, "sugar_beet": 3.5, "winter_wheat": 3.0, "winter_barley": 3.0, "grain_maize": 3.0, "potato": 3.0,
           "soybean": 1.75, "field_pea": 1.25}
 LOSS_MAX = 0.30                # SBR/Stolbur yield and sugar loss on beet at high pressure (assumption to calibrate)
 LEGUME_N = {"field_pea": 7.5, "soybean": 6.0}  # one legume year in three: +2.5 (pea) / +2.0 (soy), as cards S4 / S2
 COVER_N = 1.5                  # cover crops in every gap instead of before beet only: +1, as card S3
 NURSERY = {"winter_wheat": 1.0, "winter_barley": 0.5}  # barley on beet: our sources name wheat (see rotation.py)
-HEALTH = {"bad": 1, "warn": 2, "ok": 3, "good": 4, "unknown": 3}
+HEALTH = {"bad": 1, "warn": 2.5, "ok": 4, "good": 5, "unknown": 3.5}  # per plot-year; no rule broken = 4 or more
 SHOW = 3                       # neighbours up to this many flight ranges away enter the pressure sums
 
 EXTRA = {"rotation": {"label": {"en": "Following the rotation rules", "de": "Fruchtfolgeregeln einhalten"},
@@ -70,16 +78,20 @@ TEXT = {
            "ph0": "No nurseries: no winter cereal right after beet.",
            "loss": "Beet would lose about {loss} to SBR/Stolbur at the pressure around your block.",
            "n": "{ha} ha a year of legumes.", "rot": "{bad} ha a year break a rotation rule, {warn} ha carry a risk.",
-           "rot0": "No rotation rule broken.", "climate": "Climate fit (EcoCrop): {crops}."},
+           "rot0": "No rotation rule broken.", "climate": "Climate fit (EcoCrop): {crops}.",
+           "fallow": "{ha} ha lie fallow in {year} and earn nothing there; the later years follow the rotation."},
     "de": {"ph": "{ha} ha Kinderstuben pro Jahr, mit {rel} der Rüben, die eine typische Kinderstube erreicht.",
            "ph0": "Keine Kinderstuben: kein Wintergetreide direkt nach Rüben.",
            "loss": "Rüben würden beim Druck um Ihren Block etwa {loss} an SBR/Stolbur verlieren.",
            "n": "{ha} ha Leguminosen pro Jahr.", "rot": "{bad} ha pro Jahr verletzen eine Fruchtfolgeregel, {warn} ha mit Risiko.",
-           "rot0": "Keine Fruchtfolgeregel verletzt.", "climate": "Klimaeignung (EcoCrop): {crops}."},
+           "rot0": "Keine Fruchtfolgeregel verletzt.", "climate": "Klimaeignung (EcoCrop): {crops}.",
+           "fallow": "{ha} ha liegen {year} brach und bringen dort nichts ein; die Folgejahre folgen der Fruchtfolge."},
 }
 
 
 def _crop_label(c, lg):
+    if c == "fallow":
+        return "Brache" if lg == "de" else "Green fallow"
     return rotation.label(PLANNER[c], lg) if c in PLANNER else c.replace("_", " ").capitalize()
 
 
@@ -214,6 +226,7 @@ def _xy(lon, lat, S):
 def _dates():
     d = dict(strategies()["crop_dates"])
     d.setdefault("potato", POTATO["doy"])
+    d.setdefault("fallow", FALLOW["doy"])
     return d
 
 
@@ -257,15 +270,15 @@ def _continue(plot, seq, first_year, lg, start=None):
     prev = start or MODEL.get(max(placed(plot["hist"].get(first_year - 1, {})).items(),
                                   key=lambda kv: kv[1], default=("", 0))[0])
     if start:
-        hist[first_year] = {_fit_key(start): 1.0}
+        hist[first_year] = _hist_entry(start)
     y0 = first_year + (1 if start else 0)
     natural = (seq.index(prev) + 1) % L if prev in seq else 0
     best, best_merit = None, -1e9
     for o in range(L):
         crops, h, merit = [seq[(o + i) % L] for i in range(n)], dict(hist), (2.5 if o == natural else 0.0)
         for i, c in enumerate(crops):
-            merit += HEALTH[rotation.fit(_fit_key(c), h, y0 + i, lg)["health"]]
-            h[y0 + i] = {_fit_key(c): 1.0}
+            merit += HEALTH[_health(c, h, y0 + i, lg)]
+            h[y0 + i] = _hist_entry(c)
         if merit > best_merit:
             best, best_merit = crops, merit
     return ([start] if start else []) + best
@@ -275,10 +288,56 @@ def plans_for(plots, card, first_year, lg):
     return {p["id"]: _continue(p, card["sequence"], first_year, lg) for p in plots}
 
 
-def custom_plans(plots, card, first_year, lg):
-    """Painted plots: the painted crop, then the card's rotation from it. Unpainted plots: the card's plan."""
-    return {p["id"]: _continue(p, card["sequence"], first_year, lg, start=p["plan"]) if p.get("plan")
-            else _continue(p, card["sequence"], first_year, lg) for p in plots}
+def custom_plans(plots, card, first_year, lg, fixed=None):
+    """Your rotation, year by year: what you painted (first year: green fallow where nothing is painted; later years:
+    what you painted on those years' maps), and where a later year is not painted, filled in automatically."""
+    out, seq = {}, card["sequence"]
+    for p in plots:
+        f = (fixed or {}).get(p["id"]) or [None] * HORIZON
+        hist = {y: placed(v) for y, v in p["hist"].items()}
+        crops = []
+        for i in range(HORIZON):
+            year = first_year + i
+            c = (p.get("plan") or "fallow") if i == 0 else (f[i] or _auto_next(crops[-1], seq, hist, year, lg))
+            crops.append(c)
+            hist[year] = _hist_entry(c)
+        out[p["id"]] = crops
+    return out
+
+
+def _auto_next(prev, seq, hist, year, lg):
+    """A year you have not painted: the best match's next crop after `prev`, unless that breaks a rotation rule here;
+    then the crop of the best match that fits best."""
+    natural = seq[(seq.index(prev) + 1) % len(seq)] if prev in seq else seq[0]
+    return max(dict.fromkeys(seq), key=lambda c: HEALTH[_health(c, hist, year, lg)] + (1.6 if c == natural else 0))
+
+
+def fixed_future(features, future, first_year):
+    """{plot id: [None, crop or None, crop or None]}: the crop painted on most of each plot's area on the later years'
+    maps (they may be split differently), as model crops."""
+    out = {f["properties"]["id"]: [None] * HORIZON for f in features}
+    geoms = {f["properties"]["id"]: metric(f) for f in features}
+    for i in range(1, HORIZON):
+        layer = [(MODEL[g["properties"]["plan"]], metric(g)) for g in (future or {}).get(first_year + i, [])
+                 if g["properties"].get("plan") in MODEL]
+        for pid, g in geoms.items():
+            area = {}
+            for c, fg in layer:
+                if g.intersects(fg):
+                    area[c] = area.get(c, 0.0) + g.intersection(fg).area
+            if area and max(area.values()) >= 0.5 * (g.area or 1):
+                out[pid][i] = max(area, key=area.get)
+    return out
+
+
+def _hist_entry(c):
+    """What a planned year adds to a plot's history for the rotation rules (a fallow year adds no crop)."""
+    return {"other:fallow": 1.0} if c == "fallow" else {_fit_key(c): 1.0}
+
+
+def _health(c, hist, year, lg):
+    """The rotation-rule verdict of growing c; a fallow year breaks every crop's cycle."""
+    return "good" if c == "fallow" else rotation.fit(_fit_key(c), hist, year, lg)["health"]
 
 
 @lru_cache(maxsize=256)
@@ -361,7 +420,8 @@ def evaluate(fid, plots, plans, card, first_year, r, lg, collab=None):
     cxy = collab["xy"] if collab else np.zeros((0, 2), "float32")
     A = sum(p["ha"] for p in plots) or 1.0
     acc = dict.fromkeys(("ero", "wat", "income", "rotation", "legume", "cover", "nursery", "reach", "beet", "loss",
-                         "bad", "warn"), 0.0)
+                         "bad", "warn", "fallow", "fallow_first"), 0.0)
+    cover = cover + ("fallow",)  # a fallow year greens up after the previous harvest
     for i in range(HORIZON):
         year, f = first_year + i, HORIZON * YEAR_WEIGHTS[i]  # f: this year's weight; sums stay "per year" on average
         nur_ha, beet_ha = np.zeros(len(plots)), np.zeros(len(plots))
@@ -377,14 +437,16 @@ def evaluate(fid, plots, plans, card, first_year, r, lg, collab=None):
             beet_ha[j] = p["ha"] * (c == "sugar_beet")
             hist = {y: placed(v) for y, v in p["hist"].items()}
             for k in range(i):
-                hist[first_year + k] = {_fit_key(plans[p["id"]][k]): 1.0}
-            health = rotation.fit(_fit_key(c), hist, year, lg)["health"]
+                hist[first_year + k] = _hist_entry(plans[p["id"]][k])
+            health = _health(c, hist, year, lg)
             acc["rotation"] += f * p["ha"] * HEALTH[health]
             acc["bad"] += f * p["ha"] * (health == "bad")
             acc["warn"] += f * p["ha"] * (health == "warn")
             acc["legume"] += f * p["ha"] * LEGUME_N.get(c, 0.0)
             acc["cover"] += f * p["ha"] * (c in cover)
             acc["income"] += f * p["ha"] * INCOME.get(c, 3.0) * _climate_factor(fid, c)  # beet losses come off below
+            acc["fallow"] += f * p["ha"] * (c == "fallow")
+            acc["fallow_first"] += p["ha"] * (c == "fallow" and i == 0)
         # neighbours: expected beet and nurseries this year; collaborators: their saved crops
         p_nur = _p_beet(S, year - 1, season)[keep] * S["btw"]
         p_beet = _p_beet(S, year, season)[keep]
@@ -406,7 +468,7 @@ def evaluate(fid, plots, plans, card, first_year, r, lg, collab=None):
         acc["beet"] += f * beet_ha.sum()
         acc["loss"] += f * float((beet_ha * loss).sum())
         acc["income"] -= f * float((beet_ha * loss).sum()) * INCOME["sugar_beet"]
-    acc["area"], acc["plans"] = A, plans
+    acc["area"], acc["plans"], acc["first_year"] = A, plans, first_year
     acc["climate"] = {c: _climate_factor(fid, c) for c in {c for p in plots for c in plans[p["id"]]}}
     return acc
 
@@ -431,8 +493,12 @@ def scores(acc, base, S, deficit, lg):
                         if acc["nursery"] else tx["ph0"]},
         "nitrogen": {"score": float(np.clip(2 + legume + COVER_N * max(0.0, cover - 1 / 3), 1, 5)), "basis": "rule",
                      "detail": tx["n"].format(ha=f"{acc.get('legume_ha', 0.0) / n:.1f}")},
-        "income": {"score": float(np.clip(acc["income"] / (A * n), 1, 5)), "basis": "rule",
+        # cropped land scores 1..5; fallow land earns nothing and scores 0, so unplanted land can never look like income
+        "income": {"score": float(np.clip(acc["income"] / max(A * n - acc["fallow"], 1e-9), 1, 5)
+                                  * (1 - acc["fallow"] / (A * n))), "basis": "rule",
                    "detail": " ".join(x for x in (
+                       tx["fallow"].format(ha=f"{acc['fallow_first']:.1f}", year=acc["first_year"])
+                       if acc["fallow_first"] else "",
                        tx["loss"].format(loss=f"{loss:.0%}") if acc["beet"] else "",
                        tx["climate"].format(crops=", ".join(f"{_crop_label(c, lg)} {2 * v - 1:.0%}"
                                                             for c, v in acc.get("climate", {}).items() if v < 0.9))
@@ -479,7 +545,8 @@ def _score_cards(fid, plots, season, r, lg, extra=None, first_year=None, collab=
     for k, acc in raw.items():
         acc["legume_ha"] = sum(HORIZON * YEAR_WEIGHTS[i] * p["ha"] for p in plots
                                for i, c in enumerate(acc["plans"][p["id"]]) if c in LEGUME_N)
-        out[k] = {"scores": scores(acc, raw["S0"], S, deficit, lg), "plans": acc["plans"]}
+        out[k] = {"scores": scores(acc, raw["S0"], S, deficit, lg), "plans": acc["plans"],
+                  "fallow_ha_first": sum(p["ha"] for p in plots if acc["plans"][p["id"]][0] == "fallow")}
     return out
 
 
@@ -498,7 +565,7 @@ def rank(fid, w=None, optional=False):
     return sorted(cards, key=tot.get, reverse=True), tot, cards
 
 
-def compare_custom(fid, features, optional=False, year=None, others=()):
+def compare_custom(fid, features, optional=False, year=None, others=(), future=None):
     """Best match and your painted plan on the planner's plots, both as the same three years from `year`.
 
     others: other farmers' saved plans (plans_store), whose crops replace the expected ones around the block.
@@ -511,10 +578,13 @@ def compare_custom(fid, features, optional=False, year=None, others=()):
     cards = _cards(optional)
     res = _score_cards(fid, plots, season, r, lg, first_year=year, collab=collab)
     best = max(cards, key=lambda sid: total(res[sid]["scores"], w))  # the best match for this year, on these plots
+    fixed = fixed_future(features, future, year)
     res = _score_cards(fid, plots, season, r, lg, first_year=year, collab=collab,
-                       extra={"custom": (custom_plans(plots, cards[best], year, lg), best)})
+                       extra={"custom": (custom_plans(plots, cards[best], year, lg, fixed), best)})
     n_collab = len(collab["ha"]) if collab else 0
-    return best, {"best": res[best], "custom": res["custom"], "weights": w, "first_year": year, "collab_plots": n_collab}
+    painted = {p["id"]: [bool(p.get("plan"))] + [c is not None for c in fixed[p["id"]][1:]] for p in plots}
+    return best, {"best": res[best], "custom": res["custom"], "weights": w, "first_year": year, "collab_plots": n_collab,
+                  "painted": painted}
 
 
 def field_scores(fid):

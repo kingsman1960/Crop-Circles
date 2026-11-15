@@ -6,34 +6,40 @@
      For an offline demo: download this file next to index.html and point src at it. -->
 <script src="https://unpkg.com/deck.gl@9.1/dist.min.js"></script>
 <style>
-  :root { --accent: #ff4b4b; --text: #16213e; --bg: #ffffff; --font: "Source Sans Pro", sans-serif; }
+  /* Crop Circles: same type and story colours as the app (assets/tokens.css). Solid = yours, dashed = neighbours. */
+  @font-face { font-family: "Archivo"; src: url("/app/static/Archivo.ttf") format("truetype");
+               font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+  :root { --accent: #2E6A4E; --text: #22302A; --quiet: #5A6258; --line: #DEDACD; --bg: #ffffff;
+          --beet: #A8336A; --hedge: #2E6A4E; --loess: #D6A93C; --font: "Archivo", system-ui, sans-serif; }
   html, body { margin: 0; padding: 0; font-family: var(--font); color: var(--text); background: transparent; }
-  #wrap { position: relative; border-radius: 8px; overflow: hidden; }
+  #wrap { position: relative; border-radius: 14px; overflow: hidden; }
   #map { position: relative; width: 100%; }
-  #bar { position: absolute; top: 10px; left: 10px; z-index: 4; display: flex; gap: 6px; align-items: center;
-         flex-wrap: wrap; max-width: calc(100% - 20px); }
-  button { font: inherit; font-size: 14px; padding: 5px 12px; border-radius: 6px; cursor: pointer;
-           border: 1px solid rgba(22, 33, 62, .25); background: var(--bg); color: var(--text);
-           box-shadow: 0 1px 3px rgba(0, 0, 0, .12); display: inline-flex; align-items: center; gap: 6px; }
+  #bar { position: absolute; top: 12px; left: 12px; z-index: 4; display: flex; gap: 6px; align-items: center;
+         flex-wrap: wrap; max-width: calc(100% - 24px); }
+  button { font: inherit; font-size: 15px; font-weight: 600; padding: 6px 14px; border-radius: 999px; cursor: pointer;
+           border: 1px solid var(--line); background: var(--bg); color: var(--text);
+           box-shadow: 0 1px 2px rgba(34, 48, 42, .18); display: inline-flex; align-items: center; gap: 6px; }
+  button:hover:not(:disabled) { border-color: var(--text); }
+  button:focus-visible { outline: 3px solid var(--loess); outline-offset: 2px; }
   button.on { background: var(--text); color: #fff; border-color: var(--text); }
   button:disabled { opacity: .45; cursor: default; }
-  .sep { width: 1px; height: 24px; background: rgba(22, 33, 62, .2); margin: 0 2px; }
+  .sep { width: 1px; height: 24px; background: rgba(34, 48, 42, .2); margin: 0 2px; }
   #crop-wrap { position: relative; }
-  #b-crop.on { background: #fff; color: var(--text); border: 2px solid var(--text); padding: 4px 11px; }
-  #menu { position: absolute; top: 38px; left: 0; z-index: 5; display: none; min-width: 230px; background: #fff;
-          border-radius: 8px; box-shadow: 0 4px 16px rgba(0, 0, 0, .18); padding: 4px; }
+  #b-crop.on { background: #fff; color: var(--text); border: 2px solid var(--text); padding: 5px 13px; }
+  #menu { position: absolute; top: 42px; left: 0; z-index: 5; display: none; min-width: 240px; background: #fff;
+          border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 6px 20px rgba(34, 48, 42, .16); padding: 4px; }
   #menu.open { display: block; }
-  .opt { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
-  .opt:hover, .opt.cur { background: #f1f3f6; }
-  .opt small { display: block; opacity: .6; font-size: 12px; }
+  .opt { display: flex; align-items: center; gap: 10px; padding: 7px 9px; border-radius: 10px; cursor: pointer; font-size: 15px; }
+  .opt:hover, .opt.cur { background: #F1EEE4; }
+  .opt small { display: block; color: var(--quiet); font-size: 13px; }
   .opt svg { flex: none; }
-  #hint { position: absolute; bottom: 22px; left: 10px; z-index: 2; font-size: 13px; padding: 5px 9px;
-          border-radius: 6px; background: rgba(255, 255, 255, .92); max-width: calc(100% - 20px); }
-  #hint i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin: 0 3px -1px 8px; }
-  #toast { position: absolute; top: 52px; left: 10px; z-index: 3; font-size: 14px; padding: 6px 10px;
-           border-radius: 6px; background: var(--text); color: #fff; display: none; max-width: calc(100% - 20px); }
-  #credit { position: absolute; bottom: 0; right: 0; z-index: 2; font-size: 11px; padding: 1px 5px;
-            background: rgba(255, 255, 255, .8); }
+  #hint { position: absolute; bottom: 22px; left: 12px; z-index: 2; font-size: 14px; line-height: 1.45; padding: 7px 11px;
+          border-radius: 10px; background: rgba(255, 255, 255, .94); border: 1px solid var(--line); max-width: calc(100% - 24px); }
+  #hint i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin: 0 4px -1px 10px; }
+  #toast { position: absolute; top: 56px; left: 12px; z-index: 3; font-size: 15px; padding: 7px 12px;
+           border-radius: 10px; background: var(--text); color: #fff; display: none; max-width: calc(100% - 24px); }
+  #credit { position: absolute; bottom: 0; right: 0; z-index: 2; font-size: 11px; padding: 1px 6px;
+            background: rgba(255, 255, 255, .85); color: var(--quiet); }
 </style>
 </head>
 <body>
@@ -68,10 +74,11 @@ const $ = id => document.getElementById(id);
 let args = null, deckgl = null, mode = "select", busy = false, paintCrop = null;
 let selected = new Set(), cutPts = [], hoverPt = null, revision = -1, toastTimer = null;
 const pending = new Map();  // plots painted here that Python has not confirmed yet: id -> crop key or null
-let accent = [255, 75, 75];
+let accent = [46, 106, 78];  // hedge green until Streamlit's theme arrives
 
-const TONE = {bad: [200, 45, 40, 215], warn: [238, 140, 120, 185], ok: [250, 250, 250, 160],
-              good: [76, 158, 92, 185], unknown: [175, 180, 190, 130]};
+// how well a crop fits a plot: magenta = poor fit (the same colour as planthopper pressure), gold = careful, green = good
+const TONE = {bad: [168, 51, 106, 210], warn: [214, 169, 60, 190], ok: [250, 250, 250, 160],
+              good: [46, 106, 78, 190], unknown: [175, 178, 168, 130]};
 
 let basemap = null;  // built from the first render: Python decides which tiles (see _basemap)
 function makeBasemap(b) {
@@ -205,13 +212,13 @@ function contextLayers() {
   const fc = list => ({type: "FeatureCollection", features: list});
   const kind = k => ctx.filter(f => f.properties.kind === k);
   const parcels = kind("context"), shared = kind("collab");
-  const hue = args.accent_hue || [176, 58, 114];
+  const hue = args.accent_hue || [168, 51, 106];
   const built = [
     // neighbours from the crop maps: faded, dashed
     new deck.GeoJsonLayer({
       id: "context", data: fc(parcels), pickable: true, filled: true, stroked: true,
       getFillColor: f => [...(f.properties.rgb || [195, 202, 212]), 70],
-      getLineColor: [22, 33, 62, 120], lineWidthMinPixels: 1,
+      getLineColor: [34, 48, 42, 120], lineWidthMinPixels: 1,
       extensions: DASH, getDashArray: [3, 2], dashJustified: true,
     }),
     // likely nurseries (last season's beet): dashed in the planthopper colour
@@ -224,7 +231,7 @@ function contextLayers() {
     new deck.GeoJsonLayer({
       id: "context-shared", data: fc(shared), pickable: true, filled: true, stroked: true,
       getFillColor: f => [...(f.properties.rgb || [195, 202, 212]), 165],
-      getLineColor: [22, 33, 62, 210], lineWidthMinPixels: 1.5,
+      getLineColor: [34, 48, 42, 210], lineWidthMinPixels: 1.5,
     }),
     // confirmed nurseries in shared plans: solid planthopper colour
     new deck.GeoJsonLayer({
@@ -233,7 +240,7 @@ function contextLayers() {
     }),
     new deck.GeoJsonLayer({
       id: "context-ring", data: fc(kind("ring")), filled: false, stroked: true,
-      getLineColor: [22, 33, 62, 170], lineWidthMinPixels: 1.5,
+      getLineColor: [34, 48, 42, 170], lineWidthMinPixels: 1.5,
       extensions: DASH, getDashArray: [6, 4], dashJustified: true,
     }),
   ];
@@ -261,7 +268,7 @@ function layers() {
   }
   if (args.outline) {
     out.push(new deck.GeoJsonLayer({id: "outline", data: args.outline, filled: false, stroked: true,
-                                    getLineColor: [22, 33, 62], lineWidthMinPixels: 2}));
+                                    getLineColor: [34, 48, 42], lineWidthMinPixels: 2}));
   }
   out.push(new deck.GeoJsonLayer({
     id: "selected", data: fc(feats.filter(f => selected.has(f.properties.id))), filled: true, stroked: true,
@@ -269,10 +276,10 @@ function layers() {
   }));
   if (mode === "cut" && cutPts.length) {
     const path = hoverPt ? [...cutPts, hoverPt] : cutPts;
-    out.push(new deck.PathLayer({id: "cutline", data: [{path}], getPath: d => d.path, getColor: [22, 33, 62],
+    out.push(new deck.PathLayer({id: "cutline", data: [{path}], getPath: d => d.path, getColor: [34, 48, 42],
                                  widthMinPixels: 2}));
     out.push(new deck.ScatterplotLayer({id: "cutpoints", data: cutPts, getPosition: d => d, getFillColor: [255, 255, 255],
-                                        getLineColor: [22, 33, 62], stroked: true, radiusMinPixels: 4,
+                                        getLineColor: [34, 48, 42], stroked: true, radiusMinPixels: 4,
                                         lineWidthMinPixels: 2}));
   }
   return out;

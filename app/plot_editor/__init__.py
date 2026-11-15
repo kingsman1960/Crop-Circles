@@ -282,3 +282,9 @@ def _stretch(line, d):
 
     c[0], c[-1] = push(c[0], c[1]), push(c[-1], c[-2])
     return LineString(c)
+
+
+def edited(key: str):
+    """The plots as edited under this key in this session (cuts, merges, painting), or None if never opened."""
+    s = st.session_state.get(_skey(key))
+    return s["features"] if s else None
