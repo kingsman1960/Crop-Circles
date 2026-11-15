@@ -26,33 +26,34 @@ steps = [
 know = st.Page("views/sources.py", title=t("nav.know"), url_path="know")
 page = st.navigation([home, *steps, know], position="hidden")
 if page.url_path:  # inside the platform
-    # The bar: the four pages as pills (only once signed in; the current one is filled), then the sources and the
-    # landing page; on the right the account with a sign-out button and the language switch, in one flex row so
-    # a long name wraps instead of running into the switch.
+    # The bar, one flex row: left the four pages as pills (only once signed in; the current one is filled) and,
+    # after a rule, the sources and the landing page; right the account with its sign-out button and the language
+    # switch. When the row is too narrow the right group drops under the left one as a whole, still right-aligned.
     # accounts.gate() below shows the sign-in card and stops the script when nobody is signed in.
     with st.container(key="appbar"):
-        links, right = st.columns([5, 3], vertical_alignment="center")
         me = accounts.user()
-        with links.container(horizontal=True, gap="medium", vertical_alignment="center"):
-            if me:
-                with st.container(horizontal=True, key="steps", width="content", vertical_alignment="center"):
-                    for pg in steps:
-                        if pg.url_path == page.url_path:
-                            st.markdown(f"**{pg.title}**")
-                        else:
-                            st.page_link(pg, label=pg.title)
-                if page.url_path == know.url_path:
-                    st.markdown(f"**{know.title}**")
-                else:
-                    st.page_link(know, label=know.title)
-            st.page_link(home, label=t("home.nav_about"))
-        with right.container(horizontal=True, gap="small", vertical_alignment="center", horizontal_alignment="right"):
-            if me:
-                st.markdown(f'<span class="cc-note">{me["display"]}, {t("community.role." + me["role"])}</span>',
-                            unsafe_allow_html=True)
-                if st.button(t("login.out"), key="sign_out", type="tertiary"):
-                    accounts.sign_out()
-                    st.rerun()
-            i18n.picker(st)
+        with st.container(horizontal=True, horizontal_alignment="distribute", vertical_alignment="center", gap="small"):
+            with st.container(horizontal=True, key="navleft", width="content", gap="small", vertical_alignment="center"):
+                if me:
+                    with st.container(horizontal=True, key="steps", width="content", vertical_alignment="center"):
+                        for pg in steps:
+                            if pg.url_path == page.url_path:
+                                st.markdown(f"**{pg.title}**")
+                            else:
+                                st.page_link(pg, label=pg.title)
+                with st.container(horizontal=True, key="more", width="content", vertical_alignment="center"):
+                    if me and page.url_path == know.url_path:
+                        st.markdown(f"**{know.title}**")
+                    elif me:
+                        st.page_link(know, label=know.title)
+                    st.page_link(home, label=t("home.nav_about"))
+            with st.container(horizontal=True, key="navright", width="content", gap="small", vertical_alignment="center"):
+                if me:
+                    st.markdown(f'<span class="cc-note">{me["display"]}, {t("community.role." + me["role"])}</span>',
+                                unsafe_allow_html=True)
+                    if st.button(t("login.out"), key="sign_out", type="tertiary"):
+                        accounts.sign_out()
+                        st.rerun()
+                i18n.picker(st)
     accounts.gate()
 page.run()
