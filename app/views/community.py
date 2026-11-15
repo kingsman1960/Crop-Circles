@@ -22,12 +22,19 @@ u = accounts.user()  # never None here: app.py gates every platform page
 region = u["region"]
 mine = accounts.my_fields(list(fields()))
 official = u["role"] in ("advisor", "authority", "admin")
+office = u["role"] == "authority"  # the plant-protection office: its "alert" is a warning to the region
 posts = accounts.feed(region)
 alerts = [p for p in posts if p["kind"] == "alert"]
+to_office = [p for p in alerts if accounts.display(p["author"])[1] != "authority"]  # the office's own are warnings
 # an alert is open until someone from the plant-protection office has replied in its thread
-open_alerts = [p for p in alerts if not any(accounts.display(r["author"])[1] == "authority" for r in p["replies"])]
+open_alerts = [p for p in to_office if not any(accounts.display(r["author"])[1] == "authority" for r in p["replies"])]
 header(t("community.title", region=region),
-       t("community.sub", n=len(posts), alerts=len(alerts), open=len(open_alerts)))
+       t("community.sub", n=len(posts), alerts=len(to_office), open=len(open_alerts)))
+
+
+def kind_key(kind, role):
+    """Locale key of a post kind: an alert written by the office is a warning to the region, not an alert to itself."""
+    return "warning" if kind == "alert" and role == "authority" else kind
 
 
 def when(iso):
@@ -42,7 +49,7 @@ def show(p, pane):
     # the kind is in the key, so the stylesheet can mark alerts (a magenta edge)
     with st.container(key=f"card_post_{p['kind']}_{pane}_{p['id']}"):
         tag = f'<span class="cc-note">{t("community.role." + role)}</span>'
-        kind = f' · <b class="cc-level {"high" if p["kind"] == "alert" else "low"}">{t("community.kind." + p["kind"])}</b>' if p["kind"] != "note" else ""
+        kind = f' · <b class="cc-level {"high" if p["kind"] == "alert" else "low"}">{t("community.kind." + kind_key(p["kind"], role))}</b>' if p["kind"] != "note" else ""
         where = f' · {t("community.about", id=p["field"])}' if p["field"] else ""
         st.html(f'<p style="margin:0 0 4px"><b>{name}</b> {tag}{kind}{where}<span class="cc-note"> · {when(p["created"])}</span></p>')
         own = p["author"] == u["name"]
@@ -69,7 +76,7 @@ def show(p, pane):
             rn, rr = accounts.display(r["author"])
             st.html(f'<p class="cc-reply"><b>{rn}</b> <span class="cc-note">{t("community.role." + rr)} · {when(r["created"])}</span>'
                     f'<br>{r["text"]}</p>')
-        if p["kind"] == "alert" and p["author"] == u["name"]:  # the author can forward the alert by e-mail, data attached
+        if p["kind"] == "alert" and own and not office:  # the author can forward the alert by e-mail, data attached
             body = t("community.mail_body", id=p["field"], text=p["text"]) + ("\n\n" + copilot.card(p["field"])[:1500] if p["field"] else "")
             st.link_button(t("community.mail"), "mailto:?" + urllib.parse.urlencode(
                 {"subject": t("community.mail_subject", id=p["field"] or region), "body": body}, quote_via=urllib.parse.quote))
@@ -91,14 +98,14 @@ with st.container(key="card_compose"):
     st.markdown(t("community.compose"))
     with st.form("compose", border=False, clear_on_submit=True):
         a, b = st.columns([1, 1])
-        kind = a.segmented_control(t("community.kind.label"), KINDS, default="note", format_func=lambda k: t("community.kind." + k), key="post_kind")
+        kind = a.segmented_control(t("community.kind.label"), KINDS, default="note", format_func=lambda k: t("community.kind." + kind_key(k, u["role"])), key="post_kind")
         field = b.selectbox(t("community.field"), [t("community.no_field"), *mine], key="post_field")
         field = field if field in mine else ""  # the first option is "no particular field"
         text = st.text_area(t("community.text"), key="post_text", height=90, placeholder=t("community.placeholder"))
         if st.form_submit_button(t("community.post"), type="primary") and text.strip():
             accounts.post(kind or "note", field, text)
             st.rerun()
-    st.caption(t("community.alert_note"))
+    st.caption(t("community.warning_note" if office else "community.alert_note"))
 
 # --- read: tabs per audience (everyone / alerts / officials' inbox / administrator's accounts) ---------------------------------------------------------------------------------
 tabs = [t("community.tab.all"), t("community.tab.alerts")] + ([t("community.tab.inbox")] if official else []) \
