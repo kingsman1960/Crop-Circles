@@ -273,9 +273,9 @@ def neighbourhood(fid, nur, r):
 
 
 def planner_weights():  # the side effects only
-    """Side-effect priorities shared with the strategies page (same session keys)."""
-    crit = content("strategies")["criteria"]
-    return {k: st.session_state.get(f"w_{k}", crit[k]["default"]) for k in ("erosion", "water", "income")}
+    """Side-effect priorities shared with the strategies page (same session keys, 0..10 sliders)."""
+    from engine import default_weight
+    return {k: st.session_state.get(f"w_{k}", default_weight(k)) for k in ("erosion", "water", "income")}
 
 
 # --- priorities and ranking (shared by My field, What to grow, Our region) --------------------------
@@ -283,26 +283,24 @@ PRIORITY = {0: "not", 2: "important", 4: "very"}  # labels: common.priority.<key
 
 
 def priority_control(k):
-    """One plain three-step choice per criterion; the same session key on every page."""
-    c = content("strategies")["criteria"][k]
-    st.segmented_control(c["label"], list(PRIORITY), default=c["default"], required=True,
-                         format_func=lambda v: t("common.priority." + PRIORITY[v]), width="content",
-                         key=f"w_{k}", persist_state="session", help=c["help"])
+    """How important one criterion is: a 0..10 slider; the same session key on every page (engine.priority_slider)."""
+    from engine import priority_slider
+    priority_slider(k, width=260)
 
 
 def weights():
-    crit = content("strategies")["criteria"]
-    return {k: st.session_state.get(f"w_{k}", c["default"]) for k, c in crit.items()}
+    """The user's priorities for all criteria, 0..10 (engine.weights)."""
+    from engine import weights as w
+    return w()
 
 
 def rank_options(fid, w=None, optional=False):
-    """Options for one field, best match first: (ids in order, weighted score per id, card per id)."""
-    w = w or weights()
-    w = w if sum(w.values()) else dict.fromkeys(w, 1)
-    res = strategies()["fields"][fid]["strategies"]
-    cards = {s["id"]: s for s in content("strategies")["strategy"] if optional or not s.get("optional")}
-    total = {i: sum(w[k] * res[i]["scores"][k]["score"] for k in w) / sum(w.values()) for i in cards}
-    return sorted(cards, key=total.get, reverse=True), total, cards
+    """Options for one field, best match first: (ids in order, weighted score per id, card per id).
+
+    Scored by engine.py: every strategy as the next three years on the block's plots, with planthopper pressure.
+    """
+    from engine import rank
+    return rank(fid, w, optional)
 
 
 def chart(c, **kw):

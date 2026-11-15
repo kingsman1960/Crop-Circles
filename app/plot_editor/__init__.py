@@ -48,7 +48,7 @@ LABELS = {
 def plot_editor(features: list[dict], *, key: str, outline: dict | None = None, view: dict | None = None,
                 height: int = 430, labels: dict | None = None, tooltip: str | None = "{id} · {ha} ha",
                 min_ha: float = 0.05, report_selection: bool = False, palette: list[dict] | None = None,
-                annotate=None) -> dict:
+                annotate=None, context: list[dict] | None = None) -> dict:
     """Draw the editable plot map and return {"features": [...], "selected": [ids]}.
 
     key:              one key per block, e.g. f"plots_{fid}". The edits live under it in session state.
@@ -63,6 +63,8 @@ def plot_editor(features: list[dict], *, key: str, outline: dict | None = None, 
     palette:          crops to plan with: [{"key", "label", "rgb", "family"}]. Adds the crop drop-down. A plot's
                       properties["fit"][crop_key] = {"level": "bad|warn|ok|good|unknown", "why": [...]} colours it
                       while that crop is picked, and painting stores the crop in properties["plan"].
+    context:          GeoJSON features drawn under the plots, faded and dashed, that cannot be edited (neighbours).
+                      properties: rgb, tip (HTML), role ("nursery" gets a solid accent outline), kind ("ring": outline only).
     annotate:         function(features) run on every rerun, after the edits; it may add properties such as rgb,
                       tip and fit (e.g. from the history under each plot, which changes when plots are cut).
     Runs inside @st.fragment too, and then only reruns the fragment.
@@ -74,7 +76,7 @@ def plot_editor(features: list[dict], *, key: str, outline: dict | None = None, 
     event = _component(features=s["features"], selected=s["selected"], revision=s["revision"], outline=outline,
                        view=view, height=height, labels=lab, tooltip=tooltip, can_undo=bool(s["history"]),
                        message=s["message"], report_selection=report_selection, basemap=_basemap(),
-                       palette=palette or [], key=key, default=None,
+                       palette=palette or [], context=context or [], key=key, default=None,
                        on_change=partial(_on_change, key, lab, min_ha))
     # normally on_change has already applied the event before this run started; this is only a safety net
     if event and event.get("nonce") != s["nonce"]:

@@ -4,7 +4,8 @@ import streamlit as st
 
 import copilot
 from data import (HUE, chart, content, fact_text, field_picker, footer, header, model_note, neighbourhood, plan,
-                  planner_weights, priority_control, rank_options, source_line, strategies)
+                  planner_weights, rank_options, source_line, strategies)
+from engine import criteria, field_scores, priority_sliders
 from i18n import num, pct, t
 from plain import compare, dots, fraction
 from planner import crop_planner
@@ -12,25 +13,25 @@ from planner import crop_planner
 picker = st.container()
 fid, p = field_picker(picker)
 title_row = st.container()  # written once the ranking is known
-res = strategies()["fields"][fid]
-crit, crops, refs = content("strategies")["criteria"], content("crops"), content("sources")["refs"]
+res = strategies()["fields"][fid]  # the pipeline's rotation calendars and field facts
+ev = field_scores(fid)              # the engine's scores: three years on this block's plots, with planthopper pressure
+crit, crops, refs = criteria(), content("crops"), content("sources")["refs"]
 who = lambda k: refs[k]["who"].split(" – ")[0]
-score = lambda sid, k: res["strategies"][sid]["scores"][k]
+score = lambda sid, k: ev[sid]["scores"][k]
 
 with st.container(key="card_priorities"):
     st.markdown(t("grow.priorities"))
-    with st.container(horizontal=True, gap="medium"):  # wraps, so longer labels in any language still fit
-        for k in crit:
-            priority_control(k)
+    priority_sliders(list(crit))
     show_opt = st.toggle(t("grow.show_pea"), value=False, key="show_s4", persist_state="session")
 
 order, total, cards = rank_options(fid, optional=show_opt)
 
 
 def note(sid, k):
-    """Model notes are worked out per field; rule notes come from the strategy cards (translated content)."""
+    """Model notes are worked out per field; rule notes come from the cards; the engine adds its numbers."""
     s = score(sid, k)
-    return model_note(k, s) if s["basis"] == "model" else cards[sid]["scores"][k]["note"]
+    text = model_note(k, s) if s["basis"] == "model" else cards[sid].get("scores", {}).get(k, {}).get("note", "")
+    return " ".join(x for x in (text, s.get("detail", "")) if x)
 
 
 best = order[0]

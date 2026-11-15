@@ -148,7 +148,7 @@ function onClick(info, event) {
     if (info.coordinate) { cutPts.push(info.coordinate); draw(); }
     return;
   }
-  const p = info.object ? info.object.properties : null;
+  const p = info.object && info.layer && info.layer.id === "plots" ? info.object.properties : null;  // neighbours are not editable
   if (mode === "paint") {
     if (!p) return;
     pending.set(p.id, planOf(p) === paintCrop ? null : paintCrop);  // clicking again takes the plan away
@@ -194,18 +194,65 @@ function plotColor(f) {
   return (args.palette || []).length ? [c[0], c[1], c[2], 110] : (c.length === 4 ? c : [...c, 235]);  // last year: faded
 }
 
+// neighbours: faded fill, dashed outline; nurseries with a solid accent outline; the flight-range ring dashed
+const DASH = deck.PathStyleExtension ? [new deck.PathStyleExtension({dash: true})] : [];
+let contextCache = null;
+function contextLayers() {
+  const ctx = args.context || [];
+  if (!ctx.length) return [];
+  const sig = `${ctx.length}:${ctx[0].properties.id}:${ctx[ctx.length - 1].properties.id}`;
+  if (contextCache && contextCache.sig === sig) return contextCache.layers;  // same neighbours: keep the built layers
+  const fc = list => ({type: "FeatureCollection", features: list});
+  const kind = k => ctx.filter(f => f.properties.kind === k);
+  const parcels = kind("context"), shared = kind("collab");
+  const hue = args.accent_hue || [176, 58, 114];
+  const built = [
+    // neighbours from the crop maps: faded, dashed
+    new deck.GeoJsonLayer({
+      id: "context", data: fc(parcels), pickable: true, filled: true, stroked: true,
+      getFillColor: f => [...(f.properties.rgb || [195, 202, 212]), 70],
+      getLineColor: [22, 33, 62, 120], lineWidthMinPixels: 1,
+      extensions: DASH, getDashArray: [3, 2], dashJustified: true,
+    }),
+    // likely nurseries (last season's beet): dashed in the planthopper colour
+    new deck.GeoJsonLayer({
+      id: "context-likely", data: fc(parcels.filter(f => f.properties.role === "likely")), filled: false,
+      stroked: true, getLineColor: [...hue, 230], lineWidthMinPixels: 2,
+      extensions: DASH, getDashArray: [4, 2], dashJustified: true,
+    }),
+    // other farmers' saved plans: real outlines, their crops, solid
+    new deck.GeoJsonLayer({
+      id: "context-shared", data: fc(shared), pickable: true, filled: true, stroked: true,
+      getFillColor: f => [...(f.properties.rgb || [195, 202, 212]), 165],
+      getLineColor: [22, 33, 62, 210], lineWidthMinPixels: 1.5,
+    }),
+    // confirmed nurseries in shared plans: solid planthopper colour
+    new deck.GeoJsonLayer({
+      id: "context-nurseries", data: fc(shared.filter(f => f.properties.role === "nursery")), filled: false,
+      stroked: true, getLineColor: [...hue, 240], lineWidthMinPixels: 3,
+    }),
+    new deck.GeoJsonLayer({
+      id: "context-ring", data: fc(kind("ring")), filled: false, stroked: true,
+      getLineColor: [22, 33, 62, 170], lineWidthMinPixels: 1.5,
+      extensions: DASH, getDashArray: [6, 4], dashJustified: true,
+    }),
+  ];
+  contextCache = {sig, layers: built};
+  return built;
+}
+
 function layers() {
   const feats = args.features || [];
   const fc = list => ({type: "FeatureCollection", features: list});
   const key = [revision, mode, paintCrop, [...pending.entries()].join("|")];
-  const out = [
-    ...(basemap ? [basemap] : []),
+  const out = [...(basemap ? [basemap] : []), ...contextLayers()];
+  out.push(
     new deck.GeoJsonLayer({
       id: "plots", data: fc(feats), pickable: true, autoHighlight: mode !== "cut",
       highlightColor: [255, 255, 255, 70], filled: true, stroked: true, getFillColor: plotColor,
       getLineColor: [255, 255, 255], lineWidthMinPixels: 1, updateTriggers: {getFillColor: key},
     }),
-  ];
+  );
   if (mode === "paint") {  // while painting, planned plots keep a border in their crop's colour
     const planned = feats.filter(f => planOf(f.properties) && crop(planOf(f.properties)));
     out.push(new deck.GeoJsonLayer({id: "planned", data: fc(planned), filled: false, stroked: true,
@@ -231,8 +278,11 @@ function layers() {
   return out;
 }
 
-function tooltip({object}) {
+function tooltip({object, layer}) {
   if (!object || !object.properties || mode === "cut") return null;
+  if (layer && layer.id !== "plots") {  // a neighbour: its own text, written by Python
+    return object.properties.tip ? {html: object.properties.tip, style: {maxWidth: "330px", fontSize: "13px", lineHeight: "1.4"}} : null;
+  }
   const p = object.properties, L = args.labels, parts = [];
   if ((args.palette || []).length) {
     const plan = planOf(p);
