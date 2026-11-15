@@ -28,7 +28,7 @@ CROPS = {
             "repeat_why": {"en": "foot and root rot stay in the soil for years", "de": "Fuß- und Wurzelkrankheiten bleiben jahrelang im Boden"},
             "match": r"erbse|\bpeas?\b"},
     "beet": {"label": {"en": "Sugar beet", "de": "Zuckerrüben"}, "family": "Amaranthaceae", "leaf": True,
-             "rgb": [168, 80, 127], "gap": 3, "repeat": "bad",
+             "rgb": [168, 80, 127], "gap": 2, "repeat": "bad",  # beet every third year, as S0, is the regional standard
              "repeat_why": {"en": "beet cyst nematodes build up", "de": "Rübenzystennematoden reichern sich an"},
              "match": r"r(ü|ue)be|beet"},
     "barley": {"label": {"en": "Barley", "de": "Gerste"}, "family": "Poaceae", "leaf": False,
