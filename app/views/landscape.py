@@ -146,15 +146,30 @@ with map_row:
                 if key not in memo:
                     memo[key] = tip_f(key[0], key[1])
                 tip_by_gid[gid] = memo[key]
+            # grey parcels get their own tip: an empty string makes the map show the previous feature's text
+            if var == "spread":
+                off_tip = (t("region.tip.off_spread", season=yr) if yr is not None
+                           else t("region.tip.off_spread_all", start=first, end=last))
+            else:
+                off_tip = (t("region.tip.off_recv", season=yr) if yr is not None
+                           else t("region.tip.off_recv_all", start=first, end=last))
+        else:
+            off_tip = t("region.tip.crop_off", season=yr)
 
         fe = []
         for gid, g in zip(gids, shapes["geoms"]):
             if val is not None:
                 v_ = int(duty.get(gid, 0))
-                c, tip_ = (c_by_v[v_], tip_by_gid.get(gid, "")) if v_ else (faint, "")
+                if v_:
+                    c, tip_ = c_by_v[v_], tip_by_gid.get(gid, "")
+                else:
+                    c, tip_ = faint, off_tip
             else:
                 code = int(codes.get(gid, 0))
-                c, tip_ = (c_by_code[code], tip_by_code[code]) if code in c_by_code else (faint, "")
+                if code in c_by_code:
+                    c, tip_ = c_by_code[code], tip_by_code[code]
+                else:
+                    c, tip_ = faint, off_tip
             fe.append({"type": "Feature", "geometry": g, "properties": {"fill": c, "tip": tip_, "id": int(gid)}})
         # pipeline/landscape_geo.py has not covered every parcel (e.g. for BW): dots take the leftovers
         missing = par.index[~par.index.isin(gids)]
