@@ -7,7 +7,7 @@ import streamlit as st
 import accounts
 import copilot
 from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, POS, chart, content, crop_group, crop_names, crop_scale, field_picker, footer,
-                  PH_LEVEL, from_space, geojson, header, kpis, layer, legend, neighbourhood, ph_levels, plan, planner_weights, pressure, region_test,
+                  FLIGHT_M, PH_LEVEL, from_space, geojson, header, kpis, layer, legend, neighbourhood, ph_levels, plan, planner_weights, pressure, region_test,
                   rank_options, rgb, source_line, strategies, table, takeaway, tip)
 from i18n import day, listing, months, num, pct, t, tn
 from plain import ci_ten, fraction, level, of_ten, ten, weeks
@@ -74,9 +74,9 @@ if accounts.my_parcels():  # parcels this farmer added from the region map: thei
 report = []  # (heading, paragraphs) for the take-away page
 
 # --- the four risks, in words ------------------------------------------------
-nur, beet = plan(2025, 1000, 0.2, "balanced", planner_weights())
-nb = neighbourhood(fid, nur, 1000)
-rank = (pressure(2025, 1000)[1].pressure < nb["total"]).mean()
+nur, beet = plan(2025, FLIGHT_M, 0.2, "balanced", planner_weights())
+nb = neighbourhood(fid, nur, FLIGHT_M)
+rank = (pressure(2025, FLIGHT_M)[1].pressure < nb["total"]).mean()
 ph_level = PH_LEVEL(rank)
 levels = set(ph_levels(fid, 2025).values())
 order = ["low", "medium", "high"]
@@ -87,7 +87,7 @@ edge, eff = rt.get("demo_fields", {}).get(fid), rt.get("index", {}).get("ndre")
 edge_text = ("" if not edge else t("field.ph.edge_none", season=edge["season"]) if edge["n"] == 0
              else tn("field.ph.edge", edge["n"], ha=num(edge["ha"], 1), season=edge["season"]))
 edge_text += t("field.ph.evidence", x=num(abs(eff["adjacent_coef"]), 2), n=num(eff["n"])) if eff else ""
-ph_text = (t("field.ph.main", rank=of_ten(rank), near=num(nb["near_ha"]))
+ph_text = (t("field.ph.main", rank=of_ten(rank), near=num(nb["near_ha"]), km=num(FLIGHT_M / 1000, 1))
            + (t("field.ph.own_none") if own < 0.05 else t("field.ph.own_some", own=pct(own)))
            + edge_text
            + (t("field.ph.range", lo=t("plain.level." + lo), hi=t("plain.level." + hi)) if lo != hi else "")

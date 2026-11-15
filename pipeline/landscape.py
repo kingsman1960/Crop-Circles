@@ -78,7 +78,7 @@ def targeted(cur, xy, n_col, b_col):
     """Share of the pressure removed when the 20 % of the nursery area that removes most per ha switches."""
     nur, beet = cur[cur[n_col] > 0], cur[cur[b_col] > 0]
     res = {}
-    for r in (500, 1000, 2000):
+    for r in (250, 500, 1000):  # the flight distances offered in the app (data.FLIGHTS)
         imp, _ = impacts(xy.loc[nur.id].values.astype("float32"), nur[n_col].values.astype("float32"),
                          xy.loc[beet.id].values.astype("float32"), beet[b_col].values.astype("float32"), r)
         order = np.argsort(-imp / nur[n_col].values)  # most pressure removed per ha switched
@@ -210,12 +210,12 @@ def main(tag="bbox"):
         if "thuenen" in s:
             s["thuenen"] |= targeted(cur, xy, "nursery_ha_thuenen", "beet_ha_thuenen")
             s["thuenen"]["confirmed"] = round(float(cur.nursery_ha[cur.nursery_ha_thuenen > 0].sum() / cur.nursery_ha.sum()), 3)
-            thu = (f" | Thünen: nursery {s['thuenen']['nursery_ha']} ha, removes {s['thuenen']['targeted20_r1000']:.0%} at 1 km; "
+            thu = (f" | Thünen: nursery {s['thuenen']['nursery_ha']} ha, removes {s['thuenen']['targeted20_r500']:.0%} at 0.5 km; "
                    f"{s['thuenen']['confirmed']:.0%} of the declared nursery area confirmed")
         print(f"  season {s['season']} ({s['source']}): beet->wheat {s['beet_to_wheat']:.0%}, nursery {s['nursery_ha']} ha, "
-              f"20 % targeted removes {s['targeted20_r500']:.0%} / {s['targeted20_r1000']:.0%} / {s['targeted20_r2000']:.0%} "
-              f"(r = 0.5 / 1 / 2 km; random ~20 %) | DLR: nursery {s['dlr']['nursery_ha']} ha, removes "
-              f"{s['dlr']['targeted20_r1000']:.0%} at 1 km; {s['dlr']['confirmed']:.0%} of the nursery area confirmed{thu}")
+              f"20 % targeted removes {s['targeted20_r250']:.0%} / {s['targeted20_r500']:.0%} / {s['targeted20_r1000']:.0%} "
+              f"(r = 0.25 / 0.5 / 1 km; random ~20 %) | DLR: nursery {s['dlr']['nursery_ha']} ha, removes "
+              f"{s['dlr']['targeted20_r500']:.0%} at 0.5 km; {s['dlr']['confirmed']:.0%} of the nursery area confirmed{thu}")
     out(f"landscape_summary{sfx}.json").write_text(json.dumps(
         {"seasons": summary, "legends": legends() | ({"fiona": dict(sorted(FIONA_NAMES.items()))} if FIONA_NAMES else {})},
         indent=1, ensure_ascii=False), encoding="utf-8")

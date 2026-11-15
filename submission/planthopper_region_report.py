@@ -75,9 +75,8 @@ def main():
                               f"({ix['ndre']['per_season']['2024']['difference']:+.3f} NDRE), the smallest in 2025 ({ix['ndre']['per_season']['2025']['difference']:+.3f})."),
                    ("Flight distance", f"Fitting the decline as e^(−distance to the nearest nursery / r) with the same controls, the likelihood is highest "
                                        f"at r = {ix['ndre']['decay']['best_r_m']} m (profile band {ix['ndre']['decay']['r_band_m'][0]}–{ix['ndre']['decay']['r_band_m'][1]} m): "
-                                       f"the effect is local. The planner's default of 1 km is on the long side; its 0.5 km setting is closer to the data. "
-                                       f"Note that 250 m is the smallest value tried and the sample has no parcels between 50 and 200 m from a nursery, "
-                                       f"so the lower end of the band is not resolved."),
+                                       f"the effect is local: 50–100 m and 1 km or more fit clearly worse (the fit uses every declared beet parcel, "
+                                       f"so the whole distance range is covered). The planner now defaults to 0.5 km and offers 0.25 / 0.5 / 1 km."),
                    ("What this is and is not", "This is an exposure–symptom association at landscape scale: nurseries nearby, more yellowing later. It is "
                                                "consistent with the rotation rule and with the vector's biology. It is not a measured SBR infection or sugar "
                                                "loss: drought and Cercospora also yellow beet, the \"control\" parcels are still within the adults' reach "
@@ -92,8 +91,8 @@ def main():
                                "declared sugar beet in t−1 (parcel ids change between years; the match is the largest-overlap polygon). Per season: "
                                + "; ".join(f"{y}: {v.get('nursery_adjacent', 0):,} beet parcels next to a nursery, {v.get('control', 0):,} controls" for y, v in r["parcels"].items()) + "."),
                    ("Roles", "Nursery-adjacent: a beet parcel whose boundary is < 50 m from a nursery boundary. Control: < 50 m from control wheat "
-                             "(wheat not after beet) and ≥ 200 m from any nursery. Parcels in between are not in the sample. Distances are "
-                             "boundary-to-boundary in EPSG:25832."),
+                             "(wheat not after beet) and ≥ 200 m from any nursery. The adjacent-vs-control test uses these two groups; the decay "
+                             "fit uses every declared beet parcel. Distances are boundary-to-boundary in EPSG:25832."),
                    ("Satellite data", "HLS S30 v2.0 (Harmonized Landsat Sentinel-2, NASA LP DAAC), 30 m, Sentinel-2 only (its red-edge band). Bands "
                                       "B04 (red), B8A (NIR), B05 (red edge 1), B03 (green) and Fmask. The granules were found with the CMR search and "
                                       "read as cloud-optimised GeoTIFFs over HTTPS for the window that covers the parcels; only parcel statistics "
@@ -201,13 +200,13 @@ def main():
         fig, (a1, a2) = plt.subplots(1, 2, figsize=(11.69, 5.2), gridspec_kw={"width_ratios": [1, 1]})
         dd = d["ndre"].copy()
         dd["delta"] = dd.delta - dd.groupby("year").delta.transform("mean")  # season mean removed
-        bins = [0, 25, 50, 200, 400, 800, 1600, 3001]
+        bins = [0, 25, 50, 100, 200, 400, 800, 1600, 3001]
         dd["bin"] = pd.cut(dd.dist_to_source, bins, right=False)
         g = dd.groupby("bin", observed=True).delta.agg(["mean", "sem", "size"])
         x = np.arange(len(g))
         a1.bar(x, g["mean"], yerr=1.96 * g["sem"], color=[PINK if i < 2 else GREY for i in x], capsize=3)
         a1.set_xticks(x); a1.set_xticklabels([f"{int(b.left)}–{int(b.right)}\nn = {n}" for b, n in zip(g.index, g["size"])], fontsize=7.5)
-        a1.axhline(0, color="#999999", lw=0.8); a1.set_xlabel("distance to the nearest nursery boundary, m (no parcels sampled at 50–200 m)")
+        a1.axhline(0, color="#999999", lw=0.8); a1.set_xlabel("distance to the nearest nursery boundary, m")
         a1.set_ylabel("NDRE, late summer − June, season mean removed (mean, 95 % CI)"); a1.set_title("Figure 3a. The decline by distance to a nursery"); a1.grid(axis="y", alpha=0.3)
         for role, col, lab in (("control", GREY, "control"), ("nursery_adjacent", PINK, "next to a nursery")):
             s = parcels[parcels.role == role]
@@ -227,10 +226,10 @@ def main():
                    ("Spillover", "Adults fly; \"control\" parcels 200 m or more from a nursery are still exposed to some of them. The estimate "
                                  "is therefore the difference between heavy and lighter exposure, not between exposure and none, and is "
                                  "biased towards zero."),
-                   ("Distance resolution", "The sample contains no parcels between 50 and 200 m from a nursery, and 250 m is the shortest "
-                                           "flight distance tried. The profile says \"short\" (250–500 m beats 1–3 km clearly) but cannot "
-                                           "separate 100 m from 250 m. A follow-up with all beet parcels (not only the adjacent and the control "
-                                           "ones) would resolve it; the fetch script only needs the parcel filter relaxed."),
+                   ("Distance resolution", "The decay fit uses every declared beet parcel (adjacent, control and the ones in between) and r from "
+                                           "50 m to 3 km, so both ends of the profile are resolved: 50–100 m and 1 km or more are clearly worse than "
+                                           "250–500 m. The nearest nursery boundary is the only exposure measure; several nurseries around a parcel "
+                                           "are not added up here (the planner does that)."),
                    ("Mean reversion", "Parcels that are greener in June have more to lose by late summer. The nursery-adjacent parcels start "
                                       "June slightly greener (+0.01), so the June value is in every model; a non-linear June term did not "
                                       "change the sign in a check."),
@@ -240,7 +239,7 @@ def main():
                    ("Next", "1. Relax the parcel filter to every beet parcel and fit the decay on the full distance range. 2. Ask Südzucker / "
                             "the SBR task force for delivery data (sugar content) of a sample of these parcels. 3. Repeat with ECOSTRESS "
                             "evaporative stress as the outcome to separate water stress from disease. 4. Use the fitted flight distance "
-                            "(250–500 m) as the planner's default instead of 1 km, with the band as the slider range.")],
+                            "(250–500 m) is now the planner's default (0.5 km, slider 0.25 / 0.5 / 1 km).")],
                   subtitle="Crop Circles · region-wide planthopper edge test")
     print(f"wrote {OUT} ({OUT.stat().st_size / 1e6:.1f} MB)")
 

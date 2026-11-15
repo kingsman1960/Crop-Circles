@@ -6,7 +6,7 @@ import streamlit as st
 
 import accounts
 
-from data import (CROPS, GREY, HUE, INK, MODES, PALE, POS, chart, content, crop_group, crop_names, fields, footer, geojson,
+from data import (CROPS, FLIGHT_M, FLIGHTS, GREY, HUE, INK, MODES, PALE, POS, chart, content, crop_group, crop_names, fields, footer, geojson,
                   header, kpis, landscape, legend, neighbourhood, plan, planner_weights, priority_control, rgb, source_line, tip)
 from i18n import num, pct, t
 from plain import fraction, level, of_ten
@@ -28,7 +28,7 @@ with st.expander(t("region.expert.title")):
     a, b, c = st.columns([1.2, 1, 2])
     season = a.select_slider(t("region.expert.season"), list(stats), value=2025, key="ls_season", persist_state="session",
                              help=t("region.expert.season_help"))
-    r = b.select_slider(t("region.expert.distance"), [500, 1000, 2000], value=1000, key="ls_r", persist_state="session",
+    r = b.select_slider(t("region.expert.distance"), list(FLIGHTS), value=FLIGHT_M, key="ls_r", persist_state="session",
                         format_func=lambda v: f"{num(v / 1000, 1 if v % 1000 else 0)} km", help=tip("flight_distance"))
     mode = c.segmented_control(t("region.expert.mode"), MODES, default="balanced", required=True, key="ls_mode",
                                format_func=lambda m: t("region.mode." + m), persist_state="session", help=tip("coordination"))
@@ -222,12 +222,12 @@ with expert:
         st.html(f'<table class="cc-table"><thead><tr><th>{t("region.expert.col.mode")}</th>'
                 f'<th class="num">{t("region.expert.col.less")}</th><th class="num">{t("region.expert.col.eroded")}</th>'
                 f'</tr></thead><tbody>{rows}</tbody></table>')
-        o = [pct(s[f"targeted20_r{x}"]) for x in (500, 1000, 2000)]
+        o = [pct(s[f"targeted20_r{x}"]) for x in FLIGHTS]
         st.caption(t("region.expert.robust", a=o[0], b=o[1], c=o[2]))
         d = s["dlr"]
         st.caption(t("region.expert.dlr", src=src, season=season, ha=num(d["nursery_ha"]), thuenen=num(s["nursery_ha"]),
-                     conf=pct(d["confirmed"]), a=pct(d["targeted20_r500"]), b=pct(d["targeted20_r1000"]),
-                     c=pct(d["targeted20_r2000"])))
+                     conf=pct(d["confirmed"]), a=pct(d["targeted20_r250"]), b=pct(d["targeted20_r500"]),
+                     c=pct(d["targeted20_r1000"])))
     with b:
         curve = []
         for m, (n, _) in plans.items():

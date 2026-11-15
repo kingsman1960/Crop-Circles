@@ -239,6 +239,7 @@ def region_test():
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
+FLIGHT_M, FLIGHTS = 500, (250, 500, 1000)  # the planthopper's flight distance: 350 m fits the region test best (band 250-500 m)
 PH_LEVEL = lambda rank: "high" if rank >= 0.67 else "medium" if rank >= 0.33 else "low"  # rank among the region's beet
 
 
@@ -252,7 +253,7 @@ def ph_levels(fid, season):
     for src in ("", "_dlr", "_thuenen"):
         if f"nursery_ha{src}" not in seasons or not (seasons.loc[seasons.season == season, f"nursery_ha{src}"].fillna(0) > 0).any():
             continue
-        for r in (500, 1000, 2000):
+        for r in FLIGHTS:
             nur, beet = pressure(season, r, "bbox", src)
             total = (nur.nursery_ha * np.exp(-np.hypot(nur.x - fx, nur.y - fy) / r)).sum()
             out[(r, src)] = PH_LEVEL((beet.pressure < total).mean())
