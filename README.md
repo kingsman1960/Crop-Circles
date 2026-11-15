@@ -14,6 +14,19 @@ The planner weights every wheat-after-beet field ("nursery") by e^(−distance /
 
 Full report with tables and figures: [`submission/planthopper_region_report.pdf`](submission/planthopper_region_report.pdf) (regenerate with `python submission/planthopper_region_report.py`). The same charts are on the *How we know* page of the app under *How it is worked out*.
 
+## The crop planner: your own rotation, 2026–2030
+
+At the bottom of *What to grow*, a farmer plans the coming years on their own block instead of only picking one of the ready-made rotations.
+
+- **Shape the plots.** The map starts from the block's FIONA plots. *Cut* draws a line across plots, *Merge* joins touching plots (shift-click), *Undo* steps back. Geometry is worked out in metres (UTM 32N), so areas stay true; pieces under 0.05 ha are refused.
+- **Paint crops.** Six crops (sugar beet, winter wheat, barley, maize, peas, potatoes), each with its family and its climate fit for this field (FAO EcoCrop, adapted to south Germany, from the field's own weather and soil). While a crop is picked, every plot shows how it fits the rotation: red breaks a rule (for example beet back within two years: beet cyst nematodes), light red is possible with a risk, green is a good fit. Hover for the reason. A plot's history is the crops declared on its area in every FIONA year, so it stays right after a cut.
+- **Linked years.** One map per year, 2026–2030. Each year's plan is the history of the next, so plan the earlier year first.
+- **Neighbours.** The parcels around the block are drawn faded and dashed (view only), with the planthopper's flight range (0.5 km). In 2026 last season's beet parcels show as likely nurseries; later years are grey until someone shares a plan.
+- **Shared plans.** Each year's plan is saved to Supabase (`crop_plans`, created by `supabase_crop_plans.sql`). Other farmers' plans appear without names, as outlines and crops only, and replace the estimates in the planthopper pressure.
+- **Your plan against the best match.** Both are scored the same way, over the same three years on the same plots, on six criteria weighted by the priority sliders: keeping the soil, water in dry months, nitrogen, the planthopper, steady income and the rotation rules. A plot left unpainted in the first year counts as green fallow; an unpainted later year is filled in from the best match and marked *auto*. The page warns when land is unpainted and when fallow alone makes a plan look better than it is.
+
+Code: `app/planner.py` (the page section), `app/plot_editor/` (the editable map), `app/rotation.py` (rotation rules), `app/ecocrop.py` (climate fit), `app/neighbours.py` (the parcels around the block), `app/plans_store.py` (saved plans), `app/plan_metrics.py` (the comparison).
+
 ## Run
 
 Python 3.11+. The venv in `crop-circles-data-prep/crop-circles-data-prep/.venv` has everything; for a new one:
@@ -57,5 +70,5 @@ The picker and the smoke test find the new file on their own.
 | `crop-circles-data-prep/crop-circles-data-prep/` | raw data, fetch scripts, docs; `data/processed/` = app-ready files (committed, ~7 MB) |
 | `pipeline/` | `geo.py` soil, slope, crop maps, map layers · `phenology.py` crop calendar · `climate.py` weather, indicators, scenarios, soil moisture, NDVI · `strategies.py` rotation model and scores · `landscape.py` crop sequence of every parcel, nurseries · `pressure.py` the pressure maths (shared with the app) · `hls.py` HLS 30 m: what grows on each parcel this season, bare-soil months, NDVI / GNDVI / NDRE · `croptype.py` the probability model behind it (tested year by year against FIONA and Thünen) · `planthopper_region.py` the region-wide edge test and the flight-distance fit · `planthopper_edge_effect.py` the earlier demo-block version (preliminary) |
 | `content/` | strategy cards and rule scores, crop calendars and model parameters, indicator texts, risk-card texts (`plain.toml`), glossary, sources (TOML – edit without touching code) |
-| `app/` | Streamlit app for farmers first (PRD §3): `app.py` (theme, navigation), `i18n.py` (language, numbers, dates), `locales/` UI text per language, `data.py` (loaders, planner, ranking), `plain.py` (numbers into words), `views/` landing page, My field, What to grow, Our region, How we know; `assets/screens/` landing-page screenshots |
+| `app/` | Streamlit app for farmers first (PRD §3): `app.py` (theme, navigation), `i18n.py` (language, numbers, dates), `locales/` UI text per language, `data.py` (loaders, planner, ranking), `plain.py` (numbers into words), `views/` landing page, My field, What to grow, Our region, Neighbours, How we know; `planner.py`, `plot_editor/`, `rotation.py`, `ecocrop.py`, `neighbours.py`, `plans_store.py`, `plan_metrics.py` the crop planner; `accounts.py` sign-in and the feed (Supabase); `assets/screens/` landing-page screenshots |
 | `submission/` | SI-use log, demo material, the evidence report (`planthopper_region_report.pdf` and its script) |
