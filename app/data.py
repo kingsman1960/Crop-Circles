@@ -218,10 +218,13 @@ def landscape(scope="bbox"):
 
 
 @st.cache_data
-def pressure(season, r, scope="bbox"):
-    """Nurseries with their impact, beet parcels with their pressure, for one season and flight distance r (m)."""
+def pressure(season, r, scope="bbox", src=""):
+    """Nurseries with their impact, beet parcels with their pressure, for one season and flight distance r (m).
+    `src` picks the crop source: "" (the planner's), "_dlr" or "_thuenen"; nursery_ha / beet_ha then hold that source."""
     par, seasons, _ = landscape(scope)
     s = seasons[seasons.season == season]
+    if src:
+        s = s.assign(nursery_ha=s["nursery_ha" + src], beet_ha=s["beet_ha" + src]).dropna(subset=["nursery_ha", "beet_ha"])
     nur, beet = s[s.nursery_ha > 0].copy(), s[s.beet_ha > 0].copy()
     xy = lambda d: par.loc[d.id, ["x", "y"]].to_numpy("float32")
     nur["impact"], beet["pressure"] = impacts(xy(nur), nur.nursery_ha.to_numpy("float32"),
@@ -230,6 +233,33 @@ def pressure(season, r, scope="bbox"):
 
 
 @st.cache_data
+def region_test():
+    """The region-wide planthopper edge test (planthopper_effect/region_summary.json), or {} before it has run."""
+    p = PROC / "planthopper_effect" / "region_summary.json"
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+
+
+FLIGHT_M, FLIGHTS = 500, (250, 500, 1000)  # the planthopper's flight distance: 350 m fits the region test best (band 250-500 m)
+PH_LEVEL = lambda rank: "high" if rank >= 0.67 else "medium" if rank >= 0.33 else "low"  # rank among the region's beet
+
+
+@st.cache_data
+def ph_levels(fid, season):
+    """The planthopper level of a demo field for every flight distance (0.5 / 1 / 2 km) and crop source that has
+    the season (planner, DLR, Thünen): {(r, src): level}. Shows how much the level hangs on the unknowns."""
+    par, seasons, _ = landscape()
+    fx, fy = par.loc[par.field == fid, ["x", "y"]].mean()
+    out = {}
+    for src in ("", "_dlr", "_thuenen"):
+        if f"nursery_ha{src}" not in seasons or not (seasons.loc[seasons.season == season, f"nursery_ha{src}"].fillna(0) > 0).any():
+            continue
+        for r in FLIGHTS:
+            nur, beet = pressure(season, r, "bbox", src)
+            total = (nur.nursery_ha * np.exp(-np.hypot(nur.x - fx, nur.y - fy) / r)).sum()
+            out[(r, src)] = PH_LEVEL((beet.pressure < total).mean())
+    return out
+
+
 def parcel_geo(scope="bbox"):
     """Compact parcel outlines {"ids": [...], "geoms": [...]} (EPSG:4326, pipeline/landscape_geo.py), or empty while
     the pipeline has not written them yet: the region map falls back to dots for the parcels it does not cover."""

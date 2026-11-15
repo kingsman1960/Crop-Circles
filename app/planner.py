@@ -13,7 +13,7 @@ import rotation
 import ecocrop
 import engine
 import plans_store
-from data import CROPS, HUE, INK, geojson, landscape, legend
+from data import CROPS, FLIGHT_M, HUE, INK, geojson, landscape, legend
 from i18n import num, t
 from neighbours import collab_features, neighbour_context
 from plan_metrics import plan_metrics
@@ -93,7 +93,7 @@ def crop_planner(fid: str, p: dict, height: int = 620) -> None:
         return
     seasons = sorted(landscape()[1].season.unique())
     season = int(years[-1] if years[-1] in seasons else seasons[-1])
-    r = int(st.session_state.get("ls_r", 1000))  # the flight range set on the region page
+    r = int(st.session_state.get("ls_r", FLIGHT_M))  # the flight range set on the region page
     shared_ok = plans_store.available()
     plan_years = plans_store.plan_years()
     saved = plans_store.mine(fid, plan_years) if shared_ok else {}

@@ -58,12 +58,13 @@ DLR_BEET, DLR_WHEAT = 60, (11, 14)          # DLR v2.1: sugar beet; winter wheat
 YEARS = range(2020, 2026)
 STEP, CORE = 30, 15                         # grid spacing = the HLS pixel size; half a pixel inside the outline
 MAX_D = 3000                                # wheat further away than 3 km is no neighbour for an edge effect
-JUNE, LATE = ((6, 1), (6, 25)), ((8, 15), (9, 15))  # healthy canopy before SBR yellowing / peak of it
+JUNE, LATE = ((6, 1), (6, 25)), ((8, 15), (9, 10))  # healthy canopy before SBR yellowing / peak of it, before lifting
 MIN_OBS = 2                                 # a window counts from two clear pictures
 FORMULA = "delta_ndvi ~ log_source + log_control + ndvi_june + nfk_mm + ks + C(season)"
 
 
-NC_BEET, NC_WHEAT = "603", "115"            # FIONA declared codes: sugar beet, winter wheat
+NC_BEET = "603"                             # FIONA declared code: sugar beet
+NC_WHEAT = ("112", "114", "115", "118", "156")  # winter wheat incl. durum, spelt, emmer/einkorn, triticale (as landscape.py)
 
 # ---------- Step 1: parcel classification, 2020-2025 ----------
 def classify(lp):
@@ -214,7 +215,7 @@ def fiona_pools(years=YEARS):
         if y - 1 not in data:
             continue
         prev = data[y - 1]
-        wheat = data[y][data[y].nc == NC_WHEAT].reset_index(drop=True)
+        wheat = data[y][data[y].nc.isin(NC_WHEAT)].reset_index(drop=True)
         tree = STRtree(prev.geom.values)
         pairs = tree.query(wheat.geom.values, predicate="intersects")
         a = shapely.area(shapely.intersection(wheat.geom.values[pairs[0]], prev.geom.values[pairs[1]]))
@@ -347,10 +348,13 @@ def fit(dm):
     return dm, res, model
 
 
-def edge_test(dm):
-    """Source-vs-control wheat near the edge (< 50 m, Welch test on the mean adjusted canopy delta)."""
+def edge_test(dm, by_parcel=False):
+    """Source-vs-control wheat near the edge (< 50 m, Welch test on the mean adjusted canopy delta). The grid points of
+    one parcel share its NDVI, so `by_parcel` averages them per parcel and season first (the honest sample size)."""
     s = dm.adj_delta[dm.dist_to_source < 50]
     c = dm.adj_delta[dm.dist_to_control < 50]
+    if by_parcel:
+        s, c = (x.groupby([dm.id, dm.season]).mean() for x in (s, c))
     t = sstats.ttest_ind(s, c, equal_var=False)
     return {"source_adjacent_n": int(len(s)), "control_adjacent_n": int(len(c)),
             "mean_source_adjacent": round(float(s.mean()), 4) if len(s) else None,
@@ -447,6 +451,7 @@ def main():
     dm["ks"] = dm.ks.fillna(dm.ks.median())
     dm, res, model = fit(dm)
     model["edge_test"] = edge_test(dm)
+    model["edge_test_parcels"] = edge_test(dm, by_parcel=True)  # one value per parcel and season
     model["geometry_source"] = geom_src
     model["wind"] = wind_why or {"bearing_to_deg": wind[0], "mean_ms": wind[1]}
     model["wheat_pools"] = {y: {"declared": bool(pools.get(y)),
@@ -472,6 +477,7 @@ def main():
     with open(out("planthopper_effect/regression_summary.txt"), "w", encoding="utf-8") as f:
         f.write(res.summary().as_text() + "\n\nAdjacent-edge comparison (mean adjusted canopy delta, < 50 m):\n")
         f.write(f"  source adjacent vs control adjacent: {json.dumps(model['edge_test'])}\n")
+        f.write(f"  the same on parcel-season means: {json.dumps(model['edge_test_parcels'])}\n")
 
     curves_png(dm)
     n = edges_geojson(dm, meta, model["coef"]["log_source"]["coef"],

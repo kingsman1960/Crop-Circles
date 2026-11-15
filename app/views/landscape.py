@@ -6,7 +6,7 @@ import streamlit as st
 
 import accounts
 
-from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, PALE, chart, crop_group, crop_names, fields, footer, geojson,
+from data import (CROPS, FLIGHT_M, FLIGHTS, GREY, GREY_LIGHT, HUE, INK, PALE, chart, crop_group, crop_names, fields, footer, geojson,
                   header, kpis, landscape, legend, parcel_geo, partners, pressure, region_series, rgb, source_line,
                   tip)
 from i18n import num, pct, t
@@ -27,19 +27,19 @@ last_nur = seasons[(seasons.season == last) & (seasons.nursery_ha > 0)]
 title_row, numbers_row, trend_row, map_row = (st.container() for _ in range(4))
 st.space("medium")
 with st.expander(t("region.expert.title")):
-    r = st.select_slider(t("region.expert.distance"), [500, 1000, 2000], value=1000, key="ls_r", persist_state="session",
+    r = st.select_slider(t("region.expert.distance"), list(FLIGHTS), value=FLIGHT_M, key="ls_r", persist_state="session",
                          format_func=lambda v: f"{num(v / 1000, 1 if v % 1000 else 0)} km", help=tip("flight_distance"))
-    o = [pct(stats[last][f"targeted20_r{x}"]) for x in (500, 1000, 2000)]
+    o = [pct(stats[last][f"targeted20_r{x}"]) for x in FLIGHTS]
     st.markdown(t("region.expert.robust", a=o[0], b=o[1], c=o[2]))
     d = stats[last]["dlr"]
     st.markdown(t("region.expert.dlr", season=last, ha=num(d["nursery_ha"]), thuenen=num(stats[last]["nursery_ha"]),
-                  conf=pct(d["confirmed"]), a=pct(d["targeted20_r500"]), b=pct(d["targeted20_r1000"]),
-                  c=pct(d["targeted20_r2000"])))
+                  conf=pct(d["confirmed"]), a=pct(d[f"targeted20_r{FLIGHTS[0]}"]), b=pct(d[f"targeted20_r{FLIGHTS[1]}"]),
+                  c=pct(d[f"targeted20_r{FLIGHTS[2]}"])))
     st.markdown(t("region.expert.method", season=last,
                   status=t("region.expert.preliminary") if stats[last]["map"] == "v302 preliminary" else t("region.expert.final")))
 
 trend, acc = region_series(scope, r)
-trend["potential"] = trend.pressure * pd.Series({y: stats[y]["targeted20_r1000"] for y in trend.index})
+trend["potential"] = trend.pressure * pd.Series({y: stats[y][f"targeted20_r{FLIGHT_M}"] for y in trend.index})
 change = 1 - trend.per_100_ha.iloc[-1] / trend.per_100_ha.iloc[0]
 
 with title_row:
@@ -56,7 +56,7 @@ with numbers_row:
          None, tip("nursery")),
         (t("region.kpi.trend"), ("−" if change > 0 else "+") + pct(abs(change)), None,
          t("region.kpi.trend_note", start=first), "good" if change > 0 else None, tip("pressure")),
-        (t("region.kpi.potential"), pct(stats[last]["targeted20_r1000"]), None, t("region.kpi.potential_note"),
+        (t("region.kpi.potential"), pct(stats[last][f"targeted20_r{FLIGHT_M}"]), None, t("region.kpi.potential_note"),
          None, tip("coordination")),
     ])
 

@@ -39,6 +39,7 @@ dlr_path = lambda y, tag: RAW / "dlr_croptypes" / f"CROPTYPES_DE_P1Y_{y}_V021_{t
 # FIONA NC codes: sugar beet; winter wheat incl. durum, spelt, emmer/einkorn, triticale (the scope of DLR 11 + 14)
 FIONA_BEET, FIONA_WHEAT = 603, (112, 114, 115, 118, 156)
 fiona_pages = lambda y, tag: sorted((RAW / "fiona").glob(f"fiona_{tag}{'' if y == 2022 else f'_{y}'}_p*.json"))
+FIONA_NAMES = {}  # NC code -> Bezeichnung, filled by fiona_raster (newest year wins)
 AREA = ["nursery_ha", "beet_ha", "nursery_ha_dlr", "beet_ha_dlr", "nursery_ha_thuenen", "beet_ha_thuenen"]
 MIN_HA = 0.1  # less than 10 pixels in a parcel = edge noise between map and parcel outline
 NFK_MID = {1: 35, 2: 70, 3: 115, 4: 170, 5: 220}  # mm, middle of the BK50 nFK classes
@@ -68,6 +69,7 @@ def majority(ids, a, n):
 def fiona_raster(y, tag, shp, transform):
     """Declared crop (NC code) per pixel of the Thünen grid from the FIONA polygons of Antragsjahr y."""
     feats = [f for p in fiona_pages(y, tag) for f in json.loads(p.read_text(encoding="utf-8"))["features"]]
+    FIONA_NAMES.update((int(f["properties"]["NC"]), f["properties"]["Bezeichnung"]) for f in feats)
     g = geo.reproj(np.array([shape(f["geometry"]) for f in feats], dtype=object), 25832, 3035)
     return features.rasterize(zip(g, (int(f["properties"]["NC"]) for f in feats)), shp, transform=transform, fill=0,
                               dtype="int16")
@@ -77,7 +79,7 @@ def targeted(cur, xy, n_col, b_col):
     """Share of the pressure removed when the 20 % of the nursery area that removes most per ha switches."""
     nur, beet = cur[cur[n_col] > 0], cur[cur[b_col] > 0]
     res = {}
-    for r in (500, 1000, 2000):
+    for r in (250, 500, 1000):  # the flight distances offered in the app (data.FLIGHTS)
         imp, _ = impacts(xy.loc[nur.id].values.astype("float32"), nur[n_col].values.astype("float32"),
                          xy.loc[beet.id].values.astype("float32"), beet[b_col].values.astype("float32"), r)
         order = np.argsort(-imp / nur[n_col].values)  # most pressure removed per ha switched
@@ -211,14 +213,15 @@ def main(tag="bbox"):
         if "thuenen" in s:
             s["thuenen"] |= targeted(cur, xy, "nursery_ha_thuenen", "beet_ha_thuenen")
             s["thuenen"]["confirmed"] = round(float(cur.nursery_ha[cur.nursery_ha_thuenen > 0].sum() / cur.nursery_ha.sum()), 3)
-            thu = (f" | Thünen: nursery {s['thuenen']['nursery_ha']} ha, removes {s['thuenen']['targeted20_r1000']:.0%} at 1 km; "
+            thu = (f" | Thünen: nursery {s['thuenen']['nursery_ha']} ha, removes {s['thuenen']['targeted20_r500']:.0%} at 0.5 km; "
                    f"{s['thuenen']['confirmed']:.0%} of the declared nursery area confirmed")
         print(f"  season {s['season']} ({s['source']}): beet->wheat {s['beet_to_wheat']:.0%}, nursery {s['nursery_ha']} ha, "
-              f"20 % targeted removes {s['targeted20_r500']:.0%} / {s['targeted20_r1000']:.0%} / {s['targeted20_r2000']:.0%} "
-              f"(r = 0.5 / 1 / 2 km; random ~20 %) | DLR: nursery {s['dlr']['nursery_ha']} ha, removes "
-              f"{s['dlr']['targeted20_r1000']:.0%} at 1 km; {s['dlr']['confirmed']:.0%} of the nursery area confirmed{thu}")
+              f"20 % targeted removes {s['targeted20_r250']:.0%} / {s['targeted20_r500']:.0%} / {s['targeted20_r1000']:.0%} "
+              f"(r = 0.25 / 0.5 / 1 km; random ~20 %) | DLR: nursery {s['dlr']['nursery_ha']} ha, removes "
+              f"{s['dlr']['targeted20_r500']:.0%} at 0.5 km; {s['dlr']['confirmed']:.0%} of the nursery area confirmed{thu}")
     out(f"landscape_summary{sfx}.json").write_text(json.dumps(
-        {"seasons": summary, "legends": legends()}, indent=1, ensure_ascii=False), encoding="utf-8")
+        {"seasons": summary, "legends": legends() | ({"fiona": dict(sorted(FIONA_NAMES.items()))} if FIONA_NAMES else {})},
+        indent=1, ensure_ascii=False), encoding="utf-8")
 
 
 if __name__ == "__main__":

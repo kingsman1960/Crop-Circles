@@ -9,7 +9,7 @@ from __future__ import annotations
 import streamlit as st
 
 import engine
-from data import model_note
+from data import FLIGHT_M, model_note
 from i18n import num
 from plain import compare, dots
 
@@ -87,7 +87,7 @@ def plan_metrics(fid: str, p: dict, features: list[dict], year: int, lang: str =
     if fallow >= 0.05 and oc >= ob:
         st.warning(tx["fallow_wins"].format(a=a), icon=":material/warning:")
     _sequences(features, res, tx, a, b, lang)
-    st.caption(tx["method"].format(a=a, b=b, km=num(st.session_state.get("ls_r", 1000) / 1000, 1),
+    st.caption(tx["method"].format(a=a, b=b, km=num(st.session_state.get("ls_r", FLIGHT_M) / 1000, 1),
                                    painted=num(painted, 1), total=num(total, 1))
                + (" " + tx["shared"].format(n=res["collab_plots"]) if res.get("collab_plots") else ""))
 

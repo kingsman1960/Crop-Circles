@@ -82,7 +82,7 @@ text = "Wie viel Kinderstuben-Fläche in Flugweite eines Rübenschlags liegt, n�
 
 [flight_distance]
 term = "Flugweite"
-text = "Wie weit die erwachsenen Zikaden typischerweise von einer Kinderstube zu Rübenschlägen fliegen. Unsere Quellen nennen keine Zahl, deshalb können Sie 0,5, 1 oder 2 km einstellen; die Reihenfolge der Äcker ändert sich dabei kaum."
+text = "Wie weit die erwachsenen Zikaden typischerweise von einer Kinderstube zu Rübenschlägen fliegen. Unsere Quellen nennen keine Zahl; auf 3.476 Rübenschlag-Saisons 2023–2025 passt der Spätsommer-Rückgang neben Kinderstuben am besten zu 350 m (250–500 m), deshalb sind 0,5 km voreingestellt. Sie können 0,25, 0,5 oder 1 km einstellen; die Reihenfolge der Äcker ändert sich dabei kaum."
 
 [coordination]
 term = "Abgestimmter Fruchtwechsel"

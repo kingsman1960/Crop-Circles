@@ -44,8 +44,25 @@ def show(p, pane):
         tag = f'<span class="cc-note">{t("community.role." + role)}</span>'
         kind = f' · <b class="cc-level {"high" if p["kind"] == "alert" else "low"}">{t("community.kind." + p["kind"])}</b>' if p["kind"] != "note" else ""
         where = f' · {t("community.about", id=p["field"])}' if p["field"] else ""
-        st.html(f'<p style="margin:0 0 4px"><b>{name}</b> {tag}{kind}{where}<span class="cc-note"> · {when(p["created"])}</span></p>'
-                f'<p style="margin:0 0 8px">{p["text"]}</p>')
+        st.html(f'<p style="margin:0 0 4px"><b>{name}</b> {tag}{kind}{where}<span class="cc-note"> · {when(p["created"])}</span></p>')
+        own = p["author"] == u["name"]
+        if own and st.session_state.get(f"edit_{p['id']}"):  # the author rewrites the text in place
+            with st.form(f"edit_{pane}_{p['id']}", border=False):
+                text = st.text_area(t("community.text"), value=p["text"], key=f"edit_text_{pane}_{p['id']}", height=90,
+                                    label_visibility="collapsed")
+                a, b = st.columns([1, 1])
+                if a.form_submit_button(t("community.save"), type="primary", width="stretch") and text.strip():
+                    accounts.update_post(p["id"], text)
+                    st.session_state[f"edit_{p['id']}"] = False
+                    st.rerun()
+                if b.form_submit_button(t("community.cancel"), width="stretch"):
+                    st.session_state[f"edit_{p['id']}"] = False
+                    st.rerun()
+        else:
+            st.html(f'<p style="margin:0 0 8px">{p["text"]}</p>')
+            if own and st.button(t("community.edit"), key=f"edit_btn_{pane}_{p['id']}"):
+                st.session_state[f"edit_{p['id']}"] = True
+                st.rerun()
         if p["field"] and p["field"] in mine:  # a link to the field page, only for accounts that may open it
             st.page_link("views/field.py", label=t("community.open", id=p["field"]), query_params={"field": p["field"], "lang": lang()})
         for r in p["replies"]:
@@ -107,5 +124,5 @@ if u["role"] == "admin":
                        f'<td>{a["fields"] or "–"}</td><td>{a["posts"]}</td></tr>' for a in accounts.accounts())
         st.html(f'<table class="cc-table"><thead><tr><th>{t("community.col.account")}</th><th>{t("community.col.role")}</th>'
                 f'<th>{t("community.col.fields")}</th><th>{t("community.col.posts")}</th></tr></thead><tbody>{rows}</tbody></table>')
-        st.caption(t("community.accounts_note", path=str(accounts.DB)))
+        st.caption(t("community.accounts_note", path=st.secrets["SUPABASE_URL"]))
 footer()

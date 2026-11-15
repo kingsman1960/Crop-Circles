@@ -134,6 +134,15 @@ Paths are relative to this folder (`crop-circles-data-prep/`). Download provenan
 - Box: field bbox, at least 1 km per side, + 60 m. Native UTM 32N, 30 m.
 - Reflectance scale 0.0001. NDVI: L30 (B05 − B04)/(B05 + B04), S30 (B8A − B04)/(B8A + B04). Mask cloud, cloud shadow, adjacent, snow and water with `Fmask` bits (see HLS v2.0 user guide).
 - 12,399 files (60 MB); per field ~440 L30 and 840–970 S30 scenes, 2019-01-02 → 2026-11-01. Names: `<product>_<band>_doy<YYYYDDD>_aid0001_32N.tif`.
+- Added 2026-11-15 (`appeears_<chunk>_gre/`, separate AppEEARS tasks): L30 `B03` (green), S30 `B03` (green) and `B05` (red edge 1), for GNDVI = (NIR − green)/(NIR + green) and NDRE = (NIR − red edge)/(NIR + red edge); NDRE exists for S30 pictures only (L30 has no red-edge band; its B05 is NIR). `hls_series` / `ndvi_hls` carry `gndvi` and `ndre` columns; `croptype.py` uses all three indices (leave-one-year-out log loss 0.274 → 0.258, accuracy 89 % either way).
+
+## 10b · hls_region (added 2026-11-14)
+
+- `prep/fetch_hls_region.py` – no AppEEARS: CMR granule search + the HLS S30 v2.0 band COGs read over HTTPS straight from LP DAAC (Earthdata login from `~/.netrc`), only the window that covers the parcels; nothing but parcel statistics is stored.
+- Parcels: every declared sugar-beet parcel (FIONA, NC 603) of 2023–2025 that lies < 50 m from a nursery (wheat after beet) or < 50 m from control wheat and ≥ 200 m from any nursery (about 1,700 per season). `data/raw/hls_region/parcels_<year>.parquet`: id, role, area, distances.
+- `data/raw/hls_region/series_<year>.parquet`: per parcel and clear picture in the June 1–25 and Aug 15–Sep 10 windows: NDVI, GNDVI, NDRE (S30 bands B04, B8A, B03, B05, Fmask), clear pixels, granule. Same rules as `pipeline/hls.py` (pure pixels, ≥ 4 pixels, 60 % clear); granules with > 70 % cloud skipped.
+- Test: `pipeline/planthopper_region.py` → `data/processed/planthopper_effect/region_summary.json`.
+- Licence: NASA open data; Masek et al., HLS v2.0, NASA LP DAAC.
 
 ## 11 · reference
 

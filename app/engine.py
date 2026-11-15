@@ -32,7 +32,7 @@ import pandas as pd
 import streamlit as st
 
 import rotation
-from data import content, crop_group, fields, geojson, landscape, pressure, strategies, table
+from data import FLIGHT_M, content, crop_group, fields, geojson, landscape, pressure, strategies, table
 from i18n import lang as _lang_tag
 from pipeline import strategies as model
 from pipeline.pressure import impacts
@@ -521,7 +521,7 @@ def _setting(fid):
     years = base_plots(fid)[1]
     seasons = sorted(landscape()[1].season.unique())
     season = years[-1] if years[-1] in seasons else int(seasons[-1])
-    return int(season), int(st.session_state.get("ls_r", 1000))
+    return int(season), int(st.session_state.get("ls_r", FLIGHT_M))
 
 
 @st.cache_data(show_spinner="Scoring the options on your plots…")

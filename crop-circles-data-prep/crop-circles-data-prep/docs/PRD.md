@@ -59,7 +59,7 @@ Goals
 - G5 Show that coordinated, targeted switching removes more planthopper pressure than the same effort spent at random, and which crop fits each switched field.
 
 Non-goals
-- No yield or profit prediction. No prescriptive advice ("you must"). No pest forecasting model: the planner applies the published rotation rule (no wheat after beet) in space, it does not predict infestation.
+- No yield or profit prediction. No prescriptive advice ("you must"). No pest forecasting model: the planner applies the published rotation rule (no wheat after beet) in space, it does not predict infestation (the rule's landscape-scale footprint was checked on 3,476 beet parcel-seasons, see §13).
 - Accounts are demo accounts (one farmer per demo field, advisor, office, administrator; `app/accounts.py`); no self-registration, no farmer data upload beyond adding FIONA parcels from the region map.
 - No coverage beyond the Kraichgau bbox.
 
@@ -81,7 +81,7 @@ Non-goals
 ## 6. Features
 
 P0 – must have for the demo
-0. **Landscape planner**: nurseries (winter wheat on last year's beet) per FIONA parcel from the Thünen maps 2017–2025; pressure on every beet parcel (Σ nursery ha × e^(−d / r), r = flight distance 0.5–2 km as a setting); a ranked list of nurseries to switch, each with the crop that replaces the wheat (maize, soybean or pea, by erosion, water and income side effects); targeted vs. random comparison; CSV export; the pressure on F1–F3 before and after.
+0. **Landscape planner**: nurseries (winter wheat on last year's beet) per FIONA parcel from the Thünen maps 2017–2025; pressure on every beet parcel (Σ nursery ha × e^(−d / r), r = flight distance, default 0.5 km from the region test, 0.25 / 0.5 / 1 km as a setting); a ranked list of nurseries to switch, each with the crop that replaces the wheat (maize, soybean or pea, by erosion, water and income side effects); targeted vs. random comparison; CSV export; the pressure on F1–F3 before and after.
 1. **Field picker**: map of the Kraichgau with F1–F3 (and context layers); click a field → field page.
 2. **Field profile**: soil (BK50 unit, K factor, nFK; SoilGrids texture/SOC/pH), slope from DEM, crop history (Thünen 2017–2025 composition inside the block, FIONA 2022 parcels).
 3. **Conditions timeline**: per year and season – heat days, frost after emergence, dry spells, heavy-rain days, climatic water balance, soil-moisture anomaly; long-term trend line (1981 →).
@@ -182,6 +182,6 @@ Each card states what the data shows for *this* field (e.g. "F1: 3 of 5 recent M
 | No price / contract data | list as information gap on every card; user slider for income weight only |
 | Challenge resources (13 Nov) may add required datasets | review on 13 Nov, update this PRD |
 | Judging criteria unknown until 13 Nov | re-check §12 against the Judging and Awards Guide |
-| Planthopper flight distance not in our sources | a setting (0.5 / 1 / 2 km); results shown for each – the ranking barely changes |
-| Planner not validated against SBR / Stolbur incidence | call it a relative pressure screening; ask LIZ / ISIP for monitoring data |
-| FIONA parcel outlines only for 2022; Thünen 2025 preliminary; 2023 beet area about half of other years in the map | stated on the planner; re-run when newer maps or parcels appear |
+| Planthopper flight distance not in our sources | measured 2026-11-15: the late-summer decline of 3,476 beet parcel-seasons next to nurseries fits e^(−d/r) best at r = 250–350 m; default 0.5 km, setting 0.25 / 0.5 / 1 km – the ranking barely changes |
+| Planner not validated against SBR / Stolbur incidence | still no incidence data; but beet next to a nursery loses more canopy by late summer than beet next to other wheat (NDRE −0.03, p < 0.001, `submission/planthopper_region_report.pdf`) – call it a relative pressure screening with a landscape-scale check; ask LIZ / ISIP for monitoring data |
+| FIONA parcel outlines only for 2022 (declarations 2023–2025 fetched 2026-11-14 and used for those seasons); Thünen 2025 preliminary; Thünen 2024 finds 2,378 ha of nurseries where farmers declared 3,889 | stated on the planner; the declarations are the source for 2023–2025 |

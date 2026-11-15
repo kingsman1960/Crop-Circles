@@ -296,6 +296,11 @@ def accounts():
     return [u | {"fields": " ".join(fields.get(u["name"], [])), "posts": counts.get(u["name"], 0)} for u in users]
 
 
+def update_post(post_id, text):
+    """Rewrite a post's text. Author only: the author filter makes the request a no-op for anyone else."""
+    _db().table("posts").update({"text": text.strip()}).eq("id", post_id).eq("author", user()["name"]).execute()
+
+
 def delete_post(post_id):
     """Remove a post; its replies go with it (on delete cascade). Administrator only; the page checks the role."""
     _db().table("posts").delete().eq("id", post_id).execute()

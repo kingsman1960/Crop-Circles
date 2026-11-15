@@ -49,6 +49,7 @@ file_path,dataset_id,source,product_version,query_or_url,spatial,temporal,downlo
 | 16 | c3s_sm | added (auxiliary) | C3S/CDS soil moisture (CCI algorithm), daily, 2025 → latest | ~1 GB (global zips) |
 | 12b | fiona_wms | added 2026-11-05 | FIONA 2023–2025 around the demo fields (WMS GetFeatureInfo) | < 1 MB |
 | 17 | dlr_croptypes | added 2026-11-05 | DLR CropTypes v2.1 10 m crop maps 2017–2025, clipped | ~15 MB |
+| 10b | hls_region | added 2026-11-14 | HLS S30 indices of ~5,000 beet parcel-seasons next to nursery / control wheat, 2023–2025, read straight from the LP DAAC COGs (no AppEEARS) | < 5 MB on disk, ~40 min |
 | 12–14, 17, 7 | `--bw` | added 2026-11-09 | the same fetchers for all of Baden-Württemberg (*Our region*, BW switch); BK50: only the kfa, nfk, kf tables | ~4 GB, 1–2 h (approved 2026-11-09) |
 
 Stop after each dataset and report: files, row counts, date range, missing values.

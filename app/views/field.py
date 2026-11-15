@@ -6,11 +6,11 @@ import streamlit as st
 
 import accounts
 import copilot
-from data import (CROPS, GREY, GREY_LIGHT, HUE, INK, POS, chart, content, crop_group, crop_names, crop_scale, field_picker,
-                  from_space, geojson, layer, neighbourhood, plan, planner_weights, pressure, rank_options, rgb,
-                  strategies, table, takeaway, tip)
+from data import (CROPS, FLIGHT_M, GREY, GREY_LIGHT, HUE, INK, PH_LEVEL, POS, chart, content, crop_group, crop_names, crop_scale,
+                  field_picker, from_space, geojson, layer, neighbourhood, ph_levels, plan, planner_weights, pressure, rank_options,
+                  region_test, rgb, strategies, table, takeaway, tip)
 from i18n import day, listing, months, num, pct, t, tn
-from plain import fraction, of_ten, weeks
+from plain import ci_ten, fraction, of_ten, weeks
 from ui import footer, header, kpis, legend, level, source_line, ten
 
 SOURCES = ("POWER", "IMERG", "DWD")
@@ -56,8 +56,10 @@ title, sub = t("field.title", id=fid, place=place), t("field.sub", ha=num(p["are
 side = header(title, sub, step=1)
 if accounts.my_parcels():  # parcels this farmer added from the region map: their crop history now, the rest later
     from data import landscape
-    par = landscape()[0]
+    par, _, summary = landscape()
     de = crop_names("de")
+    fiona = {int(k): v for k, v in summary["legends"].get("fiona", {}).items()}  # NC code -> declared crop (German)
+    declared = lambda r, y: fiona.get(int(r[f"f{y}"])) if f"f{y}" in r and r[f"f{y}"] > 0 else None
     with st.container(key="card_parcels"):
         st.markdown(t("field.parcels.title", n=len(accounts.my_parcels())))
         rows = ""
@@ -65,36 +67,46 @@ if accounts.my_parcels():  # parcels this farmer added from the region map: thei
             if pid not in par.index:
                 continue
             r = par.loc[pid]
-            chips = "".join(f'<span class="cc-chip" style="--c:{CROPS[crop_group(de.get(int(r[f"c{y}"]), ""))]}">'
-                            f'<i>{y}</i>{names.get(int(r[f"c{y}"]), "–")}</span>' for y in range(2020, 2026))
+            chips = "".join(f'<span class="cc-chip" style="--c:{CROPS[crop_group(declared(r, y) or de.get(int(r[f"c{y}"]), ""))]}">'
+                            f'<i>{y}</i>{declared(r, y) or names.get(int(r[f"c{y}"]), "–")}</span>' for y in range(2020, 2026))
             rows += f'<tr><td><b>{pid}</b><span class="g">{num(r.area_ha, 1)} ha</span></td><td><div class="cc-chips">{chips}</div></td></tr>'
         st.html(f'<table class="cc-table"><tbody>{rows}</tbody></table>')
         st.caption(t("field.parcels.note"))
 report = []  # (heading, paragraphs) for the take-away page
 
 # --- the four risks, in words ------------------------------------------------
-nur, beet = plan(2025, 1000, 0.2, "balanced", planner_weights())
-nb = neighbourhood(fid, nur, 1000)
-rank = (pressure(2025, 1000)[1].pressure < nb["total"]).mean()
-ph_level = "high" if rank >= 0.67 else "medium" if rank >= 0.33 else "low"
+nur, beet = plan(2025, FLIGHT_M, 0.2, "balanced", planner_weights())
+nb = neighbourhood(fid, nur, FLIGHT_M)
+rank = (pressure(2025, FLIGHT_M)[1].pressure < nb["total"]).mean()
+ph_level = PH_LEVEL(rank)
+levels = set(ph_levels(fid, 2025).values())
+order = ["low", "medium", "high"]
+lo, hi = min(levels, key=order.index), max(levels, key=order.index)
 own = nb["own"] / max(nb["total"], 1e-9)
-ph_text = (t("field.ph.main", rank=of_ten(rank), near=num(nb["near_ha"]))
+rt = region_test()  # the region-wide test: nurseries touching this block, and what that meant for beet across the region
+edge, eff = rt.get("demo_fields", {}).get(fid), rt.get("index", {}).get("ndre")
+edge_text = ("" if not edge else t("field.ph.edge_none", season=edge["season"]) if edge["n"] == 0
+             else tn("field.ph.edge", edge["n"], ha=num(edge["ha"], 1), season=edge["season"]))
+edge_text += t("field.ph.evidence", x=num(abs(eff["adjacent_coef"]), 2), n=num(eff["n"])) if eff else ""
+ph_text = (t("field.ph.main", rank=of_ten(rank), near=num(nb["near_ha"]), km=num(FLIGHT_M / 1000, 1))
            + (t("field.ph.own_none") if own < 0.05 else t("field.ph.own_some", own=pct(own)))
+           + edge_text
+           + (t("field.ph.range", lo=t("plain.level." + lo), hi=t("plain.level." + hi)) if lo != hi else "")
            + t("field.ph.switch", fraction=fraction(1 - nb["after"] / max(nb["total"], 1e-9))))
 slope = p["slope_mean_pct"]
-er_text = t("field.erosion", slope=num(slope), drop=num(slope), n=facts["open_rows_rain"]["n"])
+er_text = t("field.erosion", slope=num(slope), drop=num(slope), n=facts["open_rows_rain"]["n"]) + ci_ten(facts["open_rows_rain"]["n"])
 
 june_use = daily[daily.date.dt.month == 6].et0_power.mean() * 1.1  # a closed crop in June uses about 1.1 x ET0 (FAO-56)
 store = p.get("nfk_mid_mm") or 140
 n_dry = facts["summer_dry"]["n"]
 dry_level = "high" if n_dry >= 5 else "medium" if n_dry >= 3 else "low"
-dry_text = t("field.dry", store=num(store), weeks=weeks(store / june_use), n=n_dry, cwb=num(facts["summer_dry"]["cwb"]))
+dry_text = t("field.dry", store=num(store), weeks=weeks(store / june_use), n=n_dry, cwb=num(facts["summer_dry"]["cwb"])) + ci_ten(n_dry)
 
 hot = ind[(ind.source == "DWD") & (ind.indicator == "heat_days")]
 hot_now, hot_then = hot[hot.year.between(*RECENT)].value.mean(), hot[hot.year.between(*EARLY)].value.mean()
 n_heat = facts["heat_heading"]["n"]
-heat_level = "high" if n_heat >= 6 else "medium" if n_heat >= 3 else "low"
-heat_text = t("field.heat", now=num(hot_now), then=num(hot_then), station=facts["heat_heading"]["station"], n=n_heat)
+heat_level = "high" if n_heat >= 8 else "medium" if n_heat >= 5 else "low"  # >= 6 was "high" for every field-year 2011-2025
+heat_text = t("field.heat", now=num(hot_now), then=num(hot_then), station=facts["heat_heading"]["station"], n=n_heat) + ci_ten(n_heat)
 
 cards = [("planthopper", ph_level, ph_text, rank * 10), ("erosion", p["erosion_class"], er_text, facts["open_rows_rain"]["n"]),
          ("dry", dry_level, dry_text, n_dry), ("heat", heat_level, heat_text, n_heat)]
@@ -232,16 +244,22 @@ else:
     ser = ser[(ser.field == fid) & (ser.date >= pd.Timestamp(before, 8, 1))]
     ser = ser.assign(status=ser.id.map({f["properties"]["id"]: f["properties"]["status"] for f in feats}))
     keys = [k for k in ("nursery", "switched", "beet_now") if k in shown]
-    curve = ser[ser.status.isin(keys)].groupby(["status", "date"]).ndvi.median().reset_index()
-    curve["what"] = curve.status.map(label)
     st.markdown(f"**{t('field.space.curves')}**  \n{t('field.space.curves_note')}")
+    index = "ndvi"
+    if "ndre" in ser and ser.ndre.notna().any():  # the red-edge index exists once the Sentinel-2 red-edge band is in
+        index = st.segmented_control(t("field.space.index"), ["ndvi", "ndre"], default="ndvi", required=True, key="space_index",
+                                     format_func=lambda k: t("field.space." + k), persist_state="session", width="content",
+                                     help=t("field.space.index_help"))
+    green = t("field.space.green") if index == "ndvi" else t("field.space.green_ndre")
+    curve = ser[ser.status.isin(keys)].dropna(subset=[index]).groupby(["status", "date"])[index].median().reset_index()
+    curve["what"] = curve.status.map(label)
     newest = alt.Chart(pd.DataFrame({"date": [pd.Timestamp(sp["last"])], "label": [t("field.space.newest")]}))
     chart(alt.Chart(curve).mark_line(point=alt.OverlayMarkDef(size=18), strokeWidth=2).encode(
-        x=alt.X("date:T", title=None), y=alt.Y("ndvi:Q", title=t("field.space.green"), scale=alt.Scale(domain=[0, 1])),
+        x=alt.X("date:T", title=None), y=alt.Y(f"{index}:Q", title=green, scale=alt.Scale(domain=[0, 1])),
         color=alt.Color("what:N", scale=alt.Scale(domain=[label[k] for k in keys], range=[(colour | {"nursery": "#c98500"})[k] for k in keys]),
                         legend=alt.Legend(orient="top", title=None, labelLimit=400)),
         tooltip=[alt.Tooltip("date:T", format="%d %b %Y", title=t("field.space.date")), "what:N",
-                 alt.Tooltip("ndvi:Q", format=".2f", title=t("field.space.green"))])
+                 alt.Tooltip(f"{index}:Q", format=".2f", title=green)])
           + newest.mark_rule(color=GREY, strokeDash=[3, 3]).encode(x="date:T")
           + newest.mark_text(align="right", baseline="top", dx=-4, dy=2, color=GREY, fontSize=12).encode(x="date:T", y=alt.value(0), text="label:N"),
           width="stretch", height=220)

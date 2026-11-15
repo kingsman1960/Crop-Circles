@@ -31,6 +31,15 @@ def dots(score):
             + '<i class="on"></i>' * n + "<i></i>" * (5 - n) + "</span>")
 
 
+def ci_ten(n, years=10):
+    """Wilson 95 % interval of n events in `years` years, as " (long-run: 4–9 of 10)"."""
+    import math
+    z, p = 1.96, n / years
+    c = (p + z * z / (2 * years)) / (1 + z * z / years)
+    h = z * math.sqrt(p * (1 - p) / years + z * z / (4 * years * years)) / (1 + z * z / years)
+    return t("field.ci_ten", lo=round((c - h) * 10), hi=round((c + h) * 10))
+
+
 def ten(n):
     """'7 of the last 10 years' as ten dots, next to the level."""
     n = int(round(n))
